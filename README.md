@@ -1,3 +1,6 @@
+## Food roder app dragon eats
+## Deployed 35% of project on render.com: https://dragoneats-foodorderapp-frontend.onrender.com
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
