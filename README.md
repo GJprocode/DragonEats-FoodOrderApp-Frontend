@@ -1,4 +1,4 @@
-## Food roder app dragon eats
+## Food roder app DragonEats.com
 ## Deployed 35% of project on render.com: https://dragoneats-foodorderapp-frontend.onrender.com
 
 # React + TypeScript + Vite
