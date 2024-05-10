@@ -1,5 +1,7 @@
 ## Food roder app DragonEats.com
 ## Deployed 35% of project on render.com: https://dragoneats-foodorderapp-frontend.onrender.com
+## Login with google or email and MongoDB will update user database... 
+## Main Nav and mobile Nav (Will work on Phone/resize) as per best prcatice when starting an web app
 
 # React + TypeScript + Vite
 
