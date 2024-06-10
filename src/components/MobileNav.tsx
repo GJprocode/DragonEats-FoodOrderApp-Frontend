@@ -1,9 +1,10 @@
-import { CircleUserRound, Menu } from "lucide-react";
+import { CircleUserRound, Menu } from "lucide-react"; // react library for icons
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "./ui/sheet";
-import { Separator } from "./ui/separator";
+import { Separator } from "./ui/separator"; // description in chadcn
 import { Button } from "./ui/button";
 import { useAuth0 } from "@auth0/auth0-react";
 import MobileNavLinks from "./MobileNavLinks";
+import React from "react";
 
 const MobileNav = () => {
 

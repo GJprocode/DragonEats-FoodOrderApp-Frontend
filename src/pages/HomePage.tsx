@@ -1,3 +1,4 @@
+import React from "react";
 import landingImage from "../assets/CellApp.png";
 import appDownloadImage1 from "../assets/AppleStore.png";
 import appDownloadImage2 from "../assets/GooglePlay.png";
@@ -29,7 +30,7 @@ const HomePage = () => {
               <img
                 src={appDownloadImage1}
                 alt="Apple Store Logo"
-                className="logo-img"
+                style={{ width: '150px', height: 'auto' }} // Inline style added here
               />
             </a>
             <a
@@ -40,7 +41,7 @@ const HomePage = () => {
               <img
                 src={appDownloadImage2}
                 alt="Google Play Logo"
-                className="logo-img"
+                style={{ width: '150px', height: 'auto' }} // Inline style added here
               />
             </a>
           </div>

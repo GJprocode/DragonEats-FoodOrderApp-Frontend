@@ -1,0 +1,75 @@
+// export const cuisineList = [
+//     "American",
+//     "BBQ",
+//     "Breakfast",
+//     "Burgers",
+//     "Cafe",
+//     "Chinese",
+//     "Desserts",
+//     "French",
+//     "Greek",
+//     "Healthy",
+//     "Indian",
+//     "Italian",
+//     "Japanese",
+//     "Mexican",
+//     "Noodles",
+//     "Organic",
+//     "Pasta",
+//     "Pizza",
+//     "Salads",
+//     "Seafood",
+//     "Spanish",
+//     "Steak",
+//     "Sushi",
+//     "Khmer",
+//     "Tacos",
+//     "Tapas",
+//     "Vegan",
+//     "Beer",
+//     "Wine",
+//     "Spirits",
+//   ];
+
+// key: value to adress Warning: Each child in a list should have a unique "key" prop
+// if works can deploy as is and debug and merge new branch, keep old, 
+// frontend\src\config\restaurant-options-config.tsx
+// frontend\src\forms\manage-restaurant-form\CuisinesSection.tsx
+// frontend\src\forms\manage-restaurant-form\CuisineCheckbox.tsx
+// frontend\src\forms\manage-restaurant-form\MenuItemInput.tsx
+// frontend\src\forms\manage-restaurant-form\MenuSection.tsx
+
+
+export const cuisineList = [
+  { id: 1, name: "American" },
+  { id: 2, name: "BBQ" },
+  { id: 3, name: "Breakfast" },
+  { id: 4, name: "Burgers" },
+  { id: 5, name: "Cafe" },
+  { id: 6, name: "Chinese" },
+  { id: 7, name: "Desserts" },
+  { id: 8, name: "French" },
+  { id: 9, name: "Greek" },
+  { id: 10, name: "Healthy" },
+  { id: 11, name: "Indian" },
+  { id: 12, name: "Italian" },
+  { id: 13, name: "Japanese" },
+  { id: 14, name: "Mexican" },
+  { id: 15, name: "Noodles" },
+  { id: 16, name: "Organic" },
+  { id: 17, name: "Pasta" },
+  { id: 18, name: "Pizza" },
+  { id: 19, name: "Salads" },
+  { id: 20, name: "Seafood" },
+  { id: 21, name: "Spanish" },
+  { id: 22, name: "Steak" },
+  { id: 23, name: "Sushi" },
+  { id: 24, name: "Khmer" },
+  { id: 25, name: "Tacos" },
+  { id: 26, name: "Tapas" },
+  { id: 27, name: "Vegan" },
+  { id: 28, name: "Beer" },
+  { id: 29, name: "Wine" },
+  { id: 30, name: "Spirits" },
+];
+

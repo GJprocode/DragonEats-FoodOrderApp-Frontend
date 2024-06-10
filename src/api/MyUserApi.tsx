@@ -1,6 +1,6 @@
 // import packages
 
-import { User } from "@/types";
+import { User } from "../types";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useMutation, useQuery } from "react-query";
 import { toast } from "sonner";
@@ -17,7 +17,7 @@ export const useGetMyUser = () => {
 // function that handles the fetch request
     const getMyUserRequest = async (): Promise<User> => {
         const accessToken = await getAccessTokenSilently();
-// > line of code called shevron collapse
+// > line of code called Chevron collapse
 
         const response =await fetch(`${API_BASE_URL}/api/my/user`, {
             method: "GET",

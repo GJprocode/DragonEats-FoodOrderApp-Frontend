@@ -1,3 +1,4 @@
+import React from "react";
 import food from "../assets/food.png";
 
 const MainPic = () => {

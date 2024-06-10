@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import MobileNav from "./MobileNav";
 import MainNav from "./MainNav";
+import React from "react";
 
 
 const Header = () => { // corrected component name

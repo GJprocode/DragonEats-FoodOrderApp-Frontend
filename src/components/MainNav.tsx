@@ -1,6 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { Button } from "./ui/button";
 import UsernameMenu from "./ui/UsernameMenu";
+import React from "react";
 
 const MainNav = () => {
   const { loginWithRedirect, isAuthenticated } = useAuth0();

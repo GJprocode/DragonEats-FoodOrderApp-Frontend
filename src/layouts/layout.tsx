@@ -1,6 +1,7 @@
-import Footer from "@/components/Footer";
-import MainPic from "@/components/MainPic";
-import Header from "@/components/header"; 
+import Footer from "../components/Footer";
+import MainPic from "../components/MainPic";
+import Header from "../components/header"; 
+import React from "react";
 
 type Props = {
   children: React.ReactNode;
