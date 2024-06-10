@@ -12,7 +12,6 @@ import { Button } from "../ui/button";
 import React from "react";
 
 const UsernameMenu = () => {
-    
   const { user, logout} = useAuth0();
 
   return(
