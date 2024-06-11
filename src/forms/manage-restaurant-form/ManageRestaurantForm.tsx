@@ -36,8 +36,7 @@ const formSchema = z.object({
   menuItems: z.array(z.object({
     name: z.string().min(1, "Name is required"),
     price: z.coerce.number().min(1, "Price is required"),
-  })
-),
+  })),
   imageUrl: z.string().optional(),
   imageFile: z.instanceof(File, { message: "Image is required"}).optional(),
 }).refine((data) => data.imageUrl || data.imageFile, {
@@ -52,8 +51,6 @@ type Props = {
   onSave: (restaurantFormData: FormData) => void;
   isLoading: boolean;
 };
-
-// destructure add restaurant etc. So it has access to restaurant object
 
 const ManageRestaurantForm = ({ onSave, isLoading, restaurant }: Props) => {
   const form = useForm<RestaurantFormData>({
@@ -70,11 +67,11 @@ const ManageRestaurantForm = ({ onSave, isLoading, restaurant }: Props) => {
     }
 
     const deliveryPriceFormatted = parseInt(
-      (restaurant.deliveryPrice/100).toFixed(2)
+      (restaurant.deliveryPrice / 100).toFixed(2)
     );
 
     const menuItemsFormatted = restaurant.menuItems.map((item) => ({
-      ...item, // copy of current item in the array
+      ...item, 
       price: parseInt((item.price / 100).toFixed(2)),
     }));
 
@@ -86,7 +83,7 @@ const ManageRestaurantForm = ({ onSave, isLoading, restaurant }: Props) => {
 
     form.reset(updatedRestaurant);
 
-  }, [form, restaurant]); 
+  }, [form, restaurant]);
 
   const onSubmit = (formDataJson: RestaurantFormData) => {
     const formData = new FormData();
@@ -103,13 +100,11 @@ const ManageRestaurantForm = ({ onSave, isLoading, restaurant }: Props) => {
       formData.append(`menuItems[${index}][name]`, menuItem.name);
       formData.append(`menuItems[${index}][price]`, (menuItem.price * 100).toString());
     });
-    
-// this is just Type Script being a bit to defensive but there is no harm in it
 
-    if(formDataJson.imageFile) {
-      formData.append(`imageFile`, formDataJson.imageFile);
+    if (formDataJson.imageFile) {
+      formData.append("imageFile", formDataJson.imageFile);
     }
-    
+
     onSave(formData);
   };
 
@@ -121,7 +116,9 @@ const ManageRestaurantForm = ({ onSave, isLoading, restaurant }: Props) => {
         <CuisinesSection />
         <Separator />
         <MenuSection />
+        <Separator />
         <ImageSection />
+        <Separator />
         {isLoading ? <LoadingButton /> : <Button type="submit">Submit</Button>}
       </form>
     </Form>
@@ -129,5 +126,4 @@ const ManageRestaurantForm = ({ onSave, isLoading, restaurant }: Props) => {
 };
 
 export default ManageRestaurantForm;
-
-
+  
