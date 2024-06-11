@@ -1,9 +1,13 @@
 ## Food oder app DragonEats.com
-### Deployed 50% of project on render.com: https://dragoneats-foodorderapp-frontend.onrender.com 
-### Login with google or email and MongoDB will update user database as per changes to your user profile... 
+### Deployed 50% of project on render.com: 
+### Login with google or email and MongoDB will update user database as per changes to your user profile & Manage Restaurant form...
 ### Main Nav and mobile Nav (Will work on Phone/resize) as per best practise when starting a web app.
-
-# React + TypeScript + Vite
+### MERN + TypeScript + Vite + Links below...
+#### Auth0: https://auth0.com/
+#### Stripe: https://stripe.com/
+#### Cloudinary: https://cloudinary.com/
+#### MongoDB: https://mongodb.com
+#### Render: https://render.com
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
