@@ -1,12 +1,11 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import { FormControl, FormDescription, FormField, FormItem, FormMessage } from "../../components/ui/form";
-import { Input } from "../../components/ui/input";
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
+
 
 const ImageSection = () => {
   const { control, watch } = useFormContext();
-
   const existingImageUrl = watch("imageUrl");
 
   return (
@@ -18,15 +17,21 @@ const ImageSection = () => {
           search results. Adding a new image will overwrite the existing one.
         </FormDescription>
       </div>
-
+      
       <div className="flex flex-col gap-8 md:w-[50%]">
         {existingImageUrl && (
-          <AspectRatio ratio={16 / 9}>
-            <img
-              src={existingImageUrl}
-              className="rounded-md object-cover h-full w-full"
-            />
-          </AspectRatio>
+          <div className="relative max-w-full max-h-[400px] overflow-hidden">
+            <AspectRatio ratio={16 / 9}>
+              <div className="absolute inset-0">
+                <img
+                  src={existingImageUrl}
+                  className="w-full h-full object-contain rounded-md"
+                  alt="Restaurant Image"
+                  title="Restaurant Image"
+                />
+              </div>
+            </AspectRatio>
+          </div>
         )}
         <FormField
           control={control}
@@ -34,7 +39,7 @@ const ImageSection = () => {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input
+                <input
                   className="bg-white"
                   type="file"
                   accept=".jpg, .jpeg, .png"
@@ -56,5 +61,5 @@ const ImageSection = () => {
 
 export default ImageSection;
 
-
-
+// object-contain fits both horizontal and more importantly vertical images!
+// do not use object-cover 
