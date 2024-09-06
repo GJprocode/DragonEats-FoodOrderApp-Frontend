@@ -1,3 +1,4 @@
+// frontend/src/layouts/Layout.tsx
 import Footer from "../components/Footer";
 import Header from "../components/header";
 import MainPic from "../components/MainPic";

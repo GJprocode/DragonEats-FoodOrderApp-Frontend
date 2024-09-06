@@ -1,3 +1,4 @@
+// frontend/src/AppRoutes.tsx
 import { Navigate, Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import AuthCallbackPage from "./pages/AuthCallbackPage";
@@ -8,8 +9,8 @@ import SearchPage from "./pages/SearchPage";
 import DetailPage from "./pages/DetailPage";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import Layout from "./layouts/layout";
-import AdminPanelPage from "./pages/AdminPanel";
+import Layout from "./layouts/layout"; // its lower caps l: C:\Users\gertf\Desktop\FoodApp\frontend\src\layouts\layout.tsx
+import AdminPanelPage from "./pages/AdminPanelPage";
 
 const AppRoutes = () => {
   return (
@@ -39,8 +40,8 @@ const AppRoutes = () => {
           </Layout>
         }
       />
-      
-      {/* Protect these routes */}
+
+      {/* Protected routes */}
       <Route element={<ProtectedRoute />}>
         <Route
           path="/user-profile"
@@ -58,7 +59,7 @@ const AppRoutes = () => {
             </Layout>
           }
         />
-        <Route
+      <Route
           path="/admin-panel"
           element={
             <Layout>
@@ -66,6 +67,7 @@ const AppRoutes = () => {
             </Layout>
           }
         />
+
       </Route>
 
       <Route

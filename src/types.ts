@@ -1,3 +1,5 @@
+// types.ts
+
 export type User = {
   _id: string;
   email: string;
@@ -32,6 +34,16 @@ export type Restaurant = {
   contractId?: string;
   contractType?: string;
 };
+
+
+export interface AdminAction {
+  _id: string;
+  restaurantId: string;
+  status: string;
+  contractType?: string;
+  contractId?: string;
+  adminId: string;
+}
 
 export type RestaurantSearchResponse = {
   data: Restaurant[];
