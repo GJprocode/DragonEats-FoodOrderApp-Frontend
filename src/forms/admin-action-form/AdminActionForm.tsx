@@ -1,7 +1,6 @@
 // C:\Users\gertf\Desktop\FoodApp\frontend\src\forms\admin-action-form\AdminActionForm.tsx
 
-// src/forms/admin-action-form/AdminActionForm.tsx
-// src/forms/admin-action-form/AdminActionForm.tsx
+// C:\Users\gertf\Desktop\FoodApp\frontend\src\forms\admin-action-form\AdminActionForm.tsx
 import React, { useState } from "react";
 import { Restaurant } from "@/types";
 
@@ -13,7 +12,7 @@ interface AdminActionFormProps {
 const AdminActionForm: React.FC<AdminActionFormProps> = ({ restaurants, onUpdate }) => {
   const [contractTypeValues, setContractTypeValues] = useState<{ [key: string]: string }>({});
   const [contractIdValues, setContractIdValues] = useState<{ [key: string]: string }>({});
-  const [statusValues, setStatusValues] = useState<{ [key: string]: string }>({}); // Add state for status
+  const [statusValues, setStatusValues] = useState<{ [key: string]: string }>({}); 
 
   const handleContractTypeChange = (restaurantId: string, value: string) => {
     setContractTypeValues((prev) => ({ ...prev, [restaurantId]: value }));
@@ -50,10 +49,8 @@ const AdminActionForm: React.FC<AdminActionFormProps> = ({ restaurants, onUpdate
                   <label>
                     Status:
                     <select
-                      value={statusValues[restaurant._id] || restaurant.status} // Use local state or restaurant value
-                      onChange={(e) =>
-                        handleStatusChange(restaurant._id, e.target.value)
-                      }
+                      value={statusValues[restaurant._id] || restaurant.status} 
+                      onChange={(e) => handleStatusChange(restaurant._id, e.target.value)}
                       className="border border-gray-300 p-1 rounded"
                     >
                       <option value="submitted">Submitted</option>
@@ -86,7 +83,7 @@ const AdminActionForm: React.FC<AdminActionFormProps> = ({ restaurants, onUpdate
                     onClick={() =>
                       onUpdate(
                         restaurant._id,
-                        statusValues[restaurant._id] || restaurant.status, // Send updated status
+                        statusValues[restaurant._id] || restaurant.status,
                         contractTypeValues[restaurant._id] || restaurant.contractType || "",
                         contractIdValues[restaurant._id] || restaurant.contractId || ""
                       )
