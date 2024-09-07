@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -38,7 +38,6 @@ const formSchema = z.object({
   ),
   imageUrl: z.string().optional(),
   imageFile: z.instanceof(File).optional(),
-  email: z.string().email("Invalid email address"), // Add the email field
 });
 
 type RestaurantFormData = z.infer<typeof formSchema>;
@@ -47,28 +46,48 @@ type Props = {
   restaurant?: Restaurant | null;
   onSave: (formData: FormData) => void;
   isLoading: boolean;
-  currentUserEmail: string; // Add currentUserEmail prop
 };
 
-const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant, currentUserEmail }) => {
+const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant }) => {
   const form = useForm<RestaurantFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      restaurantName: restaurant?.restaurantName || "",
-      city: restaurant?.city || [""],
-      country: restaurant?.country || "",
-      deliveryPrice: restaurant?.deliveryPrice || 0,
-      estimatedDeliveryTime: restaurant?.estimatedDeliveryTime || 0,
-      wholesale: restaurant?.wholesale || false,
-      cuisines: restaurant?.cuisines || [],
-      menuItems: restaurant?.menuItems || [
+      restaurantName: "",
+      city: [""], 
+      country: "",
+      deliveryPrice: 0,
+      estimatedDeliveryTime: 0,
+      wholesale: false,
+      cuisines: [],
+      menuItems: [
         { name: "", price: 0, imageFile: undefined, imageUrl: "" },
       ],
-      imageUrl: restaurant?.restaurantImageUrl || "",
+      imageUrl: "",
       imageFile: undefined,
-      email: currentUserEmail, // Use the logged-in user's email
     },
   });
+
+  useEffect(() => {
+    if (restaurant) {
+      const deliveryPriceFormatted = parseInt(
+        (restaurant.deliveryPrice / 100).toFixed(2)
+      );
+
+      const menuItemsFormatted = restaurant.menuItems.map((item) => ({
+        ...item,
+        price: parseInt((item.price / 100).toFixed(2)),
+      }));
+
+      const updatedRestaurant = {
+        ...restaurant,
+        deliveryPrice: deliveryPriceFormatted,
+        menuItems: menuItemsFormatted,
+        city: Array.isArray(restaurant.city) ? restaurant.city : [restaurant.city],
+      };
+
+      form.reset(updatedRestaurant);
+    }
+  }, [restaurant, form]);
 
   const onSubmit = async (formDataJson: RestaurantFormData) => {
     const formData = new FormData();
@@ -77,19 +96,17 @@ const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant, 
       formData.append(`city[${index}]`, city);
     });
     formData.append("country", formDataJson.country);
-    formData.append("deliveryPrice", formDataJson.deliveryPrice.toString());
+    formData.append("deliveryPrice", (formDataJson.deliveryPrice * 100).toString());
     formData.append("estimatedDeliveryTime", formDataJson.estimatedDeliveryTime.toString());
     formData.append("wholesale", formDataJson.wholesale ? "true" : "false");
-    formData.append("status", "pending"); // Add status here
-  
     formDataJson.cuisines.forEach((cuisine, index) => {
       formData.append(`cuisines[${index}]`, cuisine);
     });
   
     formDataJson.menuItems.forEach((menuItem, index) => {
-      if (menuItem.name && menuItem.price) {
+      if (menuItem.name && menuItem.price) { // Ensure empty or deleted items aren't sent
         formData.append(`menuItems[${index}][name]`, menuItem.name);
-        formData.append(`menuItems[${index}][price]`, menuItem.price.toString());
+        formData.append(`menuItems[${index}][price]`, (menuItem.price * 100).toString());
         if (menuItem.imageFile) {
           formData.append(`menuItems[${index}].menuItemImageFile`, menuItem.imageFile);
         } else if (menuItem.imageUrl) {
@@ -97,22 +114,34 @@ const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant, 
         }
       }
     });
-  
+
     if (formDataJson.imageFile) {
       formData.append("restaurantImageFile", formDataJson.imageFile);
     } else if (formDataJson.imageUrl) {
       formData.append("imageUrl", formDataJson.imageUrl);
     }
-  
-    formData.append("email", formDataJson.email); // Include email in formData
-  
+
     try {
-      await onSave(formData);
+      await onSave(formData);  // Ensure the backend is receiving the correct data
     } catch (error) {
       console.error("Error during submission:", error);
     }
   };
-  
+
+  const getStatusWidth = () => {
+    switch (restaurant?.status) {
+      case "submitted":
+        return "33%";
+      case "pending":
+        return "66%";
+      case "rejected":
+        return "0%";
+      case "approved":
+        return "100%";
+      default:
+        return "33%";
+    }
+  };
 
   return (
     <Form {...form}>
@@ -120,7 +149,7 @@ const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant, 
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 bg-gray-50 p-10 rounded-lg"
       >
-        <DetailsSection restaurant={restaurant} currentUserEmail={currentUserEmail} />
+        <DetailsSection restaurant={restaurant} />
         <Separator />
         <CuisinesSection />
         <Separator />
@@ -128,6 +157,22 @@ const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant, 
         <Separator />
         <RestaurantImage />
         <Separator />
+        <div className="mt-6">
+          <label htmlFor="progress" className="block text-sm font-medium text-gray-700">
+            Restaurant Status
+          </label>
+          <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+            <div
+              className={`bg-blue-600 h-2.5 rounded-full`}
+              style={{ width: getStatusWidth() }}
+            ></div>
+          </div>
+          <div className="flex justify-between text-sm text-gray-500 mt-2">
+            <span>Submitted</span>
+            <span>Pending Approval</span>
+            <span>{restaurant?.status === "rejected" ? "Rejected" : "Approved"}</span>
+          </div>
+        </div>
         {isLoading ? <LoadingButton /> : <Button type="submit">Submit</Button>}
       </form>
     </Form>

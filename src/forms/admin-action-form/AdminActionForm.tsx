@@ -1,4 +1,5 @@
-import React from "react";
+// src/forms/admin-action-form/AdminActionForm.tsx
+import React, { useState } from "react";
 import { Restaurant } from "@/types";
 
 interface AdminActionFormProps {
@@ -7,6 +8,17 @@ interface AdminActionFormProps {
 }
 
 const AdminActionForm: React.FC<AdminActionFormProps> = ({ restaurants, onUpdate }) => {
+  const [contractTypeValues, setContractTypeValues] = useState<{ [key: string]: string }>({});
+  const [contractIdValues, setContractIdValues] = useState<{ [key: string]: string }>({});
+
+  const handleContractTypeChange = (restaurantId: string, value: string) => {
+    setContractTypeValues((prev) => ({ ...prev, [restaurantId]: value }));
+  };
+
+  const handleContractIdChange = (restaurantId: string, value: string) => {
+    setContractIdValues((prev) => ({ ...prev, [restaurantId]: value }));
+  };
+
   return (
     <div className="space-y-4">
       <div className="overflow-x-auto">
@@ -31,12 +43,12 @@ const AdminActionForm: React.FC<AdminActionFormProps> = ({ restaurants, onUpdate
                     Status:
                     <select
                       value={restaurant.status}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      onChange={(e) =>
                         onUpdate(
                           restaurant._id,
                           e.target.value,
-                          restaurant.contractType || "",
-                          restaurant.contractId || ""
+                          contractTypeValues[restaurant._id] || restaurant.contractType || "",
+                          contractIdValues[restaurant._id] || restaurant.contractId || ""
                         )
                       }
                       className="border border-gray-300 p-1 rounded"
@@ -51,15 +63,8 @@ const AdminActionForm: React.FC<AdminActionFormProps> = ({ restaurants, onUpdate
                 <td className="py-2 px-4 border-b">
                   <input
                     type="text"
-                    value={restaurant.contractType || ""}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      onUpdate(
-                        restaurant._id,
-                        restaurant.status,
-                        e.target.value,
-                        restaurant.contractId || ""
-                      )
-                    }
+                    value={contractTypeValues[restaurant._id] || restaurant.contractType || ""}
+                    onChange={(e) => handleContractTypeChange(restaurant._id, e.target.value)}
                     className="border border-gray-300 p-1 rounded w-full"
                     placeholder="Contract Type"
                   />
@@ -67,15 +72,8 @@ const AdminActionForm: React.FC<AdminActionFormProps> = ({ restaurants, onUpdate
                 <td className="py-2 px-4 border-b">
                   <input
                     type="text"
-                    value={restaurant.contractId || ""}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      onUpdate(
-                        restaurant._id,
-                        restaurant.status,
-                        restaurant.contractType || "",
-                        e.target.value
-                      )
-                    }
+                    value={contractIdValues[restaurant._id] || restaurant.contractId || ""}
+                    onChange={(e) => handleContractIdChange(restaurant._id, e.target.value)}
                     className="border border-gray-300 p-1 rounded w-full"
                     placeholder="Contract ID"
                   />
@@ -86,8 +84,8 @@ const AdminActionForm: React.FC<AdminActionFormProps> = ({ restaurants, onUpdate
                       onUpdate(
                         restaurant._id,
                         restaurant.status,
-                        restaurant.contractType || "",
-                        restaurant.contractId || ""
+                        contractTypeValues[restaurant._id] || restaurant.contractType || "",
+                        contractIdValues[restaurant._id] || restaurant.contractId || ""
                       )
                     }
                     className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-700"

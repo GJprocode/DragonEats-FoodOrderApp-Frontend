@@ -1,6 +1,7 @@
-import { useAuth0 } from "@auth0/auth0-react"; // Import useAuth0
-import { useState, useEffect } from "react"; // Import useState and useEffect
-import { Restaurant } from "@/types"; // Import Restaurant type
+// src/api/AdminPanelApi.tsx
+import { useAuth0 } from "@auth0/auth0-react";
+import { useState, useEffect } from "react";
+import { Restaurant } from "@/types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -18,6 +19,7 @@ export const useUpdateRestaurantStatus = () => {
         },
         body: JSON.stringify({ status, contractType, contractId }),
       });
+
       if (!response.ok) throw new Error("Error updating restaurant status");
       return await response.json();
     } catch (error) {
@@ -30,7 +32,7 @@ export const useUpdateRestaurantStatus = () => {
 
 export const useGetAdminRestaurants = () => {
   const { getAccessTokenSilently } = useAuth0();
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]); // Explicitly set type
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -54,4 +56,33 @@ export const useGetAdminRestaurants = () => {
   }, [getAccessTokenSilently]);
 
   return { restaurants, isLoading };
+};
+
+export const useFetchStatusCounts = () => {
+  const { getAccessTokenSilently } = useAuth0();
+  const [statusTotals, setStatusTotals] = useState<{ _id: string, count: number }[]>([]);
+
+  useEffect(() => {
+    const fetchStatusCounts = async () => {
+      try {
+        const token = await getAccessTokenSilently();
+        const response = await fetch(`${API_BASE_URL}/api/admin/count-status`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (!response.ok) throw new Error("Error fetching status counts");
+        const data = await response.json();
+        setStatusTotals(data);
+      } catch (error) {
+        console.error("Error fetching status counts:", error);
+      }
+    };
+
+    fetchStatusCounts();
+  }, [getAccessTokenSilently]);
+
+  return { statusTotals };
 };
