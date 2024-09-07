@@ -1,4 +1,6 @@
 // src/api/AdminPanelApi.tsx
+// src/api/AdminPanelApi.tsx
+// src/api/AdminPanelApi.tsx
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState, useEffect } from "react";
 import { Restaurant } from "@/types";
@@ -56,33 +58,4 @@ export const useGetAdminRestaurants = () => {
   }, [getAccessTokenSilently]);
 
   return { restaurants, isLoading };
-};
-
-export const useFetchStatusCounts = () => {
-  const { getAccessTokenSilently } = useAuth0();
-  const [statusTotals, setStatusTotals] = useState<{ _id: string, count: number }[]>([]);
-
-  useEffect(() => {
-    const fetchStatusCounts = async () => {
-      try {
-        const token = await getAccessTokenSilently();
-        const response = await fetch(`${API_BASE_URL}/api/admin/count-status`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        });
-
-        if (!response.ok) throw new Error("Error fetching status counts");
-        const data = await response.json();
-        setStatusTotals(data);
-      } catch (error) {
-        console.error("Error fetching status counts:", error);
-      }
-    };
-
-    fetchStatusCounts();
-  }, [getAccessTokenSilently]);
-
-  return { statusTotals };
 };

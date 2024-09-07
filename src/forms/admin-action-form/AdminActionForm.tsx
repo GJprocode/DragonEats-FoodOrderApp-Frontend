@@ -1,3 +1,6 @@
+// C:\Users\gertf\Desktop\FoodApp\frontend\src\forms\admin-action-form\AdminActionForm.tsx
+
+// src/forms/admin-action-form/AdminActionForm.tsx
 // src/forms/admin-action-form/AdminActionForm.tsx
 import React, { useState } from "react";
 import { Restaurant } from "@/types";
@@ -10,6 +13,7 @@ interface AdminActionFormProps {
 const AdminActionForm: React.FC<AdminActionFormProps> = ({ restaurants, onUpdate }) => {
   const [contractTypeValues, setContractTypeValues] = useState<{ [key: string]: string }>({});
   const [contractIdValues, setContractIdValues] = useState<{ [key: string]: string }>({});
+  const [statusValues, setStatusValues] = useState<{ [key: string]: string }>({}); // Add state for status
 
   const handleContractTypeChange = (restaurantId: string, value: string) => {
     setContractTypeValues((prev) => ({ ...prev, [restaurantId]: value }));
@@ -17,6 +21,10 @@ const AdminActionForm: React.FC<AdminActionFormProps> = ({ restaurants, onUpdate
 
   const handleContractIdChange = (restaurantId: string, value: string) => {
     setContractIdValues((prev) => ({ ...prev, [restaurantId]: value }));
+  };
+
+  const handleStatusChange = (restaurantId: string, value: string) => {
+    setStatusValues((prev) => ({ ...prev, [restaurantId]: value }));
   };
 
   return (
@@ -42,14 +50,9 @@ const AdminActionForm: React.FC<AdminActionFormProps> = ({ restaurants, onUpdate
                   <label>
                     Status:
                     <select
-                      value={restaurant.status}
+                      value={statusValues[restaurant._id] || restaurant.status} // Use local state or restaurant value
                       onChange={(e) =>
-                        onUpdate(
-                          restaurant._id,
-                          e.target.value,
-                          contractTypeValues[restaurant._id] || restaurant.contractType || "",
-                          contractIdValues[restaurant._id] || restaurant.contractId || ""
-                        )
+                        handleStatusChange(restaurant._id, e.target.value)
                       }
                       className="border border-gray-300 p-1 rounded"
                     >
@@ -83,7 +86,7 @@ const AdminActionForm: React.FC<AdminActionFormProps> = ({ restaurants, onUpdate
                     onClick={() =>
                       onUpdate(
                         restaurant._id,
-                        restaurant.status,
+                        statusValues[restaurant._id] || restaurant.status, // Send updated status
                         contractTypeValues[restaurant._id] || restaurant.contractType || "",
                         contractIdValues[restaurant._id] || restaurant.contractId || ""
                       )
