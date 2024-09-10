@@ -11,6 +11,7 @@ import RestaurantImage from "./RestaurantImage";
 import LoadingButton from "@/components/LoadingButton";
 import { Button } from "@/components/ui/button";  
 import { Restaurant } from "@/types";
+import { useAuth0 } from "@auth0/auth0-react"; // Add your authentication hook
 
 const formSchema = z.object({
   restaurantName: z.string({ required_error: "Restaurant name is required" }),
@@ -49,6 +50,9 @@ type Props = {
 };
 
 const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant }) => {
+  const { user } = useAuth0();  // Use Auth0 or your preferred auth hook
+  const currentUserEmail = user?.email || ''; // Get the current user's email
+
   const form = useForm<RestaurantFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -149,7 +153,7 @@ const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant }
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 bg-gray-50 p-10 rounded-lg"
       >
-        <DetailsSection restaurant={restaurant} />
+        <DetailsSection restaurant={restaurant} currentUserEmail={currentUserEmail} /> {/* Pass currentUserEmail */}
         <Separator />
         <CuisinesSection />
         <Separator />
