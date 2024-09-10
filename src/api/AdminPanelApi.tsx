@@ -1,6 +1,6 @@
-// src/api/AdminPanelApi.tsx
-// src/api/AdminPanelApi.tsx
-// src/api/AdminPanelApi.tsx
+// C:\Users\gertf\Desktop\FoodApp\frontend\src\api\AdminPanelApi.tsx
+
+
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState, useEffect } from "react";
 import { Restaurant } from "@/types";

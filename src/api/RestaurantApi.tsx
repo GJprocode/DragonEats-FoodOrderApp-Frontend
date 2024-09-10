@@ -1,3 +1,4 @@
+// C:\Users\gertf\Desktop\FoodApp\frontend\src\api\RestaurantApi.tsx
 import { SearchState } from "@/pages/SearchPage";
 import { Restaurant, RestaurantSearchResponse } from "@/types";
 import { useQuery } from "react-query";
