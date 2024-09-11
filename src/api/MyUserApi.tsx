@@ -1,5 +1,7 @@
 // C:\Users\gertf\Desktop\FoodApp\frontend\src\api\MyUserApi.tsx
 
+// C:\Users\gertf\Desktop\FoodApp\frontend\src\api\MyUserApi.tsx
+
 import { useAuth0 } from "@auth0/auth0-react";
 import { useMutation, useQuery } from "react-query";
 import { toast } from "sonner";
@@ -14,19 +16,20 @@ export const useGetMyUser = () => {
   const getMyUserRequest = async (): Promise<User> => {
     try {
       const accessToken = await getAccessTokenSilently();
-
+      console.log("Access token retrieved:", accessToken);
+  
       const response = await fetch(`${API_BASE_URL}/api/my/user`, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${accessToken}`, // added to fix 400 auth error in headers
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
       });
-
+  
       if (!response.ok) {
         throw new Error(`Failed to fetch user: ${response.statusText}`);
       }
-
+  
       return response.json();
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -34,10 +37,10 @@ export const useGetMyUser = () => {
     }
   };
 
-  const { data: currentUser, isLoading, error } = useQuery("fetchCurrentUser", getMyUserRequest);
+  const { data: currentUser, isLoading, error } = useQuery('fetchCurrentUser', getMyUserRequest);
 
   if (error) {
-    toast.error(error.toString());
+    toast.error(`Failed to fetch user: ${error}`);
   }
 
   return { currentUser, isLoading };

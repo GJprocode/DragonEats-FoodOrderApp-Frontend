@@ -1,0 +1,481 @@
+diff --git a/src/api/RestaurantApi.tsx b/src/api/RestaurantApi.tsx
+index 55ffa0b..f8194a9 100644
+--- a/src/api/RestaurantApi.tsx
++++ b/src/api/RestaurantApi.tsx
+@@ -1,70 +1,4 @@
+-// // C:\Users\gertf\Desktop\FoodApp\frontend\src\api\RestaurantApi.tsx
+-// import { SearchState } from "@/pages/SearchPage";
+-// import { Restaurant, RestaurantSearchResponse } from "@/types";
+-// import { useQuery } from "react-query";
+-
+-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+-
+-// export const useGetRestaurant = (restaurantId?: string) => {
+-//   const getRestaurantByIdRequest = async (): Promise<Restaurant> => {
+-//     const response = await fetch(
+-//       `${API_BASE_URL}/api/restaurant/${restaurantId}`
+-//     );
+-
+-//     if (!response.ok) {
+-//       throw new Error("Failed to get restaurant");
+-//     }
+-
+-//     return response.json();
+-//   };
+-
+-//   const { data: restaurant, isLoading } = useQuery(
+-//     "fetchRestaurant",
+-//     getRestaurantByIdRequest,
+-//     {
+-//       enabled: !!restaurantId,
+-//     }
+-//   );
+-
+-//   return { restaurant, isLoading };
+-// };
+-
+-// export const useSearchRestaurants = (
+-//   searchState: SearchState,
+-//   city?: string
+-// ) => {
+-//   const createSearchRequest = async (): Promise<RestaurantSearchResponse> => {
+-//     const params = new URLSearchParams();
+-//     params.set("searchQuery", searchState.searchQuery);
+-//     params.set("page", searchState.page.toString());
+-//     params.set("selectedCuisines", searchState.selectedCuisines.join(","));
+-//     params.set("sortOption", searchState.sortOption);
+-//     params.set("selectedBusinessType", searchState.selectedBusinessType.join(",")); // Add business type to params
+-
+-//     const response = await fetch(
+-//       `${API_BASE_URL}/api/restaurant/search/${city}?${params.toString()}`
+-//     );
+-
+-//     if (!response.ok) {
+-//       throw new Error("Failed to get restaurants");
+-//     }
+-
+-//     return response.json();
+-//   };
+-
+-//   const { data: results, isLoading } = useQuery(
+-//     ["searchRestaurants", searchState],
+-//     createSearchRequest,
+-//     { enabled: !!city }
+-//   );
+-
+-//   return {
+-//     results,
+-//     isLoading,
+-//   };
+-// };
+-
+-
++// C:\Users\gertf\Desktop\FoodApp\frontend\src\api\RestaurantApi.tsx
+ import { SearchState } from "@/pages/SearchPage";
+ import { Restaurant, RestaurantSearchResponse } from "@/types";
+ import { useQuery } from "react-query";
+@@ -95,7 +29,6 @@ export const useGetRestaurant = (restaurantId?: string) => {
+   return { restaurant, isLoading };
+ };
+ 
+-// API hook to search restaurants in a city
+ export const useSearchRestaurants = (
+   searchState: SearchState,
+   city?: string
+@@ -106,9 +39,7 @@ export const useSearchRestaurants = (
+     params.set("page", searchState.page.toString());
+     params.set("selectedCuisines", searchState.selectedCuisines.join(","));
+     params.set("sortOption", searchState.sortOption);
+-    params.set("selectedBusinessType", searchState.selectedBusinessType.join(",")); // Add business type to params
+ 
+-    // Call the backend to search restaurants in the city, ensuring only approved restaurants are returned
+     const response = await fetch(
+       `${API_BASE_URL}/api/restaurant/search/${city}?${params.toString()}`
+     );
+@@ -130,4 +61,4 @@ export const useSearchRestaurants = (
+     results,
+     isLoading,
+   };
+-};
+\ No newline at end of file
++};
+diff --git a/src/components/BusinessTypeFilter.tsx b/src/components/BusinessTypeFilter.tsx
+deleted file mode 100644
+index 22550c3..0000000
+--- a/src/components/BusinessTypeFilter.tsx
++++ /dev/null
+@@ -1,54 +0,0 @@
+-import React from "react";
+-
+-interface BusinessTypeFilterProps {
+-  selectedBusinessType: string[];
+-  onChange: (selectedBusinessType: string[]) => void;
+-  onReset: () => void;  // Reset the business type filter
+-}
+-
+-const BusinessTypeFilter = ({ selectedBusinessType, onChange, onReset }: BusinessTypeFilterProps) => {
+-  const handleChange = (type: string) => {
+-    const isSelected = selectedBusinessType.includes(type);
+-    if (isSelected) {
+-      onChange(selectedBusinessType.filter((t) => t !== type)); // Remove the selected type
+-    } else {
+-      onChange([...selectedBusinessType, type]); // Add the selected type
+-    }
+-  };
+-
+-  return (
+-    <div className="mb-4">
+-      <div className="flex justify-between items-center">
+-        <h3 className="font-bold mb-2">Business Type</h3>
+-        <div
+-          onClick={onReset}
+-          className="text-sm font-semibold mb-2 underline cursor-pointer text-blue-500"
+-        >
+-          Reset Filters
+-        </div>
+-      </div>
+-      <div className="flex flex-col">
+-        <label className="inline-flex items-center">
+-          <input
+-            type="checkbox"
+-            className="mr-2"
+-            checked={selectedBusinessType.includes("Restaurant")}
+-            onChange={() => handleChange("Restaurant")}
+-          />
+-          Restaurant
+-        </label>
+-        <label className="inline-flex items-center">
+-          <input
+-            type="checkbox"
+-            className="mr-2"
+-            checked={selectedBusinessType.includes("Wholesale")}
+-            onChange={() => handleChange("Wholesale")}
+-          />
+-          Wholesale
+-        </label>
+-      </div>
+-    </div>
+-  );
+-};
+-
+-export default BusinessTypeFilter;
+diff --git a/src/components/SearchResultCard.tsx b/src/components/SearchResultCard.tsx
+index 162dfaa..458fa3e 100644
+--- a/src/components/SearchResultCard.tsx
++++ b/src/components/SearchResultCard.tsx
+@@ -1,55 +1,3 @@
+-// import { Link } from "react-router-dom";
+-// import { Restaurant } from "../types";
+-// import { AspectRatio } from "@radix-ui/react-aspect-ratio";
+-// import { Banknote, Clock, Dot } from "lucide-react";
+-
+-// type Props = {
+-//   restaurant: Restaurant;
+-// };
+-
+-// const SearchResultCard = ({ restaurant }: Props) => {
+-//   return (
+-//     <Link
+-//       to={`/detail/${restaurant._id}`}
+-//       className="grid lg:grid-cols-[2fr_3fr] gap-5 group"
+-//     >
+-//       <AspectRatio ratio={16 / 6}>
+-//         <img
+-//           src={restaurant.restaurantImageUrl}  // Updated to the correct property
+-//           className="rounded-md w-full h-full object-cover"
+-//           alt={`${restaurant.restaurantName} restaurant`} // Added alt attribute
+-//         />
+-//       </AspectRatio>
+-//       <div>
+-//         <h3 className="text-2xl font-bold tracking-tight mb-2 group-hover:underline">
+-//           {restaurant.restaurantName}
+-//         </h3>
+-//         <div id="card-content" className="grid md:grid-cols-2 gap-2">
+-//           <div className="flex flex-row flex-wrap">
+-//             {restaurant.cuisines.map((item, index) => (
+-//               <span className="flex" key={item + index}>  {/* Unique key added */}
+-//                 <span>{item}</span>
+-//                 {index < restaurant.cuisines.length - 1 && <Dot />}
+-//               </span>
+-//             ))}
+-//           </div>
+-//           <div className="flex gap-2 flex-col">
+-//             <div className="flex items-center gap-1 text-green-600">
+-//               <Clock className="text-green-600" />
+-//               {restaurant.estimatedDeliveryTime} mins flying time
+-//             </div>
+-//             <div className="flex items-center gap-1">
+-//               <Banknote />
+-//               Delivery fee ${(restaurant.deliveryPrice / 100).toFixed(2)}
+-//             </div>
+-//           </div>
+-//         </div>
+-//       </div>
+-//     </Link>
+-//   );
+-// };
+-
+-// export default SearchResultCard;
+ import { Link } from "react-router-dom";
+ import { Restaurant } from "../types";
+ import { AspectRatio } from "@radix-ui/react-aspect-ratio";
+@@ -67,7 +15,7 @@ const SearchResultCard = ({ restaurant }: Props) => {
+     >
+       <AspectRatio ratio={16 / 6}>
+         <img
+-          src={restaurant.restaurantImageUrl} // Updated to the correct property
++          src={restaurant.restaurantImageUrl}  // Updated to the correct property
+           className="rounded-md w-full h-full object-cover"
+           alt={`${restaurant.restaurantName} restaurant`} // Added alt attribute
+         />
+@@ -79,17 +27,13 @@ const SearchResultCard = ({ restaurant }: Props) => {
+         <div id="card-content" className="grid md:grid-cols-2 gap-2">
+           <div className="flex flex-row flex-wrap">
+             {restaurant.cuisines.map((item, index) => (
+-              <span className="flex" key={item + index}> {/* Unique key added */}
++              <span className="flex" key={item + index}>  {/* Unique key added */}
+                 <span>{item}</span>
+                 {index < restaurant.cuisines.length - 1 && <Dot />}
+               </span>
+             ))}
+           </div>
+           <div className="flex gap-2 flex-col">
+-            {/* Show whether it's wholesale or restaurant */}
+-            <div className="flex items-center gap-1 text-blue-600">
+-              {restaurant.wholesale ? "Wholesale" : "Restaurant"}
+-            </div>
+             <div className="flex items-center gap-1 text-green-600">
+               <Clock className="text-green-600" />
+               {restaurant.estimatedDeliveryTime} mins flying time
+diff --git a/src/forms/manage-restaurant-form/ManageRestaurantForm.tsx b/src/forms/manage-restaurant-form/ManageRestaurantForm.tsx
+index 1c1a951..8cc16d6 100644
+--- a/src/forms/manage-restaurant-form/ManageRestaurantForm.tsx
++++ b/src/forms/manage-restaurant-form/ManageRestaurantForm.tsx
+@@ -11,7 +11,6 @@ import RestaurantImage from "./RestaurantImage";
+ import LoadingButton from "@/components/LoadingButton";
+ import { Button } from "@/components/ui/button";  
+ import { Restaurant } from "@/types";
+-import { useAuth0 } from "@auth0/auth0-react"; // Add your authentication hook
+ 
+ const formSchema = z.object({
+   restaurantName: z.string({ required_error: "Restaurant name is required" }),
+@@ -50,9 +49,6 @@ type Props = {
+ };
+ 
+ const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant }) => {
+-  const { user } = useAuth0();  // Use Auth0 or your preferred auth hook
+-  const currentUserEmail = user?.email || ''; // Get the current user's email
+-
+   const form = useForm<RestaurantFormData>({
+     resolver: zodResolver(formSchema),
+     defaultValues: {
+@@ -153,7 +149,7 @@ const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant }
+         onSubmit={form.handleSubmit(onSubmit)}
+         className="space-y-8 bg-gray-50 p-10 rounded-lg"
+       >
+-        <DetailsSection restaurant={restaurant} currentUserEmail={currentUserEmail} /> {/* Pass currentUserEmail */}
++        <DetailsSection restaurant={restaurant} />
+         <Separator />
+         <CuisinesSection />
+         <Separator />
+diff --git a/src/pages/SearchPage.tsx b/src/pages/SearchPage.tsx
+index bd0b594..e9cb13c 100644
+--- a/src/pages/SearchPage.tsx
++++ b/src/pages/SearchPage.tsx
+@@ -1,125 +1,3 @@
+-// import { useState } from "react";
+-// import { useParams } from "react-router-dom";
+-// import { useSearchRestaurants } from "../api/RestaurantApi";
+-// import SearchResultInfo from "../components/SearchResultInfo";
+-// import SearchResultCard from "../components/SearchResultCard";
+-// import SearchBar, { SearchForm } from "../components/SearchBar";
+-// import PaginationSelector from "../components/PaginationSelector";
+-// import CuisineFilter from "../components/CuisineFilter";
+-// import SortOptionDropdown from "../components/SortOptionDropdown";
+-
+-// // Assuming you have a list of cities, define it here or import from a config file
+-// const cityList = [""];
+-
+-// export type SearchState = {
+-//   searchQuery: string;
+-//   page: number;
+-//   selectedCuisines: string[];
+-//   sortOption: string;
+-// };
+-
+-// const SearchPage = () => {
+-//   const { city } = useParams();
+-//   const [searchState, setSearchState] = useState<SearchState>({
+-//     searchQuery: "",
+-//     page: 1,
+-//     selectedCuisines: [],
+-//     sortOption: "bestMatch",
+-//   });
+-
+-//   const [isExpanded, setIsExpanded] = useState<boolean>(false);
+-
+-//   const { results, isLoading } = useSearchRestaurants(searchState, city);
+-
+-//   const setSortOption = (sortOption: string) => {
+-//     setSearchState((prevState) => ({
+-//       ...prevState,
+-//       sortOption,
+-//       page: 1,
+-//     }));
+-//   };
+-
+-//   const setSelectedCuisines = (selectedCuisines: string[]) => {
+-//     setSearchState((prevState) => ({
+-//       ...prevState,
+-//       selectedCuisines,
+-//       page: 1,
+-//     }));
+-//   };
+-
+-//   const setPage = (page: number) => {
+-//     setSearchState((prevState) => ({
+-//       ...prevState,
+-//       page,
+-//     }));
+-//   };
+-
+-//   const setSearchQuery = (searchFormData: SearchForm) => {
+-//     setSearchState((prevState) => ({
+-//       ...prevState,
+-//       searchQuery: searchFormData.searchQuery,
+-//       page: 1,
+-//     }));
+-//   };
+-
+-//   const resetSearch = () => {
+-//     setSearchState((prevState) => ({
+-//       ...prevState,
+-//       searchQuery: "",
+-//       page: 1,
+-//     }));
+-//   };
+-
+-//   if (isLoading) {
+-//     return <span>Loading ...</span>;
+-//   }
+-
+-//   if (!results?.data || !city) {
+-//     return <span>No results found</span>;
+-//   }
+-
+-//   return (
+-//     <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-5">
+-//       <div id="cuisines-list">
+-//         <CuisineFilter
+-//           selectedCuisines={searchState.selectedCuisines}
+-//           onChange={setSelectedCuisines}
+-//           isExpanded={isExpanded}
+-//           onExpandedClick={() =>
+-//             setIsExpanded((prevIsExpanded) => !prevIsExpanded)
+-//           }
+-//         />
+-//       </div>
+-//       <div id="main-content" className="flex flex-col gap-5">
+-//         <SearchBar
+-//           searchQuery={searchState.searchQuery}
+-//           onSubmit={setSearchQuery}
+-//           placeHolder="Search by Cuisine or Restaurant Name"
+-//           onReset={resetSearch}
+-//           cityList={cityList} // Pass the city list here
+-//         />
+-//         <div className="flex justify-between flex-col gap-3 lg:flex-row">
+-//           <SearchResultInfo total={results.pagination.total} city={city} />
+-//           <SortOptionDropdown
+-//             sortOption={searchState.sortOption}
+-//             onChange={(value) => setSortOption(value)}
+-//           />
+-//         </div>
+-
+-//         {results.data.map((restaurant) => (
+-//           <SearchResultCard key={restaurant._id} restaurant={restaurant} />
+-//         ))}
+-//         <PaginationSelector
+-//           page={results.pagination.page}
+-//           pages={results.pagination.pages}
+-//           onPageChange={setPage}
+-//         />
+-//       </div>
+-//     </div>
+-//   );
+-// };
+-
+-// export default SearchPage;
+ import { useState } from "react";
+ import { useParams } from "react-router-dom";
+ import { useSearchRestaurants } from "../api/RestaurantApi";
+@@ -129,15 +7,14 @@ import SearchBar, { SearchForm } from "../components/SearchBar";
+ import PaginationSelector from "../components/PaginationSelector";
+ import CuisineFilter from "../components/CuisineFilter";
+ import SortOptionDropdown from "../components/SortOptionDropdown";
+-import BusinessTypeFilter from "../components/BusinessTypeFilter"; // Import the new filter
+ 
+-const cityList = [""]; // Define or fetch your cities here
++// Assuming you have a list of cities, define it here or import from a config file
++const cityList = [""];
+ 
+ export type SearchState = {
+   searchQuery: string;
+   page: number;
+   selectedCuisines: string[];
+-  selectedBusinessType: string[]; // Add business type to the search state
+   sortOption: string;
+ };
+ 
+@@ -147,7 +24,6 @@ const SearchPage = () => {
+     searchQuery: "",
+     page: 1,
+     selectedCuisines: [],
+-    selectedBusinessType: [], // Initialize business type
+     sortOption: "bestMatch",
+   });
+ 
+@@ -171,14 +47,6 @@ const SearchPage = () => {
+     }));
+   };
+ 
+-  const setSelectedBusinessType = (selectedBusinessType: string[]) => {
+-    setSearchState((prevState) => ({
+-      ...prevState,
+-      selectedBusinessType, // Update the business type
+-      page: 1,
+-    }));
+-  };
+-
+   const setPage = (page: number) => {
+     setSearchState((prevState) => ({
+       ...prevState,
+@@ -202,13 +70,6 @@ const SearchPage = () => {
+     }));
+   };
+ 
+-  const resetBusinessType = () => {
+-    setSearchState((prevState) => ({
+-      ...prevState,
+-      selectedBusinessType: [], // Reset business type
+-    }));
+-  };
+-
+   if (isLoading) {
+     return <span>Loading ...</span>;
+   }
+@@ -219,14 +80,7 @@ const SearchPage = () => {
+ 
+   return (
+     <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-5">
+-      <div id="filter-list">
+-        {/* Business Type Filter */}
+-        <BusinessTypeFilter
+-          selectedBusinessType={searchState.selectedBusinessType}
+-          onChange={setSelectedBusinessType} // Pass the business type handler
+-          onReset={resetBusinessType} // Reset business type filter
+-        />
+-        {/* Cuisine Filter */}
++      <div id="cuisines-list">
+         <CuisineFilter
+           selectedCuisines={searchState.selectedCuisines}
+           onChange={setSelectedCuisines}
