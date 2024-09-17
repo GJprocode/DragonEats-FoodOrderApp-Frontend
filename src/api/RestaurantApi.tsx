@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // // C:\Users\gertf\Desktop\FoodApp\frontend\src\api\RestaurantApi.tsx
 // import { SearchState } from "@/pages/SearchPage";
 // import { Restaurant, RestaurantSearchResponse } from "@/types";
@@ -66,9 +65,7 @@
 // };
 
 
-=======
 // C:\Users\gertf\Desktop\FoodApp\frontend\src\api\RestaurantApi.tsx
->>>>>>> 703e5a2 (dynamic role:admin fetch for admin panel & also permissions: 2 types for pricay & terms of service)
 import { SearchState } from "@/pages/SearchPage";
 import { Restaurant, RestaurantSearchResponse } from "@/types";
 import { useQuery } from "react-query";
