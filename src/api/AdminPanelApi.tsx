@@ -43,7 +43,7 @@ export const useGetAdminRestaurants = () => {
         const token = await getAccessTokenSilently();
         const response = await fetch(`${API_BASE_URL}/api/admin/restaurants`, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Token sent here
           },
         });
         if (!response.ok) throw new Error("Error fetching restaurants");

@@ -12,21 +12,32 @@ import { Link } from 'react-router-dom';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; // Ensure this is defined in your .env file
 
 const UsernameMenu = () => {
-  const { user, logout } = useAuth0();
+  const { user, logout, getAccessTokenSilently } = useAuth0();
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const checkAdminRole = async () => {
       try {
         if (user?.email) {
-          // Fetch admin status from the backend
-          const response = await axios.get(`${API_BASE_URL}/check-admin/${user.email}`);
-          setIsAdmin(response.data.isAdmin);
+          const token = await getAccessTokenSilently();
+          const response = await fetch(`${API_BASE_URL}/check-admin/${user.email}`, {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error('Error checking admin role');
+          }
+
+          const data = await response.json();
+          setIsAdmin(data.isAdmin);
         }
       } catch (error) {
         console.error('Error checking admin role:', error);
@@ -34,7 +45,7 @@ const UsernameMenu = () => {
     };
 
     checkAdminRole();
-  }, [user]);
+  }, [user, getAccessTokenSilently]);
 
   return (
     <DropdownMenu>
