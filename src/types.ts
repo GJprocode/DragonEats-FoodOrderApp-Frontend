@@ -1,12 +1,13 @@
-// types.ts
+// C:\Users\gertf\Desktop\FoodApp\frontend\src\types.ts
 
 export type User = {
   _id: string;
   email: string;
-  name: string;
-  address: string;
-  city: string;
-  country: string;
+  name?: string;  // Mark name as optional if not consistently required
+  address?: string;  // Consistently mark optional fields
+  city?: string;
+  country?: string;
+  role?: string;  // Mark role as optional to reflect Mongoose schema
 };
 
 export type MenuItem = {
@@ -19,7 +20,7 @@ export type MenuItem = {
 export type Restaurant = {
   _id: string;
   user: string;
-  email: string;  // Add the email field here
+  email?: string;  // Marked as optional to match Mongoose default
   restaurantName: string;
   city: string[];
   country: string;
@@ -34,6 +35,7 @@ export type Restaurant = {
   contractId?: string;
   contractType?: string;
 };
+
 
 
 export interface AdminAction {
