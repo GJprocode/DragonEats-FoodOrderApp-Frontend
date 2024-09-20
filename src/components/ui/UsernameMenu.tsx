@@ -13,7 +13,7 @@ import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
 import React, { useEffect, useState } from 'react';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; // Ensure this is defined in your .env file
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const UsernameMenu = () => {
   const { user, logout, getAccessTokenSilently } = useAuth0();
@@ -24,7 +24,7 @@ const UsernameMenu = () => {
       try {
         if (user?.email) {
           const token = await getAccessTokenSilently();
-          const response = await fetch(`${API_BASE_URL}/check-admin/${user.email}`, {
+          const response = await fetch(`${API_BASE_URL}/api/admin/check-admin/${user.email}`, {
             method: 'GET',
             headers: {
               Authorization: `Bearer ${token}`,
@@ -33,7 +33,9 @@ const UsernameMenu = () => {
           });
 
           if (!response.ok) {
-            throw new Error('Error checking admin role');
+            console.log(`Admin check failed with status: ${response.status}`);
+            setIsAdmin(false);  // Assuming non-admin if unauthorized or not found
+            return;
           }
 
           const data = await response.json();
@@ -41,6 +43,7 @@ const UsernameMenu = () => {
         }
       } catch (error) {
         console.error('Error checking admin role:', error);
+        setIsAdmin(false);
       }
     };
 
