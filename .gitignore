@@ -11,6 +11,7 @@ lerna-debug.log*
 
 node_modules
 dist
+!dist/google0c43e2dd203680d9.html
 dist-ssr
 *.local
 
