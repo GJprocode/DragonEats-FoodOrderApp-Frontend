@@ -7,7 +7,7 @@ import { User } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// Hook to get the current user's details
+// Hook to get the current user's details, fixed for linked users
 export const useGetMyUser = () => {
   const { getAccessTokenSilently } = useAuth0();
 
