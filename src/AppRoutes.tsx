@@ -10,7 +10,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Layout from "./layouts/layout"; 
 import AdminPanelPage from "./pages/AdminPanelPage";
-import SignUpPage from "../src/pages/SignupPage";  // Import your signup page
+import SignUpPage from "../src/pages/SignUpPage";  // Import your signup page
 
 const AppRoutes = () => {
   return (
