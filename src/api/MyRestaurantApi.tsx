@@ -7,6 +7,19 @@ import { toast } from "sonner";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+// Utility function to replace HTTP URLs with HTTPS
+const enforceHttpsUrls = (restaurant: Restaurant): Restaurant => {
+  if (restaurant.restaurantImageUrl) {
+    restaurant.restaurantImageUrl = restaurant.restaurantImageUrl.replace("http://", "https://");
+  }
+  restaurant.menuItems.forEach((menuItem) => {
+    if (menuItem.imageUrl) {
+      menuItem.imageUrl = menuItem.imageUrl.replace("http://", "https://");
+    }
+  });
+  return restaurant;
+};
+
 export const useGetMyRestaurant = () => {
   const { getAccessTokenSilently } = useAuth0();
 
@@ -25,8 +38,10 @@ export const useGetMyRestaurant = () => {
     }
 
     const data = await response.json();
-    console.log("Fetched restaurant data:", data);  // Log the data
-    return data;
+    console.log("Fetched restaurant data:", data);
+
+    // Enforce HTTPS for all image URLs
+    return enforceHttpsUrls(data);
   };
 
   const { data: restaurant, isLoading, refetch } = useQuery(
@@ -57,7 +72,8 @@ export const useCreateMyRestaurant = () => {
       throw new Error("Failed to create restaurant");
     }
 
-    return response.json();
+    const data = await response.json();
+    return enforceHttpsUrls(data);
   };
 
   const {
@@ -99,7 +115,8 @@ export const useUpdateMyRestaurant = () => {
       throw new Error("Failed to update restaurant");
     }
 
-    return response.json();
+    const data = await response.json();
+    return enforceHttpsUrls(data);
   };
 
   const {
