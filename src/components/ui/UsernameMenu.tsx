@@ -34,7 +34,7 @@ const UsernameMenu = () => {
 
           if (!response.ok) {
             console.log(`Admin check failed with status: ${response.status}`);
-            setIsAdmin(false);  // Assuming non-admin if unauthorized or not found
+            setIsAdmin(false);
             return;
           }
 
@@ -49,6 +49,16 @@ const UsernameMenu = () => {
 
     checkAdminRole();
   }, [user, getAccessTokenSilently]);
+
+  const handleLogout = () => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const returnToUrl = isProduction
+      ? 'https://dragoneats-foodorderapp-frontend.onrender.com'  // Replace with your production URL
+      : 'http://localhost:5173';
+    
+    logout();
+    window.location.href = returnToUrl;  // Redirect after logout
+  };
 
   return (
     <DropdownMenu>
@@ -77,7 +87,7 @@ const UsernameMenu = () => {
         <Separator />
         <DropdownMenuItem>
           <Button
-            onClick={() => logout()}
+            onClick={handleLogout}
             className="flex flex-1 font-bold bg-green-500"
           >
             Log Out

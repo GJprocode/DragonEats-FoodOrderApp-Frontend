@@ -27,7 +27,6 @@ const MobileNavLinks = () => {
         }
       } catch (error) {
         console.error('Error checking admin role:', error);
-        // This will help you understand the nature of the error
         if (axios.isAxiosError(error)) {
           console.error('Axios error response:', error.response);
         }
@@ -36,6 +35,16 @@ const MobileNavLinks = () => {
 
     checkAdminRole();
   }, [user, getAccessTokenSilently]);
+
+  const handleLogout = () => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const returnToUrl = isProduction
+      ? 'https://dragoneats-foodorderapp-frontend.onrender.com'  // Replace with your production URL
+      : 'http://localhost:5173';
+    
+    logout();
+    window.location.href = returnToUrl;  // Redirect after logout
+  };
 
   return (
     <>
@@ -50,7 +59,7 @@ const MobileNavLinks = () => {
           Admin
         </Link>
       )}
-      <Button onClick={() => logout()} className="flex items-center px-3 font-bold hover:bg-gray-500">
+      <Button onClick={handleLogout} className="flex items-center px-3 font-bold hover:bg-gray-500">
         Log Out
       </Button>
     </>
@@ -58,3 +67,4 @@ const MobileNavLinks = () => {
 };
 
 export default MobileNavLinks;
+

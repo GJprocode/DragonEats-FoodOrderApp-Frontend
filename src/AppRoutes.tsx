@@ -1,4 +1,3 @@
-// frontend/src/AppRoutes.tsx
 import { Navigate, Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import AuthCallbackPage from "./pages/AuthCallbackPage";
@@ -9,8 +8,9 @@ import SearchPage from "./pages/SearchPage";
 import DetailPage from "./pages/DetailPage";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import Layout from "./layouts/layout"; // its lower caps l: C:\Users\gertf\Desktop\FoodApp\frontend\src\layouts\layout.tsx
+import Layout from "./layouts/layout"; 
 import AdminPanelPage from "./pages/AdminPanelPage";
+import SignUpPage from "../src/pages/SignupPage";  // Import your signup page
 
 const AppRoutes = () => {
   return (
@@ -59,7 +59,7 @@ const AppRoutes = () => {
             </Layout>
           }
         />
-      <Route
+        <Route
           path="/admin-panel"
           element={
             <Layout>
@@ -67,8 +67,17 @@ const AppRoutes = () => {
             </Layout>
           }
         />
-
       </Route>
+
+      {/* Add the signup route */}
+      <Route
+        path="/signup"
+        element={
+          <Layout>
+            <SignUpPage />
+          </Layout>
+        }
+      />
 
       <Route
         path="/terms-of-service"
