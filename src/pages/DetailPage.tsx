@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { useGetRestaurant } from "@/api/RestaurantApi";
+import React, { useState } from "react";
+import { useGetRestaurant } from "../api/RestaurantApi";
 import { useParams } from "react-router-dom";
 import MenuItem from "../components/MenuItem";
-import { Card } from "../components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardFooter } from "../components/ui/card";
 import { MenuItem as MenuItemType } from "../types";
-import { Trash } from "lucide-react";
+import OrderSummary from "../components/OrderSummary";
+import CheckoutButton from "../components/CheckoutButton";
+
 
 export type CartItem = {
   _id: string;
@@ -24,7 +25,6 @@ interface Restaurant {
   deliveryPrice: number;
   menuItems: MenuItemType[];
 }
-
 
 const RestaurantDetails = ({ restaurant }: { restaurant: Restaurant }) => {
   return (
@@ -48,16 +48,13 @@ const RestaurantDetails = ({ restaurant }: { restaurant: Restaurant }) => {
 const DetailPage = () => {
   const { restaurantId } = useParams();
   const { restaurant, isLoading } = useGetRestaurant(restaurantId);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [totalCost, setTotalCost] = useState<number>(0);
-
-  useEffect(() => {
-    const cost = cartItems.reduce(
-      (acc, item) => acc + item.price * item.quantity,
-      0
-    );
-    setTotalCost(cost);
-  }, [cartItems]);
+  
+  const [cartItems, setCartItems] = useState<CartItem[]>(()=>{
+    const storedCartItems = sessionStorage.getItem(`cartItems-${
+      restaurantId}`);
+      return storedCartItems ? JSON.parse(storedCartItems) : [];
+  });
+ 
 
   const addToCart = (menuItem: MenuItemType) => {
     setCartItems((prevCartItems) => {
@@ -85,6 +82,12 @@ const DetailPage = () => {
           },
         ];
       }
+
+      sessionStorage.setItem(
+        `cartItems-${restaurantId}`,
+      JSON.stringify(updatedCartItems)
+      );
+
       return updatedCartItems;
     });
   };
@@ -94,9 +97,17 @@ const DetailPage = () => {
       const updatedCartItems = prevCartItems.filter(
         (item) => cartItem._id !== item._id
       );
+
+      sessionStorage.setItem(
+        `cartItems-${restaurantId}`,
+      JSON.stringify(updatedCartItems)
+      );
+
       return updatedCartItems;
     });
   };
+
+
 
   if (isLoading || !restaurant) {
     return "Loading...";
@@ -134,42 +145,21 @@ const DetailPage = () => {
         </div>
         <div>
           <Card className="p-4 space-y-4">
-            <h2 className="text-xl font-bold">Cart: Order Summary</h2>
-            <ul className="space-y-2">
-              {cartItems.map((item) => (
-                <li key={item._id} className="flex justify-between items-center">
-                  <div>
-                    {item.name} x {item.quantity}
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => removeFromCart(item)}
-                      className="text-red-500"
-                    >
-                      <Trash />
-                    </Button>
-                    <span>${(item.price * item.quantity / 100).toFixed(2)}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <div className="border-t pt-4 mt-4">
-              <div className="flex justify-between">
-                <span>Delivery Cost:</span>
-                <span>${(restaurant.deliveryPrice / 100).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between font-bold text-lg mt-2">
-                <span>Total:</span>
-                <span>${((totalCost + restaurant.deliveryPrice) / 100).toFixed(2)}</span>
-              </div>
-            </div>
+            <OrderSummary
+              restaurant={restaurant}
+              cartItems={cartItems}
+              removeFromCart={removeFromCart}
+            />
+            <CardFooter>
+              <CheckoutButton
+              />
+            </CardFooter>
           </Card>
         </div>
       </div>
     </div>
   );
 };
+
 
 export default DetailPage;
