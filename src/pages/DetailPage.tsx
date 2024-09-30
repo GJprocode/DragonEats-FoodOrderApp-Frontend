@@ -1,12 +1,15 @@
 import React, { useState } from "react";
-import { useGetRestaurant } from "../api/RestaurantApi";
+import { useGetRestaurant } from "@/api/RestaurantApi";
 import { useParams } from "react-router-dom";
-import MenuItem from "../components/MenuItem";
-import { Card, CardFooter } from "../components/ui/card";
-import { MenuItem as MenuItemType } from "../types";
-import OrderSummary from "../components/OrderSummary";
-import CheckoutButton from "../components/CheckoutButton";
-
+import MenuItem from "@/components/MenuItem";
+import { Card, CardFooter } from "@/components/ui/card";
+import OrderSummary from "@/components/OrderSummary";
+import CheckoutButton from "@/components/CheckoutButton";
+import { UserFormData } from "@/forms/user-profile-form/UserProfileForm";
+import { MenuItem as MenuItemType } from "@/types";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import RestaurantInfo from "@/components/RestaurantInfo";
+import { useCreateCheckoutSession } from "@/api/OrderApi";
 
 export type CartItem = {
   _id: string;
@@ -16,45 +19,18 @@ export type CartItem = {
   imageUrl?: string;
 };
 
-interface Restaurant {
-  _id: string;
-  restaurantName: string;
-  city: string[];
-  wholesale: boolean;
-  restaurantImageUrl?: string; // Allow undefined values
-  deliveryPrice: number;
-  menuItems: MenuItemType[];
-}
-
-const RestaurantDetails = ({ restaurant }: { restaurant: Restaurant }) => {
-  return (
-    <div className="flex flex-col items-center justify-center text-center space-y-2">
-      {/* Restaurant Name */}
-      <h1 className="text-4xl font-bold mb-2">{restaurant.restaurantName}</h1>
-
-      {/* Business Type */}
-      <p className="text-sm text-gray-600">
-        Business Type: {restaurant.wholesale ? "Wholesaler" : "Restaurant"}
-      </p>
-
-      {/* Cities */}
-      <p className="text-sm text-gray-600">
-        Cities: {restaurant.city.join(", ")}
-      </p>
-    </div>
-  );
-};
-
 const DetailPage = () => {
   const { restaurantId } = useParams();
   const { restaurant, isLoading } = useGetRestaurant(restaurantId);
-  
-  const [cartItems, setCartItems] = useState<CartItem[]>(()=>{
-    const storedCartItems = sessionStorage.getItem(`cartItems-${
-      restaurantId}`);
-      return storedCartItems ? JSON.parse(storedCartItems) : [];
+  const { createCheckoutSession, isLoading: isCheckoutLoading } =
+  useCreateCheckoutSession();
+
+
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    const storedCartItems = sessionStorage.getItem(`cartItems-${restaurantId}`);
+    console.log(`Loaded cart items from sessionStorage for restaurant ${restaurantId}:`, storedCartItems);  // Log stored cart items
+    return storedCartItems ? JSON.parse(storedCartItems) : [];
   });
- 
 
   const addToCart = (menuItem: MenuItemType) => {
     setCartItems((prevCartItems) => {
@@ -83,9 +59,10 @@ const DetailPage = () => {
         ];
       }
 
+      console.log("Cart items after adding:", updatedCartItems);  // Log updated cart items
       sessionStorage.setItem(
         `cartItems-${restaurantId}`,
-      JSON.stringify(updatedCartItems)
+        JSON.stringify(updatedCartItems)
       );
 
       return updatedCartItems;
@@ -98,16 +75,41 @@ const DetailPage = () => {
         (item) => cartItem._id !== item._id
       );
 
+      console.log("Cart items after removing:", updatedCartItems);  // Log cart items after removal
       sessionStorage.setItem(
         `cartItems-${restaurantId}`,
-      JSON.stringify(updatedCartItems)
+        JSON.stringify(updatedCartItems)
       );
 
       return updatedCartItems;
     });
   };
 
-
+  const onCheckout = async (userFormData: UserFormData) => {
+    if (!restaurant) {
+      return;
+    }
+    
+    
+    const checkoutData = {
+      cartItems: cartItems.map((cartItem) => ({
+        menuItemId: cartItem._id,
+        name: cartItem.name,
+        quantity: cartItem.quantity.toString(),
+      })),
+      restaurantId: restaurant._id,
+      deliveryDetails: {
+        name: userFormData.name,
+        address: userFormData.address,
+        city: userFormData.city,
+        country: userFormData.country,
+        email: userFormData.email as string,
+      },
+    };
+    
+    const data = await createCheckoutSession(checkoutData);
+    window.location.href = data.url;
+  };
 
   if (isLoading || !restaurant) {
     return "Loading...";
@@ -115,25 +117,17 @@ const DetailPage = () => {
 
   return (
     <div className="flex flex-col gap-10">
-      {/* Restaurant Details */}
-      <div className="w-full flex justify-center">
-        <div className="w-full max-w-4xl">
-          <RestaurantDetails restaurant={restaurant} />
+      <AspectRatio ratio={16 / 5}>
+        <img
+          src={restaurant.restaurantImageUrl}
+          alt={`Image of ${restaurant.restaurantName}`} // Add alt text here
+          className="rounded-md object-cover h-full w-full"
+        />
+      </AspectRatio>
 
-          {/* Restaurant Image */}
-          <div className="w-full h-48 md:h-64 overflow-hidden rounded-md flex justify-center items-center">
-            <img
-              src={restaurant.restaurantImageUrl}
-              alt="Restaurant"
-              className="max-h-full max-w-full object-contain"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Menu and Cart */}
       <div className="grid md:grid-cols-[4fr_2fr] gap-5 md:px-32">
         <div className="flex flex-col gap-4">
+          <RestaurantInfo restaurant={restaurant} />
           <span className="text-2xl font-bold tracking-tight">Menu</span>
           {restaurant.menuItems.map((menuItem) => (
             <MenuItem
@@ -143,8 +137,9 @@ const DetailPage = () => {
             />
           ))}
         </div>
+
         <div>
-          <Card className="p-4 space-y-4">
+          <Card>
             <OrderSummary
               restaurant={restaurant}
               cartItems={cartItems}
@@ -152,6 +147,9 @@ const DetailPage = () => {
             />
             <CardFooter>
               <CheckoutButton
+                disabled={cartItems.length === 0}
+                onCheckout={onCheckout}
+                isLoading={isCheckoutLoading} // Pass isLoading here to fix the TypeScript error
               />
             </CardFooter>
           </Card>
@@ -160,6 +158,5 @@ const DetailPage = () => {
     </div>
   );
 };
-
 
 export default DetailPage;
