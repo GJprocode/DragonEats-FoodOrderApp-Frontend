@@ -33,7 +33,7 @@ export type Restaurant = {
   restaurantImageUrl?: string; // Optional restaurant image URL
   lastUpdated: string;
   wholesale?: boolean;  // Optional, as per your schema
-  status: "Submitted" | "Pending" | "Approved" | "Rejected";  // Enum for status
+  status: "submitted" | "pending" | "approved" | "rejected";  // Enum for status
   contractId?: string;
   contractType?: string;
 };
