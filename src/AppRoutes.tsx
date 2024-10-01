@@ -12,10 +12,6 @@ import Layout from "./layouts/layout";
 import AdminPanelPage from "./pages/AdminPanelPage";
 import SignUpPage from "../src/pages/SignUpPage";  // Import your signup page
 
-
-
-
-
 const AppRoutes = () => {
   return (
     <Routes>

@@ -1,23 +1,24 @@
-import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import LoadingButton from "@/components/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { User } from "@/types";
+import { useEffect } from "react";
 
-// Schema for the form
 const formSchema = z.object({
-  email: z.string().min(1, "Email is required").email("Invalid email address"),
-  name: z.string().min(1, "Name is required"),
+  email: z.string().optional(),
+  name: z.string().min(1, "name is required"),
   address: z.string().min(1, "Address is required"),
   city: z.string().min(1, "City is required"),
   country: z.string().min(1, "Country is required"),
@@ -29,39 +30,38 @@ type Props = {
   currentUser: User;
   onSave: (userProfileData: UserFormData) => void;
   isLoading: boolean;
+  title?: string;
+  buttonText?: string;
 };
 
-const UserProfileForm = ({ currentUser, onSave, isLoading }: Props) => {
+const UserProfileForm = ({
+  onSave,
+  isLoading,
+  currentUser,
+  title = "User Profile",
+  buttonText = "Submit",
+}: Props) => {
   const form = useForm<UserFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      name: "",
-      address: "",
-      city: "",
-      country: "",
-    },
+    defaultValues: currentUser,
   });
 
   useEffect(() => {
-    if (currentUser) {
-      form.reset(currentUser);
-    }
+    form.reset(currentUser);
   }, [currentUser, form]);
-
-  const onSubmit = async (data: UserFormData) => {
-    try {
-      await onSave(data);
-    } catch (error) {
-      console.error("Failed to update user", error);
-    }
-  };
-
-  if (isLoading) return <p>Loading...</p>;
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(onSave)}
+        className="space-y-4 bg-gray-50 rounded-lg md:p-10"
+      >
+        <div>
+          <h2 className="text-2xl font-bold">{title}</h2>
+          <FormDescription>
+            View and change your profile information here
+          </FormDescription>
+        </div>
         <FormField
           control={form.control}
           name="email"
@@ -69,16 +69,12 @@ const UserProfileForm = ({ currentUser, onSave, isLoading }: Props) => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  readOnly
-                  className="bg-gray-200 cursor-not-allowed"
-                />
+                <Input {...field} disabled className="bg-white" />
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="name"
@@ -86,54 +82,61 @@ const UserProfileForm = ({ currentUser, onSave, isLoading }: Props) => {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} className="bg-white" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Address</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="city"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>City</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="country"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Country</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Updating..." : "Update Profile"}
-        </Button>
+
+        <div className="flex flex-col md:flex-row gap-4">
+          <FormField
+            control={form.control}
+            name="address"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Address</FormLabel>
+                <FormControl>
+                  <Input {...field} className="bg-white" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>City</FormLabel>
+                <FormControl>
+                  <Input {...field} className="bg-white" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Country</FormLabel>
+                <FormControl>
+                  <Input {...field} className="bg-white" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        {isLoading ? (
+          <LoadingButton />
+        ) : (
+          <Button type="submit" className="bg-green-500">
+            {buttonText}
+          </Button>
+        )}
       </form>
     </Form>
   );

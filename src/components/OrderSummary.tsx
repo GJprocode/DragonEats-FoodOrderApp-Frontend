@@ -4,6 +4,7 @@ import { CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
 import { Trash } from "lucide-react";
+import React from "react";
 
 type Props = {
   restaurant: Restaurant;
@@ -33,7 +34,9 @@ const OrderSummary = ({ restaurant, cartItems, removeFromCart }: Props) => {
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
         {cartItems.map((item) => (
-          <div className="flex justify-between items-center">
+
+          <div key={item._id} className="flex justify-between items-center">
+
             <span>
               {item.name} x{" "}
               <Badge variant="outline" className="mr-2">
