@@ -18,7 +18,9 @@ const OrderSummary = ({ restaurant, cartItems, removeFromCart }: Props) => {
       (total, cartItem) => total + cartItem.price * cartItem.quantity,
       0
     );
+
     const totalWithDelivery = totalInCents + restaurant.deliveryPrice;
+
     return (totalWithDelivery / 100).toFixed(2);
   };
 
@@ -32,7 +34,9 @@ const OrderSummary = ({ restaurant, cartItems, removeFromCart }: Props) => {
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
         {cartItems.map((item) => (
+
           <div key={item._id} className="flex justify-between items-center">
+
             <span>
               {item.name} x{" "}
               <Badge variant="outline" className="mr-2">
