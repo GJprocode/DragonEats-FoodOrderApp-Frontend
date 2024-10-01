@@ -2,7 +2,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
 import LoadingButton from "./LoadingButton";
-
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import UserProfileForm, {
   UserFormData,
@@ -20,15 +19,11 @@ const CheckoutButton = ({ onCheckout, disabled, isLoading }: Props) => {
     isAuthenticated,
     isLoading: isAuthLoading,
     loginWithRedirect,
-
-
   } = useAuth0();
 
   const { pathname } = useLocation();
 
-
   const { currentUser, isLoading: isGetUserLoading } = useGetMyUser();
-
 
   const onLogin = async () => {
     await loginWithRedirect({
@@ -45,7 +40,6 @@ const CheckoutButton = ({ onCheckout, disabled, isLoading }: Props) => {
       </Button>
     );
   }
-
 
   if (isAuthLoading || !currentUser || isLoading) {
     return <LoadingButton />;
@@ -70,11 +64,5 @@ const CheckoutButton = ({ onCheckout, disabled, isLoading }: Props) => {
     </Dialog>
   );
 };
-
-  if (isAuthLoading) {
-    return <LoadingButton />;
-  }
-};  
-
 
 export default CheckoutButton;
