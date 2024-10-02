@@ -1,3 +1,4 @@
+// frontend/src/api/OrderApi.tsx
 import { Order } from "@/types";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useMutation, useQuery } from "react-query";
@@ -11,13 +12,19 @@ export const useGetMyOrders = () => {
   const getMyOrdersRequest = async (): Promise<Order[]> => {
     const accessToken = await getAccessTokenSilently();
 
+    console.log("Fetching orders from API:", `${API_BASE_URL}/api/order`);
+
     const response = await fetch(`${API_BASE_URL}/api/order`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
 
+    console.log("Get orders response status:", response.status);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to get orders:", errorText);
       throw new Error("Failed to get orders");
     }
 
@@ -39,13 +46,14 @@ type CheckoutSessionRequest = {
   cartItems: {
     menuItemId: string;
     name: string;
-    quantity: string;
+    quantity: number; // Ensure this is a number
   }[];
   deliveryDetails: {
     email: string;
     name: string;
     address: string;
     city: string;
+    // Include any additional fields
   };
   restaurantId: string;
 };
@@ -57,6 +65,8 @@ export const useCreateCheckoutSession = () => {
     checkoutSessionRequest: CheckoutSessionRequest
   ) => {
     const accessToken = await getAccessTokenSilently();
+
+    console.log("Creating checkout session with request:", checkoutSessionRequest);
 
     const response = await fetch(
       `${API_BASE_URL}/api/order/checkout/create-checkout-session`,
@@ -70,7 +80,11 @@ export const useCreateCheckoutSession = () => {
       }
     );
 
+    console.log("Create checkout session response status:", response.status);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to create checkout session:", errorText);
       throw new Error("Unable to create checkout session");
     }
 
