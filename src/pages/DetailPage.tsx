@@ -23,12 +23,14 @@ const DetailPage = () => {
   const { restaurantId } = useParams();
   const { restaurant, isLoading } = useGetRestaurant(restaurantId);
   const { createCheckoutSession, isLoading: isCheckoutLoading } =
-  useCreateCheckoutSession();
-
+    useCreateCheckoutSession();
 
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     const storedCartItems = sessionStorage.getItem(`cartItems-${restaurantId}`);
-    console.log(`Loaded cart items from sessionStorage for restaurant ${restaurantId}:`, storedCartItems);  // Log stored cart items
+    console.log(
+      `Loaded cart items from sessionStorage for restaurant ${restaurantId}:`,
+      storedCartItems
+    );
     return storedCartItems ? JSON.parse(storedCartItems) : [];
   });
 
@@ -59,7 +61,7 @@ const DetailPage = () => {
         ];
       }
 
-      console.log("Cart items after adding:", updatedCartItems);  // Log updated cart items
+      console.log("Cart items after adding:", updatedCartItems);
       sessionStorage.setItem(
         `cartItems-${restaurantId}`,
         JSON.stringify(updatedCartItems)
@@ -75,7 +77,7 @@ const DetailPage = () => {
         (item) => cartItem._id !== item._id
       );
 
-      console.log("Cart items after removing:", updatedCartItems);  // Log cart items after removal
+      console.log("Cart items after removing:", updatedCartItems);
       sessionStorage.setItem(
         `cartItems-${restaurantId}`,
         JSON.stringify(updatedCartItems)
@@ -89,13 +91,12 @@ const DetailPage = () => {
     if (!restaurant) {
       return;
     }
-    
-    
+
     const checkoutData = {
       cartItems: cartItems.map((cartItem) => ({
         menuItemId: cartItem._id,
         name: cartItem.name,
-        quantity: cartItem.quantity.toString(),
+        quantity: cartItem.quantity, // Keep quantity as number
       })),
       restaurantId: restaurant._id,
       deliveryDetails: {
@@ -106,9 +107,14 @@ const DetailPage = () => {
         email: userFormData.email as string,
       },
     };
-    
-    const data = await createCheckoutSession(checkoutData);
-    window.location.href = data.url;
+
+    try {
+      const data = await createCheckoutSession(checkoutData);
+      window.location.href = data.url;
+    } catch (error) {
+      console.error("Error during checkout:", error);
+      // Optionally, show an error message to the user
+    }
   };
 
   if (isLoading || !restaurant) {
@@ -120,7 +126,7 @@ const DetailPage = () => {
       <AspectRatio ratio={16 / 5}>
         <img
           src={restaurant.restaurantImageUrl}
-          alt={`Image of ${restaurant.restaurantName}`} // Add alt text here
+          alt={`Image of ${restaurant.restaurantName}`}
           className="rounded-md object-cover h-full w-full"
         />
       </AspectRatio>
@@ -149,7 +155,7 @@ const DetailPage = () => {
               <CheckoutButton
                 disabled={cartItems.length === 0}
                 onCheckout={onCheckout}
-                isLoading={isCheckoutLoading} // Pass isLoading here to fix the TypeScript error
+                isLoading={isCheckoutLoading}
               />
             </CardFooter>
           </Card>
