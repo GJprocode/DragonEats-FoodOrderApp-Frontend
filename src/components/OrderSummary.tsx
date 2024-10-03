@@ -1,4 +1,4 @@
-import { CartItem } from "@/pages/DetailPage";
+import { CartItem } from "@/pages/DetailPage"; 
 import { Restaurant } from "@/types";
 import { CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -31,12 +31,15 @@ const OrderSummary = ({ restaurant, cartItems, removeFromCart }: Props) => {
           <span>Cart: Order Summary</span>
           <span>${getTotalCost()}</span>
         </CardTitle>
+        {/* Adjusted layout: Name and Estimated Delivery below each other */}
+        <div className="flex flex-col mt-2">
+          <span className="text-sm text-gray-600">Restaurant: {restaurant.restaurantName}</span>
+          <span className="text-sm text-gray-600">Estimated Delivery: {restaurant.estimatedDeliveryTime} min</span>
+        </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
         {cartItems.map((item) => (
-
           <div key={item._id} className="flex justify-between items-center">
-
             <span>
               {item.name} x{" "}
               <Badge variant="outline" className="mr-2">
@@ -70,3 +73,4 @@ const OrderSummary = ({ restaurant, cartItems, removeFromCart }: Props) => {
 };
 
 export default OrderSummary;
+  

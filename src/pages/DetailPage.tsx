@@ -8,7 +8,6 @@ import CheckoutButton from "@/components/CheckoutButton";
 import { UserFormData } from "@/forms/user-profile-form/UserProfileForm";
 import { MenuItem as MenuItemType } from "@/types";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import RestaurantInfo from "@/components/RestaurantInfo";
 import { useCreateCheckoutSession } from "@/api/OrderApi";
 
 export type CartItem = {
@@ -96,7 +95,7 @@ const DetailPage = () => {
       cartItems: cartItems.map((cartItem) => ({
         menuItemId: cartItem._id,
         name: cartItem.name,
-        quantity: cartItem.quantity, // Keep quantity as number
+        quantity: cartItem.quantity,
       })),
       restaurantId: restaurant._id,
       deliveryDetails: {
@@ -113,7 +112,6 @@ const DetailPage = () => {
       window.location.href = data.url;
     } catch (error) {
       console.error("Error during checkout:", error);
-      // Optionally, show an error message to the user
     }
   };
 
@@ -131,11 +129,19 @@ const DetailPage = () => {
         />
       </AspectRatio>
 
+      {/* Restaurant Details */}
+      <div className="text-center">
+        <h2 className="text-3xl font-bold">{restaurant.restaurantName}</h2>
+        <p className="text-gray-500">{restaurant.city.join(", ")}</p>
+        <p className="text-gray-600">
+          Business Type: {restaurant.wholesale ? "Wholesaler" : "Restaurant"}
+        </p>
+      </div>
+
       <div className="grid md:grid-cols-[4fr_2fr] gap-5 md:px-32">
         <div className="flex flex-col gap-4">
-          <RestaurantInfo restaurant={restaurant} />
           <span className="text-2xl font-bold tracking-tight">Menu</span>
-          {restaurant.menuItems.map((menuItem) => (
+          {restaurant.menuItems.map((menuItem: MenuItemType) => (
             <MenuItem
               key={menuItem._id}
               menuItem={menuItem}
