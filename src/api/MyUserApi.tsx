@@ -7,9 +7,10 @@ import { User } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+
 // Hook to get the current user's details, fixed for linked users
 export const useGetMyUser = () => {
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
 
   const getMyUserRequest = async (): Promise<User> => {
     try {
@@ -35,7 +36,13 @@ export const useGetMyUser = () => {
     }
   };
 
-  const { data: currentUser, isLoading, error } = useQuery('fetchCurrentUser', getMyUserRequest);
+  const { data: currentUser, isLoading, error } = useQuery(
+    'fetchCurrentUser',
+    getMyUserRequest,
+    {
+      enabled: isAuthenticated, // Fetch only when the user is authenticated
+    }
+  );
 
   if (error) {
     toast.error(`Failed to fetch user: ${error}`);
@@ -43,6 +50,9 @@ export const useGetMyUser = () => {
 
   return { currentUser, isLoading };
 };
+
+
+
 
 // Hook to create a new user
 export const useCreateMyUser = () => {
