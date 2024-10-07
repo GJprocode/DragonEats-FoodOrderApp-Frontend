@@ -6,6 +6,7 @@ import { Separator } from "./ui/separator";
 import { Trash } from "lucide-react";
 import React from "react";
 
+
 type Props = {
   restaurant: Restaurant;
   cartItems: CartItem[];
@@ -28,8 +29,8 @@ const OrderSummary = ({ restaurant, cartItems, removeFromCart }: Props) => {
     <>
       <CardHeader>
         <CardTitle className="text-2xl font-bold tracking-tight flex justify-between">
-          <span>Cart: Order Summary</span>
-          <span>${getTotalCost()}</span>
+          <span>Order Summary</span>
+        
         </CardTitle>
         {/* Adjusted layout: Name and Estimated Delivery below each other */}
         <div className="flex flex-col mt-2">

@@ -1,16 +1,15 @@
 import { useForm } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import Fuse from "fuse.js";
 import { Form, FormControl, FormField, FormItem } from "./ui/form";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 const formSchema = z.object({
   searchQuery: z.string({
-    required_error: "Restaurant name is required",
+    required_error: "Search is required",
   }),
 });
 
@@ -21,10 +20,14 @@ type Props = {
   placeHolder: string;
   onReset?: () => void;
   searchQuery: string;
-  cityList: string[];  // List of cities for fuzzy search suggestions
 };
 
-const SearchBar = ({ onSubmit, onReset, placeHolder, searchQuery, cityList }: Props) => {
+const SearchBar = ({
+  onSubmit,
+  onReset,
+  placeHolder,
+  searchQuery,
+}: Props) => {
   const form = useForm<SearchForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -32,29 +35,16 @@ const SearchBar = ({ onSubmit, onReset, placeHolder, searchQuery, cityList }: Pr
     },
   });
 
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-
   useEffect(() => {
     form.reset({ searchQuery });
   }, [form, searchQuery]);
 
-  const fuse = new Fuse(cityList, {
-    threshold: 0.3,
-  });
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    form.setValue("searchQuery", inputValue);
-
-    const fuzzyResults = fuse.search(inputValue).map(result => result.item);
-    setSuggestions(fuzzyResults);
+    form.setValue("searchQuery", e.target.value);
   };
 
   const handleReset = () => {
-    form.reset({
-      searchQuery: "",
-    });
-
+    form.reset({ searchQuery: "" });
     if (onReset) {
       onReset();
     }
@@ -64,14 +54,15 @@ const SearchBar = ({ onSubmit, onReset, placeHolder, searchQuery, cityList }: Pr
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={`flex items-center gap-3 justify-between border-2 rounded-full p-3
+        className={`flex items-center gap-1 border-2 rounded-full p-2 md:p-3
           ${form.formState.errors.searchQuery && "border-red-700"}`}
       >
-        <Search
-          strokeWidth={2.5}
-          size={30}
-          className="ml-2 text-green-600 hidden md:block"
-        />
+        {/* Search Icon */}
+        <button type="submit" className="p-1" aria-label="Search">
+          <Search className="w-5 h-5 text-green-600" />
+        </button>
+
+        {/* Input Field */}
         <FormField
           control={form.control}
           name="searchQuery"
@@ -80,34 +71,36 @@ const SearchBar = ({ onSubmit, onReset, placeHolder, searchQuery, cityList }: Pr
               <FormControl>
                 <Input
                   {...field}
-                  className="border-none shadow-none text-xl focus-visible:ring-0"
+                  className="border-none shadow-none text-xs md:text-base lg:text-xl focus-visible:ring-0"
                   placeholder={placeHolder}
                   onChange={handleInputChange}
+                  style={{ minWidth: "100px" }}
                 />
               </FormControl>
-              <ul>
-                {suggestions.map((suggestion, index) => (
-                  <li
-                    key={index}
-                    onClick={() => form.setValue("searchQuery", suggestion)}
-                    className="cursor-pointer"
-                  >
-                    {suggestion}
-                  </li>
-                ))}
-              </ul>
             </FormItem>
           )}
         />
+
+        {/* Reset Button Icon */}
+        <button
+          onClick={handleReset}
+          type="button"
+          className="p-1"
+          aria-label="Reset"
+        >
+          <X className="w-5 h-5 text-gray-500" />
+        </button>
+
+        {/* Full buttons for larger screens */}
         <Button
           onClick={handleReset}
           type="button"
           variant="outline"
-          className="rounded-full"
+          className="hidden md:block rounded-full"
         >
           Reset
         </Button>
-        <Button type="submit" className="rounded-full bg-green-600 text-white">
+        <Button type="submit" className="hidden md:block rounded-full bg-green-600 text-white">
           Search
         </Button>
       </form>

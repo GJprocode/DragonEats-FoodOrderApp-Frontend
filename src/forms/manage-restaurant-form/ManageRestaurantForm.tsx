@@ -9,10 +9,11 @@ import CuisinesSection from "./CuisinesSection";
 import MenuSection from "./MenuSection";
 import RestaurantImage from "./RestaurantImage";
 import LoadingButton from "@/components/LoadingButton";
-import { Button } from "@/components/ui/button";  
+import { Button } from "@/components/ui/button";
 import { Restaurant } from "@/types";
-import { useAuth0 } from "@auth0/auth0-react"; // Add your authentication hook
+import { useAuth0 } from "@auth0/auth0-react";
 
+// Define the schema with Zod
 const formSchema = z.object({
   restaurantName: z.string({ required_error: "Restaurant name is required" }),
   city: z.array(z.string()).nonempty({ message: "At least one city is required" }),
@@ -32,7 +33,7 @@ const formSchema = z.object({
   menuItems: z.array(
     z.object({
       name: z.string().min(1, "Name is required"),
-      price: z.coerce.number().min(1, "Price is required"),
+      price: z.coerce.number().min(1, "Price is required"), // Price will be formatted later
       imageFile: z.instanceof(File).optional(),
       imageUrl: z.string().optional(),
     })
@@ -50,8 +51,8 @@ type Props = {
 };
 
 const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant }) => {
-  const { user } = useAuth0();  // Use Auth0 or your preferred auth hook
-  const currentUserEmail = user?.email || ''; // Get the current user's email
+  const { user } = useAuth0();
+  const currentUserEmail = user?.email || '';
 
   const form = useForm<RestaurantFormData>({
     resolver: zodResolver(formSchema),
@@ -71,15 +72,16 @@ const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant }
     },
   });
 
+  // Load existing restaurant data into the form and format prices to 2 decimals
   useEffect(() => {
     if (restaurant) {
-      const deliveryPriceFormatted = parseInt(
+      const deliveryPriceFormatted = parseFloat(
         (restaurant.deliveryPrice / 100).toFixed(2)
       );
 
       const menuItemsFormatted = restaurant.menuItems.map((item) => ({
         ...item,
-        price: parseInt((item.price / 100).toFixed(2)),
+        price: parseFloat((item.price / 100).toFixed(2)),
       }));
 
       const updatedRestaurant = {
@@ -93,6 +95,7 @@ const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant }
     }
   }, [restaurant, form]);
 
+  // Form submission logic with price formatting
   const onSubmit = async (formDataJson: RestaurantFormData) => {
     const formData = new FormData();
     formData.append("restaurantName", formDataJson.restaurantName);
@@ -100,17 +103,18 @@ const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant }
       formData.append(`city[${index}]`, city);
     });
     formData.append("country", formDataJson.country);
-    formData.append("deliveryPrice", (formDataJson.deliveryPrice * 100).toString());
+    formData.append("deliveryPrice", (formDataJson.deliveryPrice * 100).toFixed(2)); // Format price to 2 decimals
     formData.append("estimatedDeliveryTime", formDataJson.estimatedDeliveryTime.toString());
     formData.append("wholesale", formDataJson.wholesale ? "true" : "false");
     formDataJson.cuisines.forEach((cuisine, index) => {
       formData.append(`cuisines[${index}]`, cuisine);
     });
   
+    // Handle each menu item and format the price to two decimals
     formDataJson.menuItems.forEach((menuItem, index) => {
-      if (menuItem.name && menuItem.price) { // Ensure empty or deleted items aren't sent
+      if (menuItem.name && menuItem.price) {
         formData.append(`menuItems[${index}][name]`, menuItem.name);
-        formData.append(`menuItems[${index}][price]`, (menuItem.price * 100).toString());
+        formData.append(`menuItems[${index}][price]`, (menuItem.price * 100).toFixed(2)); // Ensure 2 decimals
         if (menuItem.imageFile) {
           formData.append(`menuItems[${index}].menuItemImageFile`, menuItem.imageFile);
         } else if (menuItem.imageUrl) {
@@ -119,6 +123,7 @@ const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant }
       }
     });
 
+    // Handle the restaurant image upload
     if (formDataJson.imageFile) {
       formData.append("restaurantImageFile", formDataJson.imageFile);
     } else if (formDataJson.imageUrl) {
@@ -126,12 +131,13 @@ const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant }
     }
 
     try {
-      await onSave(formData);  // Ensure the backend is receiving the correct data
+      await onSave(formData);
     } catch (error) {
       console.error("Error during submission:", error);
     }
   };
 
+  // Calculate the status bar width for status display
   const getStatusWidth = () => {
     switch (restaurant?.status) {
       case "submitted":
@@ -153,7 +159,7 @@ const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant }
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 bg-gray-50 p-10 rounded-lg"
       >
-        <DetailsSection restaurant={restaurant} currentUserEmail={currentUserEmail} /> {/* Pass currentUserEmail */}
+        <DetailsSection restaurant={restaurant} currentUserEmail={currentUserEmail} />
         <Separator />
         <CuisinesSection />
         <Separator />
@@ -163,15 +169,18 @@ const ManageRestaurantForm: React.FC<Props> = ({ onSave, isLoading, restaurant }
         <Separator />
         <div className="mt-6">
           <label htmlFor="progress" className="block text-sm font-medium text-gray-700">
-            Restaurant Status
+            Restaurant Status:
           </label>
+          <p className="text-xs text-gray-500">
+            Your submission has been sent for admin approval.
+          </p>
           <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
             <div
               className={`bg-blue-600 h-2.5 rounded-full`}
               style={{ width: getStatusWidth() }}
             ></div>
           </div>
-          <div className="flex justify-between text-sm text-gray-500 mt-2">
+          <div className="flex justify-between text-xs md:text-sm text-gray-500 mt-2">
             <span>Submitted</span>
             <span>Pending Approval</span>
             <span>{restaurant?.status === "rejected" ? "Rejected" : "Approved"}</span>

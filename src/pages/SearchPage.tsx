@@ -1,5 +1,3 @@
-// import { useState } from "react";
-
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSearchRestaurants } from "../api/RestaurantApi";
@@ -9,15 +7,13 @@ import SearchBar, { SearchForm } from "../components/SearchBar";
 import PaginationSelector from "../components/PaginationSelector";
 import CuisineFilter from "../components/CuisineFilter";
 import SortOptionDropdown from "../components/SortOptionDropdown";
-import BusinessTypeFilter from "../components/BusinessTypeFilter"; // Import the new filter
-
-const cityList = [""]; // Define or fetch your cities here
+import BusinessTypeFilter from "../components/BusinessTypeFilter";
 
 export type SearchState = {
   searchQuery: string;
   page: number;
   selectedCuisines: string[];
-  selectedBusinessType: string[]; // Add business type to the search state
+  selectedBusinessType: string[];
   sortOption: string;
 };
 
@@ -27,7 +23,7 @@ const SearchPage = () => {
     searchQuery: "",
     page: 1,
     selectedCuisines: [],
-    selectedBusinessType: [], // Initialize business type
+    selectedBusinessType: [],
     sortOption: "bestMatch",
   });
 
@@ -54,7 +50,7 @@ const SearchPage = () => {
   const setSelectedBusinessType = (selectedBusinessType: string[]) => {
     setSearchState((prevState) => ({
       ...prevState,
-      selectedBusinessType, // Update the business type
+      selectedBusinessType,
       page: 1,
     }));
   };
@@ -85,7 +81,7 @@ const SearchPage = () => {
   const resetBusinessType = () => {
     setSearchState((prevState) => ({
       ...prevState,
-      selectedBusinessType: [], // Reset business type
+      selectedBusinessType: [],
     }));
   };
 
@@ -100,38 +96,32 @@ const SearchPage = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-5">
       <div id="filter-list">
-        {/* Business Type Filter */}
         <BusinessTypeFilter
           selectedBusinessType={searchState.selectedBusinessType}
-          onChange={setSelectedBusinessType} // Pass the business type handler
-          onReset={resetBusinessType} // Reset business type filter
+          onChange={setSelectedBusinessType}
+          onReset={resetBusinessType}
         />
-        {/* Cuisine Filter */}
         <CuisineFilter
           selectedCuisines={searchState.selectedCuisines}
           onChange={setSelectedCuisines}
           isExpanded={isExpanded}
-          onExpandedClick={() =>
-            setIsExpanded((prevIsExpanded) => !prevIsExpanded)
-          }
+          onExpandedClick={() => setIsExpanded((prev) => !prev)}
         />
       </div>
       <div id="main-content" className="flex flex-col gap-5">
         <SearchBar
           searchQuery={searchState.searchQuery}
           onSubmit={setSearchQuery}
-          placeHolder="Search by Cuisine or Restaurant Name"
+          placeHolder="Search by Cuisine/Restaurant"
           onReset={resetSearch}
-          cityList={cityList} // Pass the city list here
         />
         <div className="flex justify-between flex-col gap-3 lg:flex-row">
           <SearchResultInfo total={results.pagination.total} city={city} />
           <SortOptionDropdown
             sortOption={searchState.sortOption}
-            onChange={(value) => setSortOption(value)}
+            onChange={setSortOption}
           />
         </div>
-
         {results.data.map((restaurant) => (
           <SearchResultCard key={restaurant._id} restaurant={restaurant} />
         ))}

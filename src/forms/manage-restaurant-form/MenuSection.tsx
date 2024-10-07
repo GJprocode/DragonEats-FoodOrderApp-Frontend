@@ -13,7 +13,7 @@ const MenuSection = () => {
   });
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       <div>
         <h2 className="text-2xl font-bold">Menu</h2>
         <FormDescription>
@@ -25,10 +25,10 @@ const MenuSection = () => {
         control={control}
         name="menuItems"
         render={() => (
-          <FormItem className="flex flex-col gap-2">
+          <FormItem className="flex flex-col gap-4">
             {fields.map((item, index) => (
               <MenuItemInput
-                key={item.id} // Ensure each item has a unique key
+                key={item.id}
                 index={index}
                 removeMenuItem={() => remove(index)}
               />
@@ -36,7 +36,11 @@ const MenuSection = () => {
           </FormItem>
         )}
       />
-      <Button type="button" onClick={() => append({ name: "", price: 0, imageFile: undefined, imageUrl: "" })}>
+      <Button
+        type="button"
+        onClick={() => append({ name: "", price: 0, imageFile: undefined, imageUrl: "" })}
+        className="bg-green-600 text-white mt-4 md:mt-0"
+      >
         Add Menu Item
       </Button>
     </div>
