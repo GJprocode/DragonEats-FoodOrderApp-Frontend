@@ -14,7 +14,7 @@ import { Restaurant } from "@/types";
 
 type DetailsSectionProps = {
   restaurant?: Restaurant | null;
-  currentUserEmail: string; // Add currentUserEmail prop
+  currentUserEmail?: string; // Add currentUserEmail prop
 };
 
 const DetailsSection: React.FC<DetailsSectionProps> = ({ restaurant, currentUserEmail }) => {

@@ -51,22 +51,28 @@ const HomePage = () => {
         <span className="text-xl">Magical DragonEats&Drinks delivered quick & easy.</span>
         <span className="text-xl">Restaurant delivery and Wholesale of drinks services.</span>
         <span className="text-xl">We are earth-friendly dragons.</span>
-        <h2 className="text-xs">Available cities in Cambodia:</h2>
-        <p className="test-xs"> {loading ? "Loading cities..." : cityList.length > 0 ? cityList.join(", ") : "No cities available"}</p>
+        <h2 className="text-[10px] sm:text-xs md:text-sm">Available cities in Cambodia:</h2>
+          <p className="text-[10px] sm:text-xs md:text-sm">
+            {loading ? "Loading cities..." : cityList.length > 0 ? cityList.join(", ") :
+             "No cities available"}
+          </p>
+
         <SearchBar
           placeHolder="Magical cities near you"
           onSubmit={handleSearchSubmit}
           searchQuery=""
-          cityList={cityList}
+       
         />
       </div>
-      <div className="md:grid md:grid-cols-2 gap-5 items-center">
-        <img 
-          src={landingImage} 
-          alt="CellApp" 
-          className="max-w-full" 
-          style={{ width: '75%', maxWidth: '400px', height: 'auto' }} 
-        />
+      <div className="md:grid md:grid-cols-2 gap-5 ">
+        <div className="flex justify-center md:justify-start">
+          <img 
+            src={landingImage} 
+            alt="CellApp" 
+            className="max-w-full" 
+            style={{ width: '75%', maxWidth: '400px', height: 'auto' }} 
+          />
+          </div>
         <div className="flex flex-col items-center justify-center gap-4 text-center">
           <span className="font-bold text-3xl tracking-tighter">Your order winged in!</span>
           <span>Download DragonEats App for magical food delivery!</span>

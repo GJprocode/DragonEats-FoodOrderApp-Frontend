@@ -21,15 +21,10 @@ export type CartItem = {
 const DetailPage = () => {
   const { restaurantId } = useParams();
   const { restaurant, isLoading } = useGetRestaurant(restaurantId);
-  const { createCheckoutSession, isLoading: isCheckoutLoading } =
-    useCreateCheckoutSession();
+  const { createCheckoutSession, isLoading: isCheckoutLoading } = useCreateCheckoutSession();
 
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     const storedCartItems = sessionStorage.getItem(`cartItems-${restaurantId}`);
-    console.log(
-      `Loaded cart items from sessionStorage for restaurant ${restaurantId}:`,
-      storedCartItems
-    );
     return storedCartItems ? JSON.parse(storedCartItems) : [];
   });
 
@@ -60,12 +55,7 @@ const DetailPage = () => {
         ];
       }
 
-      console.log("Cart items after adding:", updatedCartItems);
-      sessionStorage.setItem(
-        `cartItems-${restaurantId}`,
-        JSON.stringify(updatedCartItems)
-      );
-
+      sessionStorage.setItem(`cartItems-${restaurantId}`, JSON.stringify(updatedCartItems));
       return updatedCartItems;
     });
   };
@@ -75,21 +65,13 @@ const DetailPage = () => {
       const updatedCartItems = prevCartItems.filter(
         (item) => cartItem._id !== item._id
       );
-
-      console.log("Cart items after removing:", updatedCartItems);
-      sessionStorage.setItem(
-        `cartItems-${restaurantId}`,
-        JSON.stringify(updatedCartItems)
-      );
-
+      sessionStorage.setItem(`cartItems-${restaurantId}`, JSON.stringify(updatedCartItems));
       return updatedCartItems;
     });
   };
 
   const onCheckout = async (userFormData: UserFormData) => {
-    if (!restaurant) {
-      return;
-    }
+    if (!restaurant) return;
 
     const checkoutData = {
       cartItems: cartItems.map((cartItem) => ({
@@ -120,7 +102,7 @@ const DetailPage = () => {
   }
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-10 md:px-32">
       <AspectRatio ratio={16 / 5}>
         <img
           src={restaurant.restaurantImageUrl}
@@ -132,41 +114,47 @@ const DetailPage = () => {
       {/* Restaurant Details */}
       <div className="text-center">
         <h2 className="text-3xl font-bold">{restaurant.restaurantName}</h2>
-        <p className="text-gray-500">{restaurant.city.join(", ")}</p>
+        <p className="text-gray-500">Cities: {restaurant.city.join(", ")}</p>
         <p className="text-gray-600">
           Business Type: {restaurant.wholesale ? "Wholesaler" : "Restaurant"}
         </p>
       </div>
 
-      <div className="grid md:grid-cols-[4fr_2fr] gap-5 md:px-32">
-        <div className="flex flex-col gap-4">
-          <span className="text-2xl font-bold tracking-tight">Menu</span>
-          {restaurant.menuItems.map((menuItem: MenuItemType) => (
-            <MenuItem
-              key={menuItem._id}
-              menuItem={menuItem}
-              addToCart={() => addToCart(menuItem)}
-            />
-          ))}
-        </div>
+      {/* Content Layout */}
+      <div className="flex flex-col lg:flex-row gap-5">
+          {/* Menu Section */}
+          <div className="flex-1">
+            <div className="text-2xl font-bold tracking-tight mb-4">Menu</div>
+            <div className="flex flex-col gap-4">
+              {restaurant.menuItems.map((menuItem: MenuItemType) => (
+                <MenuItem
+                  key={menuItem._id}
+                  menuItem={menuItem}
+                  addToCart={() => addToCart(menuItem)}
+                />
+              ))}
+            </div>
+          </div>
 
-        <div>
-          <Card>
-            <OrderSummary
-              restaurant={restaurant}
-              cartItems={cartItems}
-              removeFromCart={removeFromCart}
-            />
-            <CardFooter>
-              <CheckoutButton
-                disabled={cartItems.length === 0}
-                onCheckout={onCheckout}
-                isLoading={isCheckoutLoading}
+          {/* Order Summary Section */}
+          <div className="w-full lg:w-1/3 mt-4 lg:mt-[0.15rem]">
+            <div className="text-2xl font-bold tracking-tight mb-2">Cart</div>
+            <Card className="shadow-md pt-1 lg:pt-0">
+              <OrderSummary
+                restaurant={restaurant}
+                cartItems={cartItems}
+                removeFromCart={removeFromCart}
               />
-            </CardFooter>
-          </Card>
+              <CardFooter>
+                <CheckoutButton
+                  disabled={cartItems.length === 0}
+                  onCheckout={onCheckout}
+                  isLoading={isCheckoutLoading}
+                />
+              </CardFooter>
+            </Card>
+          </div>
         </div>
-      </div>
     </div>
   );
 };
