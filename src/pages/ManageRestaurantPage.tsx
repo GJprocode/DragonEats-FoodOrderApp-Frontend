@@ -7,7 +7,7 @@ import {
   useUpdateMyRestaurant,
 } from "../api/MyRestaurantApi";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import OrderItemCard from "@components/OrderItemCard";
+import OrderItemCard from "../components/OrderItemCard";
 
 const ManageRestaurantPage: React.FC = () => {
   const { createRestaurant, isLoading: isCreateLoading } = useCreateMyRestaurant();

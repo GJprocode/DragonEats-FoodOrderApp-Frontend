@@ -88,9 +88,9 @@ const OrderItemCard = ({ order }: Props) => {
         <div className="flex flex-col space-y-1.5">
           <Label htmlFor="status">What is the status of this order?</Label>
           <Select
-            value={status}
-            disabled={isLoading}
-            onValueChange={(value) => handleStatusChange(value as OrderStatus)}
+          value={status}
+          disabled={isLoading}
+          onValueChange={(value) => handleStatusChange(value as OrderStatus)}
           >
             <SelectTrigger id="status">
               <SelectValue placeholder="Status" />
