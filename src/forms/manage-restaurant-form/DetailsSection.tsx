@@ -91,6 +91,26 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({ restaurant, currentUser
             </FormItem>
           )}
         />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FormField
+          control={control}
+          name="cellphone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Cellphone Number</FormLabel>
+              <FormControl>
+                <Input
+                  type="tel"
+                  value={field.value}
+                  onChange={field.onChange}
+                  className="bg-white border-gray-300 rounded-md"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={control}
           name="country"
