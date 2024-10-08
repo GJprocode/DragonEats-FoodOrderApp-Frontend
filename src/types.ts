@@ -8,6 +8,7 @@ export type User = {
   city?: string;       // Optional
   country?: string;    // Optional
   role?: string;       // Optional, default is "user"
+  cellphone?: string;  // Optional, for storing user's cellphone number
 };
 
 // Updated MenuItem type to match changes from the backend
@@ -35,11 +36,15 @@ export type Restaurant = {
   wholesale?: boolean;  // Optional, as per your schema
   status: "submitted" | "pending" | "approved" | "rejected";  // Enum for status
   contractId?: string;
-  contractType?: string;
+  contractType?: string;  
+  cellphone?: string;   // Optional cellphone field for the restaurant
 };
+
+export type OrderStatus = "placed" | "paid" | "inProgress" | "outForDelivery" | "delivered";
 
 // Updated Order type to reflect changes in Restaurant and User
 export type Order = {
+  restaurantName: string;
   _id: string;
   restaurant: Restaurant;  // Reference to the Restaurant type
   user: User;              // Reference to the User type
@@ -47,16 +52,19 @@ export type Order = {
     menuItemId: string;
     name: string;
     quantity: number;    // Changed to number for consistency
+    price: number; // Ensure this is a number and not optional
   }[];
   deliveryDetails: {
     name: string;
     address: string;
     city: string;
     email: string;
+    cellphone: string;   // Changed to string for better flexibility
   };
   totalAmount: number;
-  status: "placed" | "paid" | "inProgress" | "outForDelivery" | "delivered";  // Order status enum
+  status: OrderStatus;
   createdAt: string;
+  restaurantID: string;
 };
 
 // For restaurant search results with pagination

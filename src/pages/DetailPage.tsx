@@ -78,6 +78,7 @@ const DetailPage = () => {
         menuItemId: cartItem._id,
         name: cartItem.name,
         quantity: cartItem.quantity,
+        price: Number(cartItem.price), // Ensure price is a number
       })),
       restaurantId: restaurant._id,
       deliveryDetails: {
@@ -86,8 +87,10 @@ const DetailPage = () => {
         city: userFormData.city,
         country: userFormData.country,
         email: userFormData.email as string,
+        cellphone :userFormData.cellphone,
       },
     };
+    // console.log("Checkout Data Cart Items:", checkoutData.cartItems);
 
     try {
       const data = await createCheckoutSession(checkoutData);
@@ -95,7 +98,8 @@ const DetailPage = () => {
     } catch (error) {
       console.error("Error during checkout:", error);
     }
-  };
+  };  
+  
 
   if (isLoading || !restaurant) {
     return "Loading...";

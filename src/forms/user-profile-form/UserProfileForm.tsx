@@ -21,6 +21,7 @@ const formSchema = z.object({
   address: z.string().min(1, "Address is required"),
   city: z.string().min(1, "City is required"),
   country: z.string().min(1, "Country is required"),
+  cellphone: z.string().min(1, "Cellphone number is required"), // Add cellphone field
 });
 
 export type UserFormData = z.infer<typeof formSchema>;
@@ -40,9 +41,10 @@ const UserProfileForm = ({ currentUser, onSave, isLoading }: Props) => {
       address: "",
       city: "",
       country: "",
+      cellphone: "", // Add default value for cellphone
     },
   });
-
+  
   useEffect(() => {
     if (currentUser) {
       form.reset(currentUser);
@@ -131,6 +133,20 @@ const UserProfileForm = ({ currentUser, onSave, isLoading }: Props) => {
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="cellphone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Cellphone</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <Button type="submit" disabled={isLoading}>
           {isLoading ? "Updating..." : "Update Profile"}
         </Button>

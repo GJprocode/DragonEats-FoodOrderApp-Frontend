@@ -11,10 +11,12 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Layout from "./layouts/layout"; 
 import AdminPanelPage from "./pages/AdminPanelPage";
 import SignUpPage from "../src/pages/SignUpPage";  // Import your signup page
+import OrderStatusPage from "./pages/OrderStatusPage";
 
 const AppRoutes = () => {
   return (
     <Routes>
+
       <Route
         path="/"
         element={
@@ -23,6 +25,7 @@ const AppRoutes = () => {
           </Layout>
         }
       />
+     
       <Route path="/auth-callback" element={<AuthCallbackPage />} />
       <Route
         path="/search/:city"
@@ -43,7 +46,17 @@ const AppRoutes = () => {
 
       {/* Protected routes */}
       <Route element={<ProtectedRoute />}>
-        <Route
+
+      <Route
+        path="/order-status"
+        element={
+          <Layout >
+            <OrderStatusPage />
+          </Layout>
+        }
+      />
+      
+      <Route
           path="/user-profile"
           element={
             <Layout>
@@ -51,6 +64,7 @@ const AppRoutes = () => {
             </Layout>
           }
         />
+        
         <Route
           path="/manage-restaurant"
           element={
@@ -59,6 +73,7 @@ const AppRoutes = () => {
             </Layout>
           }
         />
+
         <Route
           path="/admin-panel"
           element={
