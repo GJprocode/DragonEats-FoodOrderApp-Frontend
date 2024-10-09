@@ -1,6 +1,5 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { useLocation } from "react-router-dom";
-// import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import LoadingButton from "./LoadingButton";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
@@ -16,22 +15,22 @@ type Props = {
 const CheckoutButton = ({ onCheckout, disabled, isLoading }: Props) => {
   const { isAuthenticated, isLoading: isAuthLoading, loginWithRedirect } = useAuth0();
   const { pathname } = useLocation();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const { currentUser, isLoading: isGetUserLoading } = useGetMyUser();
 
   const onLogin = async () => {
     await loginWithRedirect({
       appState: {
-        returnTo: pathname      
+        returnTo: pathname,
       },
     });
   };
 
+  // Update only the order details, not initiate payment yet
   const handleUserProfileSave = (userFormData: UserFormData) => {
-    onCheckout(userFormData);
-    // navigate("/order-status"); // Redirect to the order status page after saving the user profile.
+    onCheckout(userFormData); // Updates the order with user details
+    navigate("/order-status"); // Stay on order status page after updating profile
   };
-  
 
   if (!isAuthenticated) {
     return (

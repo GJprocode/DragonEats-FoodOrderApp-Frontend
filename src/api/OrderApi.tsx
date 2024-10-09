@@ -20,7 +20,7 @@ export const useGetMyOrders = () => {
       },
     });
 
-    // console.log("Get orders response status:", response.status);
+    console.log("Get orders response status:", response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -68,7 +68,7 @@ export const useCreateCheckoutSession = () => {
   ) => {
     const accessToken = await getAccessTokenSilently();
 
-    // console.log("Creating checkout session with request:", checkoutSessionRequest);
+    console.log("Creating checkout session with request:", checkoutSessionRequest);
 
     const response = await fetch(
       `${API_BASE_URL}/api/order/checkout/create-checkout-session`,
@@ -82,8 +82,8 @@ export const useCreateCheckoutSession = () => {
       }
     );
 
-    // console.log("Create checkout session response status:", response.status);
-    // console.log("CheckoutSessionRequest:", checkoutSessionRequest);
+    console.log("Create checkout session response status:", response.status);
+    console.log("CheckoutSessionRequest:", checkoutSessionRequest);
 
     if (!response.ok) {
       const errorText = await response.text();

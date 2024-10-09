@@ -3,14 +3,53 @@ import { useGetMyOrders, useCreateCheckoutSession } from "@/api/OrderApi";
 import OrderStatusHeader from "../components/OrderStatusHeader";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import OrderStatusDetail from "./OrderStatusDetail";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { loadStripe } from "@stripe/stripe-js";
+import { Dialog, DialogContent } from "../components/ui/dialog";
 
 const OrderStatusPage = () => {
   const { orders, isLoading } = useGetMyOrders();
   const { createCheckoutSession } = useCreateCheckoutSession();
-  const [filterDate, setFilterDate] = useState("");
+  const [filterDate, setFilterDate] = useState<string>("");
+  const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+
+  const handlePayNow = async (orderId: string) => {
+    try {
+      const order = orders?.find((order) => order._id === orderId);
+      if (!order) {
+        console.error("Order not found.");
+        return;
+      }
+
+      const checkoutSessionRequest = {
+        cartItems: order.cartItems,
+        deliveryDetails: order.deliveryDetails,
+        restaurantId: order.restaurant._id,
+      };
+
+      // Create the checkout session through the backend and fetch the session URL.
+      const response = await createCheckoutSession(checkoutSessionRequest);
+      const { url } = response;
+
+      // Store the URL in state but do not immediately navigate.
+      setPaymentUrl(url);
+      setSelectedOrder(orderId);
+    } catch (error) {
+      console.error("Error initiating payment:", error);
+    }
+  };
+
+  const proceedWithStripe = () => {
+    if (paymentUrl) {
+      window.location.href = paymentUrl; // Redirect to Stripe when ready.
+    }
+  };
 
   if (isLoading) {
     return "Loading...";
@@ -20,41 +59,16 @@ const OrderStatusPage = () => {
     return "No orders found";
   }
 
-  // Filter for active orders (not yet delivered)
   const activeOrders = orders.filter((order) => order.status !== "delivered");
 
-  // Filter for delivered orders with date filtering
   const orderHistory = orders.filter(
     (order) =>
       order.status === "delivered" &&
-      (!filterDate || (order.dateDelivered && new Date(order.dateDelivered).toISOString().split("T")[0] === filterDate))
+      (!filterDate ||
+        (order.dateDelivered &&
+          new Date(order.dateDelivered).toISOString().split("T")[0] ===
+            filterDate))
   );
-
-  const handlePayNow = async (orderId: string) => {
-    try {
-      const order = orders.find((order) => order._id === orderId);
-      if (!order) {
-        console.error("Order not found.");
-        return;
-      }
-
-      // Prepare the request object as expected by the backend
-      const checkoutSessionRequest = {
-        cartItems: order.cartItems,
-        deliveryDetails: order.deliveryDetails,
-        restaurantId: order.restaurant._id,
-      };
-
-      const response = await createCheckoutSession(checkoutSessionRequest);
-      const { sessionId } = response;
-      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY!);
-      if (stripe && sessionId) {
-        await stripe.redirectToCheckout({ sessionId });
-      }
-    } catch (error) {
-      console.error("Error initiating payment:", error);
-    }
-  };
 
   return (
     <Tabs defaultValue="active-orders">
@@ -63,8 +77,13 @@ const OrderStatusPage = () => {
         <TabsTrigger value="order-history">My Order History</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="active-orders" className="space-y-10 bg-gray-50 p-10 rounded-lg">
-        <h2 className="text-2xl font-bold">{activeOrders.length} active orders</h2>
+      <TabsContent
+        value="active-orders"
+        className="space-y-10 bg-gray-50 p-10 rounded-lg"
+      >
+        <h2 className="text-2xl font-bold">
+          {activeOrders.length} active orders
+        </h2>
         {activeOrders.map((order) => (
           <div key={order._id} className="space-y-10">
             <OrderStatusHeader order={order} />
@@ -78,7 +97,6 @@ const OrderStatusPage = () => {
                 />
               </AspectRatio>
             </div>
-            {/* Show the "Pay Now" button only if the order status is "confirmed" */}
             {order.status === "confirmed" && (
               <div className="flex justify-end">
                 <Button
@@ -91,12 +109,42 @@ const OrderStatusPage = () => {
             )}
           </div>
         ))}
+
+        {/* Payment Options Dialog */}
+        <Dialog
+          open={!!selectedOrder}
+          onOpenChange={() => setSelectedOrder(null)}
+        >
+          <DialogContent className="max-w-[425px] bg-gray-50">
+            <h3 className="text-lg font-bold">Select Payment Method</h3>
+            <p className="mt-2">Choose your preferred payment method:</p>
+            <div className="flex flex-col space-y-4 mt-4">
+              {/* Stacked buttons for payment options */}
+              <Button className="bg-blue-500" onClick={proceedWithStripe}>
+                Pay with Stripe
+              </Button>
+              <Button className="bg-gray-300" disabled>
+                Pay with ABA (Coming Soon)
+              </Button>
+              <Button className="bg-gray-300" disabled>
+                Pay with Wing (Coming Soon)
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </TabsContent>
 
-      <TabsContent value="order-history" className="space-y-10 bg-gray-50 p-10 rounded-lg">
-        <h2 className="text-2xl font-bold">{orderHistory.length} delivered orders</h2>
+      <TabsContent
+        value="order-history"
+        className="space-y-10 bg-gray-50 p-10 rounded-lg"
+      >
+        <h2 className="text-2xl font-bold">
+          {orderHistory.length} delivered orders
+        </h2>
         <div>
-          <label htmlFor="filter-date" className="font-bold">Filter by date:</label>
+          <label htmlFor="filter-date" className="font-bold">
+            Filter by date:
+          </label>
           <input
             type="date"
             id="filter-date"
