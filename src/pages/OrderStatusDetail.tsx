@@ -1,3 +1,4 @@
+
 import { Order } from "@/types";
 import { Separator } from "@/components/ui/separator";
 
@@ -6,6 +7,12 @@ type Props = {
 };
 
 const OrderStatusDetail = ({ order }: Props) => {
+  const formatDate = (date: string | undefined) => {
+    if (!date) return "N/A";
+    const dateObj = new Date(date);
+    return `${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString()}`;
+  };
+
   return (
     <div className="space-y-5">
       {/* User's Own Details */}
@@ -29,22 +36,24 @@ const OrderStatusDetail = ({ order }: Props) => {
         </span>
 
         <ul>
-          {order.cartItems.map((item) => {
-            const price = Number(item.price) || 0; // Defaults to 0 if price is invalid
-            const totalItemPrice = ((price * item.quantity) / 100).toFixed(2);
-
-            // Log to check if price and totalItemPrice are numbers
-            console.log(
-              `Item: ${item.name}, Price: ${price}, Quantity: ${item.quantity}, Total Item Price: ${totalItemPrice}`
-            );
-
-            return (
-              <li key={item.menuItemId}>
-                {item.name}: ${(price / 100).toFixed(2)} x {item.quantity} = ${totalItemPrice}
-              </li>
-            );
-          })}
+          {order.cartItems.map((item) => (
+            <li key={item.menuItemId}>
+              {item.name}: ${(item.price / 100).toFixed(2)} x {item.quantity} = ${((item.price * item.quantity) / 100).toFixed(2)}
+            </li>
+          ))}
         </ul>
+      </div>
+
+      {/* Date Information */}
+      <div className="flex flex-col">
+        <div>
+          <strong>Ordered on:</strong> {formatDate(order.createdAt)}
+        </div>
+        {order.status === "delivered" && order.dateDelivered && (
+          <div>
+            <strong>Delivered on:</strong> {formatDate(order.dateDelivered)}
+          </div>
+        )}
       </div>
 
       {/* Delivery Cost */}
@@ -65,3 +74,6 @@ const OrderStatusDetail = ({ order }: Props) => {
 };
 
 export default OrderStatusDetail;
+
+
+

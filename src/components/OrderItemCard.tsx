@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { ORDER_STATUS } from "@/config/order-status-config";
 import { useUpdateMyRestaurantOrder } from "@/api/MyRestaurantApi";
 import { useEffect, useState } from "react";
 
@@ -27,22 +26,22 @@ const OrderItemCard = ({ order }: Props) => {
   }, [order.status]);
 
   const handleStatusChange = async (newStatus: OrderStatus) => {
-    await updateRestaurantStatus({
-      orderId: order._id as string,
-      status: newStatus,
-    });
-    setStatus(newStatus);
+    try {
+      await updateRestaurantStatus({
+        orderId: order._id as string,
+        status: newStatus,
+      });
+      setStatus(newStatus);
+    } catch (error) {
+      console.error("Failed to update status:", error);
+    }
   };
+  
 
-  const getTime = () => {
-    const orderDateTime = new Date(order.createdAt);
-
-    const hours = orderDateTime.getHours();
-    const minutes = orderDateTime.getMinutes();
-
-    const paddedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-
-    return `${hours}:${paddedMinutes}`;
+  const formatDate = (date: string | undefined) => {
+    if (!date) return "N/A";
+    const dateObj = new Date(date);
+    return `${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString()}`;
   };
 
   return (
@@ -56,14 +55,16 @@ const OrderItemCard = ({ order }: Props) => {
             </span>
           </div>
           <div>
-            Delivery address:
+            Delivery Address:
             <span className="ml-2 font-normal">
               {order.deliveryDetails.address}, {order.deliveryDetails.city}
             </span>
           </div>
           <div>
-            Time:
-            <span className="ml-2 font-normal">{getTime()}</span>
+            Restaurant Contact:
+            <span className="ml-2 font-normal">
+              {order.restaurant.cellphone}
+            </span>
           </div>
           <div>
             Total Cost:
@@ -76,28 +77,38 @@ const OrderItemCard = ({ order }: Props) => {
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
+          <div>
+            <strong>Ordered on:</strong> {formatDate(order.createdAt)}
+          </div>
+          {order.status === "delivered" && order.dateDelivered && (
+            <div>
+              <strong>Delivered on:</strong> {formatDate(order.dateDelivered)}
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col gap-2">
           {order.cartItems.map((cartItem) => (
-            <span>
+            <span key={cartItem.menuItemId}>
               <Badge variant="outline" className="mr-2">
                 {cartItem.quantity}
               </Badge>
-              {cartItem.name}
+              {cartItem.name} - ${(cartItem.price / 100).toFixed(2)}
             </span>
           ))}
         </div>
         <div className="flex flex-col space-y-1.5">
-          <Label htmlFor="status">What is the status of this order?</Label>
+          <Label htmlFor="status">Order Status:</Label>
           <Select
-          value={status}
-          disabled={isLoading}
-          onValueChange={(value) => handleStatusChange(value as OrderStatus)}
+            value={status}
+            disabled={isLoading}
+            onValueChange={(value) => handleStatusChange(value as OrderStatus)}
           >
             <SelectTrigger id="status">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent position="popper">
-              {ORDER_STATUS.map((status) => (
-                <SelectItem value={status.value}>{status.label}</SelectItem>
+              {["placed", "confirmed", "paid", "inProgress", "outForDelivery", "delivered"].map((status) => (
+                <SelectItem key={status} value={status}>{status}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -106,5 +117,6 @@ const OrderItemCard = ({ order }: Props) => {
     </Card>
   );
 };
+
 
 export default OrderItemCard;

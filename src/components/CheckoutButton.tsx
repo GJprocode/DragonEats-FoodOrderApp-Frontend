@@ -1,5 +1,6 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useLocation } from "react-router-dom";
+// import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import LoadingButton from "./LoadingButton";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
@@ -15,15 +16,22 @@ type Props = {
 const CheckoutButton = ({ onCheckout, disabled, isLoading }: Props) => {
   const { isAuthenticated, isLoading: isAuthLoading, loginWithRedirect } = useAuth0();
   const { pathname } = useLocation();
+  // const navigate = useNavigate();
   const { currentUser, isLoading: isGetUserLoading } = useGetMyUser();
 
   const onLogin = async () => {
     await loginWithRedirect({
       appState: {
-        returnTo: pathname,
+        returnTo: pathname      
       },
     });
   };
+
+  const handleUserProfileSave = (userFormData: UserFormData) => {
+    onCheckout(userFormData);
+    // navigate("/order-status"); // Redirect to the order status page after saving the user profile.
+  };
+  
 
   if (!isAuthenticated) {
     return (
@@ -51,7 +59,7 @@ const CheckoutButton = ({ onCheckout, disabled, isLoading }: Props) => {
       <DialogContent className="max-w-[425px] md:min-w-[700px] bg-gray-50">
         <UserProfileForm
           currentUser={currentUser}
-          onSave={onCheckout}
+          onSave={handleUserProfileSave}
           isLoading={isLoading}
         />
       </DialogContent>

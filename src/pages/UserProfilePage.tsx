@@ -1,4 +1,3 @@
-import React from "react";
 import { useGetMyUser, useUpdateMyUser } from "@/api/MyUserApi";
 import UserProfileForm, { UserFormData } from "@/forms/user-profile-form/UserProfileForm";
 
