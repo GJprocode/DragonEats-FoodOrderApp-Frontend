@@ -1,3 +1,4 @@
+import React from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
@@ -26,11 +27,11 @@ const CheckoutButton = ({ onCheckout, disabled, isLoading }: Props) => {
     });
   };
 
-  // Update only the order details, not initiate payment yet
   const handleUserProfileSave = (userFormData: UserFormData) => {
-    onCheckout(userFormData); // Updates the order with user details
-    navigate("/order-status"); // Stay on order status page after updating profile
+    onCheckout(userFormData);
+    navigate("/order-status", { replace: true }); // Replace history to stay on the order status page
   };
+  
 
   if (!isAuthenticated) {
     return (
