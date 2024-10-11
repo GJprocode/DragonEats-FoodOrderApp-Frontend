@@ -5,7 +5,7 @@ import MenuItem from "@/components/MenuItem";
 import { Card, CardFooter } from "@/components/ui/card";
 import OrderSummary from "@/components/OrderSummary";
 import CheckoutButton from "@/components/CheckoutButton";
-import { MenuItem as MenuItemType, User } from "@/types"; // Import User here
+import { MenuItem as MenuItemType, User } from "@/types";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useCreateCheckoutSession } from "@/api/OrderApi";
 
@@ -69,7 +69,7 @@ const DetailPage = () => {
     });
   };
 
-  const onCheckout = async (userFormData: Partial<User>) => {
+  const onCheckout = async (userFormData: Partial<User>, orderId: string) => {
     if (!restaurant) return;
 
     const checkoutData = {
@@ -112,6 +112,7 @@ const DetailPage = () => {
         />
       </AspectRatio>
 
+      {/* Restaurant Details */}
       <div className="text-center">
         <h2 className="text-3xl font-bold">{restaurant.restaurantName}</h2>
         <p className="text-gray-500">Cities: {restaurant.city.join(", ")}</p>
@@ -120,7 +121,9 @@ const DetailPage = () => {
         </p>
       </div>
 
+      {/* Content Layout */}
       <div className="flex flex-col lg:flex-row gap-5">
+        {/* Menu Section */}
         <div className="flex-1">
           <div className="text-2xl font-bold tracking-tight mb-4">Menu</div>
           <div className="flex flex-col gap-4">
@@ -134,6 +137,7 @@ const DetailPage = () => {
           </div>
         </div>
 
+        {/* Order Summary Section */}
         <div className="w-full lg:w-1/3 mt-4 lg:mt-[0.15rem]">
           <div className="text-2xl font-bold tracking-tight mb-2">Cart</div>
           <Card className="shadow-md pt-1 lg:pt-0">
@@ -144,9 +148,9 @@ const DetailPage = () => {
             />
             <CardFooter>
               <CheckoutButton
+                orderId="dummy-order-id"
                 disabled={cartItems.length === 0}
                 onCheckout={onCheckout}
-                orderId={restaurant._id} // Pass the orderId for proper tracking
                 isLoading={isCheckoutLoading}
               />
             </CardFooter>
