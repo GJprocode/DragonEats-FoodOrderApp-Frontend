@@ -1,3 +1,5 @@
+// C:\Users\gertf\Desktop\FoodApp\frontend\src\types.ts
+
 // Updated User type to reflect changes from the backend
 export type User = {
   _id: string;
@@ -67,6 +69,7 @@ export type Order = {
   dateDelivered?: string; // Optional, the date when the order was delivered
   restaurantID: string;
 };
+
 
 
 // For restaurant search results with pagination
