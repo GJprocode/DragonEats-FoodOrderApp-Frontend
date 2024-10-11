@@ -1,3 +1,5 @@
+// C:\Users\gertf\Desktop\FoodApp\frontend\src\types.ts
+
 // Updated User type to reflect changes from the backend
 export type User = {
   _id: string;
@@ -40,11 +42,11 @@ export type Restaurant = {
   cellphone?: string;   // Optional cellphone field for the restaurant
 };
 
-export type OrderStatus = "placed" | "paid" | "inProgress" | "outForDelivery" | "delivered";
+export type OrderStatus = "placed" | "confirmed" | "paid" | "inProgress" | "outForDelivery" | "delivered";
+
 
 // Updated Order type to reflect changes in Restaurant and User
 export type Order = {
-  restaurantName: string;
   _id: string;
   restaurant: Restaurant;  // Reference to the Restaurant type
   user: User;              // Reference to the User type
@@ -52,7 +54,7 @@ export type Order = {
     menuItemId: string;
     name: string;
     quantity: number;    // Changed to number for consistency
-    price: number; // Ensure this is a number and not optional
+    price: number;       // Ensure this is a number and not optional
   }[];
   deliveryDetails: {
     name: string;
@@ -63,9 +65,12 @@ export type Order = {
   };
   totalAmount: number;
   status: OrderStatus;
-  createdAt: string;
+  createdAt: string;     // The date when the order was placed
+  dateDelivered?: string; // Optional, the date when the order was delivered
   restaurantID: string;
 };
+
+
 
 // For restaurant search results with pagination
 export type RestaurantSearchResponse = {

@@ -1,33 +1,46 @@
+import React from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import LoadingButton from "./LoadingButton";
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
-import UserProfileForm, { UserFormData } from "@/forms/user-profile-form/UserProfileForm";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "./ui/dialog";
+import UserOrderProfileForm from "../forms/order-forms/UserOrderProfileForm";
 import { useGetMyUser } from "@/api/MyUserApi";
+import { User } from "@/types";
 
 type Props = {
-  onCheckout: (userFormData: UserFormData) => void;
+  onCheckout: (userFormData: Partial<User>, orderId: string) => void;
+  orderId: string;
   disabled: boolean;
   isLoading: boolean;
 };
 
-const CheckoutButton = ({ onCheckout, disabled, isLoading }: Props) => {
+const CheckoutButton: React.FC<Props> = ({
+  onCheckout,
+  orderId,
+  disabled,
+  isLoading,
+}) => {
   const { isAuthenticated, isLoading: isAuthLoading, loginWithRedirect } = useAuth0();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { currentUser, isLoading: isGetUserLoading } = useGetMyUser();
 
-  const onLogin = async () => {
-    await loginWithRedirect({
-      appState: {
-        returnTo: pathname,
-      },
-    });
+  const handleLogin = () => {
+    loginWithRedirect({ appState: { returnTo: pathname } });
   };
+
+  // bypass unknown redirect to homepage back to /order-status
+  const handleUserOrderUpdate = (data: Partial<User>) => {
+    onCheckout(data, orderId);
+    localStorage.setItem("intendedRedirect", "/order-status");
+    navigate("/order-status", { replace: true });
+  };
+  
 
   if (!isAuthenticated) {
     return (
-      <Button onClick={onLogin} className="bg-green-500 flex-1">
+      <Button onClick={handleLogin} className="bg-green-500 flex-1">
         Log in to check out
       </Button>
     );
@@ -49,9 +62,11 @@ const CheckoutButton = ({ onCheckout, disabled, isLoading }: Props) => {
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[425px] md:min-w-[700px] bg-gray-50">
-        <UserProfileForm
-          currentUser={currentUser}
-          onSave={onCheckout}
+        <DialogTitle className="sr-only">Update Order Information</DialogTitle>
+        <UserOrderProfileForm
+          userId={currentUser._id}
+          orderId={orderId}
+          onUpdate={handleUserOrderUpdate}
           isLoading={isLoading}
         />
       </DialogContent>
