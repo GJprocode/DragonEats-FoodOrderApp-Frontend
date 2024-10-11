@@ -5,8 +5,7 @@ import MenuItem from "@/components/MenuItem";
 import { Card, CardFooter } from "@/components/ui/card";
 import OrderSummary from "@/components/OrderSummary";
 import CheckoutButton from "@/components/CheckoutButton";
-import { UserFormData } from "@/forms/user-profile-form/UserProfileForm";
-import { MenuItem as MenuItemType } from "@/types";
+import { MenuItem as MenuItemType, User } from "@/types";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useCreateCheckoutSession } from "@/api/OrderApi";
 
@@ -70,7 +69,7 @@ const DetailPage = () => {
     });
   };
 
-  const onCheckout = async (userFormData: UserFormData) => {
+  const onCheckout = async (userFormData: Partial<User>, orderId: string) => {
     if (!restaurant) return;
 
     const checkoutData = {
@@ -82,15 +81,14 @@ const DetailPage = () => {
       })),
       restaurantId: restaurant._id,
       deliveryDetails: {
-        name: userFormData.name,
-        address: userFormData.address,
-        city: userFormData.city,
-        country: userFormData.country,
-        email: userFormData.email as string,
-        cellphone :userFormData.cellphone,
+        name: userFormData.name || "Unnamed",
+        address: userFormData.address || "No Address",
+        city: userFormData.city || "No City",
+        country: userFormData.country || "No Country",
+        email: userFormData.email || "no-email@example.com",
+        cellphone: userFormData.cellphone || "000-000-0000",
       },
     };
-    // console.log("Checkout Data Cart Items:", checkoutData.cartItems);
 
     try {
       const data = await createCheckoutSession(checkoutData);
@@ -98,8 +96,7 @@ const DetailPage = () => {
     } catch (error) {
       console.error("Error during checkout:", error);
     }
-  };  
-  
+  };
 
   if (isLoading || !restaurant) {
     return "Loading...";
@@ -126,39 +123,40 @@ const DetailPage = () => {
 
       {/* Content Layout */}
       <div className="flex flex-col lg:flex-row gap-5">
-          {/* Menu Section */}
-          <div className="flex-1">
-            <div className="text-2xl font-bold tracking-tight mb-4">Menu</div>
-            <div className="flex flex-col gap-4">
-              {restaurant.menuItems.map((menuItem: MenuItemType) => (
-                <MenuItem
-                  key={menuItem._id}
-                  menuItem={menuItem}
-                  addToCart={() => addToCart(menuItem)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Order Summary Section */}
-          <div className="w-full lg:w-1/3 mt-4 lg:mt-[0.15rem]">
-            <div className="text-2xl font-bold tracking-tight mb-2">Cart</div>
-            <Card className="shadow-md pt-1 lg:pt-0">
-              <OrderSummary
-                restaurant={restaurant}
-                cartItems={cartItems}
-                removeFromCart={removeFromCart}
+        {/* Menu Section */}
+        <div className="flex-1">
+          <div className="text-2xl font-bold tracking-tight mb-4">Menu</div>
+          <div className="flex flex-col gap-4">
+            {restaurant.menuItems.map((menuItem: MenuItemType) => (
+              <MenuItem
+                key={menuItem._id}
+                menuItem={menuItem}
+                addToCart={() => addToCart(menuItem)}
               />
-              <CardFooter>
-                <CheckoutButton
-                  disabled={cartItems.length === 0}
-                  onCheckout={onCheckout}
-                  isLoading={isCheckoutLoading}
-                />
-              </CardFooter>
-            </Card>
+            ))}
           </div>
         </div>
+
+        {/* Order Summary Section */}
+        <div className="w-full lg:w-1/3 mt-4 lg:mt-[0.15rem]">
+          <div className="text-2xl font-bold tracking-tight mb-2">Cart</div>
+          <Card className="shadow-md pt-1 lg:pt-0">
+            <OrderSummary
+              restaurant={restaurant}
+              cartItems={cartItems}
+              removeFromCart={removeFromCart}
+            />
+            <CardFooter>
+              <CheckoutButton
+                orderId="dummy-order-id"
+                disabled={cartItems.length === 0}
+                onCheckout={onCheckout}
+                isLoading={isCheckoutLoading}
+              />
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
