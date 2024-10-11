@@ -1,114 +1,155 @@
-// UserOrderProfileForm.tsx
-import React, { useEffect } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Form,
-  FormItem,
-  FormLabel,
-  FormControl,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { fetchUserProfile } from '@/api/OrderUserApi';
-import { User } from '@/types';
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { User } from "../../types";
+import { useFetchUserProfile } from "@/api/OrderUserApi";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const formSchema = z.object({
-  email: z.string().min(1, 'Email is required').email('Invalid email address'),
-  name: z.string().min(1, 'Name is required'),
-  address: z.string().min(1, 'Address is required'),
-  city: z.string().min(1, 'City is required'),
-  cellphone: z.string().min(1, 'Cellphone is required'),
+  email: z.string().min(1, "Email is required").email("Invalid email address"),
+  name: z.string().min(1, "Name is required"),
+  address: z.string().min(1, "Address is required"),
+  city: z.string().min(1, "City is required"),
+  country: z.string().min(1, "Country is required"),
+  cellphone: z.string().min(1, "Cellphone number is required"),
 });
 
 type UserOrderProfileFormProps = {
   userId: string;
-  onUpdate: (data: User) => void;
+  orderId: string;
+  onUpdate: (data: Partial<User>, orderId: string) => void;
   isLoading: boolean;
 };
 
 const UserOrderProfileForm: React.FC<UserOrderProfileFormProps> = ({
   userId,
+  orderId,
   onUpdate,
   isLoading,
 }) => {
-  const { getAccessTokenSilently } = useAuth0();
-  const form = useForm<User>({
+  const form = useForm<Partial<User>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
-      name: '',
-      address: '',
-      city: '',
-      cellphone: '',
+      email: "",
+      name: "",
+      address: "",
+      city: "",
+      country: "",
+      cellphone: "",
     },
   });
 
-  useEffect(() => {
-    const fetchAndPopulateUser = async () => {
-      try {
-        const accessToken = await getAccessTokenSilently();
-        const userData = await fetchUserProfile(userId, accessToken);
-        form.reset({
-          email: userData.email || '',
-          name: userData.name || '',
-          address: userData.address || '',
-          city: userData.city || '',
-          cellphone: userData.cellphone || '',
-        });
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
-    fetchAndPopulateUser();
-  }, [userId, getAccessTokenSilently, form]);
+  const { userProfile, isLoading: isFetching } = useFetchUserProfile(userId);
+  const navigate = useNavigate();
 
-  const onSubmit = (data: User) => {
-    onUpdate(data);
+  useEffect(() => {
+    if (userProfile) {
+      form.reset(userProfile);
+    }
+  }, [userProfile, form]);
+
+  const onSubmit = async (data: Partial<User>) => {
+    try {
+      await onUpdate(data, orderId);
+      toast.success("Order details updated successfully.");
+      navigate("/order-status");
+    } catch (error) {
+      console.error("Failed to update order details", error);
+      toast.error("Failed to update order details.");
+    }
   };
+
+  if (isFetching) return <p>Loading user profile...</p>;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormItem>
-          <FormLabel>Email</FormLabel>
-          <FormControl>
-            <Input
-              {...form.register('email')}
-              placeholder="Email"
-              readOnly
-              className="bg-gray-200 cursor-not-allowed"
-            />
-          </FormControl>
-        </FormItem>
-        <FormItem>
-          <FormLabel>Name</FormLabel>
-          <FormControl>
-            <Input {...form.register('name')} placeholder="Name" />
-          </FormControl>
-        </FormItem>
-        <FormItem>
-          <FormLabel>Address</FormLabel>
-          <FormControl>
-            <Input {...form.register('address')} placeholder="Address" />
-          </FormControl>
-        </FormItem>
-        <FormItem>
-          <FormLabel>City</FormLabel>
-          <FormControl>
-            <Input {...form.register('city')} placeholder="City" />
-          </FormControl>
-        </FormItem>
-        <FormItem>
-          <FormLabel>Cellphone</FormLabel>
-          <FormControl>
-            <Input {...form.register('cellphone')} placeholder="Cellphone" />
-          </FormControl>
-        </FormItem>
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input {...field} readOnly className="bg-gray-200 cursor-not-allowed" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Address</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="city"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>City</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="country"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Country</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="cellphone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Cellphone</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? 'Saving...' : 'Update Order Info'}
+          {isLoading ? "Updating..." : "Update Delivery Details"}
         </Button>
       </form>
     </Form>

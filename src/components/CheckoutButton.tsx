@@ -1,4 +1,3 @@
-// CheckoutButton.tsx
 import React from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -10,37 +9,34 @@ import { useGetMyUser } from "@/api/MyUserApi";
 import { User } from "@/types";
 
 type Props = {
-  onCheckout: (userFormData: User) => void;
+  onCheckout: (userFormData: Partial<User>, orderId: string) => void;
+  orderId: string;
   disabled: boolean;
   isLoading: boolean;
 };
 
 const CheckoutButton: React.FC<Props> = ({
   onCheckout,
+  orderId,
   disabled,
   isLoading,
 }) => {
-  const {
-    isAuthenticated,
-    isLoading: isAuthLoading,
-    loginWithRedirect,
-  } = useAuth0();
+  const { isAuthenticated, isLoading: isAuthLoading, loginWithRedirect } = useAuth0();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { currentUser, isLoading: isGetUserLoading } = useGetMyUser();
 
   const handleLogin = () => {
-    loginWithRedirect({
-      appState: {
-        returnTo: pathname, // Redirect back to the cart page after login
-      },
-    });
+    loginWithRedirect({ appState: { returnTo: pathname } });
   };
 
-  const handleUserOrderUpdate = (data: User) => {
-    onCheckout(data);
-    navigate("/order-status", { replace: true }); // Redirect to the order status page after updating
+  // bypass unknown redirect to homepage back to /order-status
+  const handleUserOrderUpdate = (data: Partial<User>) => {
+    onCheckout(data, orderId);
+    localStorage.setItem("intendedRedirect", "/order-status");
+    navigate("/order-status", { replace: true });
   };
+  
 
   if (!isAuthenticated) {
     return (
@@ -69,6 +65,7 @@ const CheckoutButton: React.FC<Props> = ({
         <DialogTitle className="sr-only">Update Order Information</DialogTitle>
         <UserOrderProfileForm
           userId={currentUser._id}
+          orderId={orderId}
           onUpdate={handleUserOrderUpdate}
           isLoading={isLoading}
         />

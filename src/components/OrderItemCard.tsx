@@ -1,3 +1,4 @@
+// C:\Users\gertf\Desktop\FoodApp\frontend\src\components\OrderItemCard.tsx
 import { Order, OrderStatus } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
@@ -36,13 +37,22 @@ const OrderItemCard = ({ order }: Props) => {
       console.error("Failed to update status:", error);
     }
   };
-  
 
   const formatDate = (date: string | undefined) => {
     if (!date) return "N/A";
     const dateObj = new Date(date);
     return `${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString()}`;
   };
+
+  const calculateTotalAmount = () => {
+    const itemsTotal = order.cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+    const deliveryPrice = order.restaurant.deliveryPrice || 0;
+    return ((itemsTotal + deliveryPrice) / 100).toFixed(2);
+  };
+  
 
   return (
     <Card>
@@ -69,13 +79,14 @@ const OrderItemCard = ({ order }: Props) => {
           <div>
             Total Cost:
             <span className="ml-2 font-normal">
-              ${(order.totalAmount / 100).toFixed(2)}
+              ${calculateTotalAmount()}
             </span>
           </div>
         </CardTitle>
         <Separator />
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
+        {/* Order date and status */}
         <div className="flex flex-col gap-2">
           <div>
             <strong>Ordered on:</strong> {formatDate(order.createdAt)}
@@ -86,6 +97,8 @@ const OrderItemCard = ({ order }: Props) => {
             </div>
           )}
         </div>
+
+        {/* Cart items */}
         <div className="flex flex-col gap-2">
           {order.cartItems.map((cartItem) => (
             <span key={cartItem.menuItemId}>
@@ -96,6 +109,8 @@ const OrderItemCard = ({ order }: Props) => {
             </span>
           ))}
         </div>
+
+        {/* Order status */}
         <div className="flex flex-col space-y-1.5">
           <Label htmlFor="status">Order Status:</Label>
           <Select
@@ -117,6 +132,5 @@ const OrderItemCard = ({ order }: Props) => {
     </Card>
   );
 };
-
 
 export default OrderItemCard;
