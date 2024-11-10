@@ -55,7 +55,7 @@ const HomePage = () => {
         <h1 className="text-5xl font-bold tracking-tight text-green-600">
           Superpower food & drinks that unleashes the dragon in you!
         </h1>
-        <span className="text-xl">Magical DragonEats&Drinks delivered quick & easy.</span>
+        <span className="text-xl">Magical DragonEats delivered quick & easy.</span>
         <span className="text-xl">Restaurant delivery and Wholesale of drinks services.</span>
         <span className="text-xl">We are earth-friendly dragons.</span>
         <h2 className="text-[10px] sm:text-xs md:text-sm">Available cities in Cambodia:</h2>
