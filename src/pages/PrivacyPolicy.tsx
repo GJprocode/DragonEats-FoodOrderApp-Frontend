@@ -10,10 +10,10 @@ const PrivacyPolicy = () => {
     const fetchAdminEmail = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/admin-contact-info`);
-        setAdminEmail(response.data.email || 'admin@dragoneats.com'); // Default if no email
+        setAdminEmail(response.data.email || 'admin@dragoneats.com.kh'); // Default if no email
       } catch (error) {
         console.error('Error fetching admin email:', error);
-        setAdminEmail('admin@dragoneats.com'); // Default if API call fails
+        setAdminEmail('admin@dragoneats.com.kh'); // Default if API call fails
       }
     };
 
@@ -28,7 +28,7 @@ const PrivacyPolicy = () => {
         <p className="mb-4">
           <strong>1. Introduction</strong>
           <br />
-          Welcome to DragonEats&Drinks.com. We value your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our website and app.
+          Welcome to DragonEats.com.kh. We value your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our website and app.
         </p>
         <p className="mb-4">
           <strong>2. Information We Collect</strong>

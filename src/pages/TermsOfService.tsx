@@ -10,10 +10,10 @@ const TermsOfService = () => {
     const fetchAdminEmail = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/admin-contact-info`);
-        setAdminEmail(response.data.email || 'admin@dragoneats.com'); // Default if no email
+        setAdminEmail(response.data.email || 'admin@dragoneats.com.kh'); // Default if no email
       } catch (error) {
         console.error('Error fetching admin email:', error);
-        setAdminEmail('admin@dragoneats.com'); // Default if API call fails
+        setAdminEmail('admin@dragoneats.com.kh'); // Default if API call fails
       }
     };
 
@@ -28,7 +28,7 @@ const TermsOfService = () => {
         <p className="mb-4">
           <strong>1. Introduction</strong>
           <br />
-          Welcome to DragonEats&Drinks.com. By accessing or using our website and app, you agree to these Terms of Service. If you do not agree, please do not use our services.
+          Welcome to DragonEats.com.kh. By accessing or using our website and app, you agree to these Terms of Service. If you do not agree, please do not use our services.
         </p>
         <p className="mb-4">
           <strong>2. Use of Our Services</strong>
