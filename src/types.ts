@@ -23,6 +23,7 @@ export type MenuItem = {
 
 // Updated Restaurant type to reflect backend schema changes
 export type Restaurant = {
+  branchesInfo: any;
   _id: string;
   user: string;         // Reference to the user who owns the restaurant
   email?: string;       // Optional

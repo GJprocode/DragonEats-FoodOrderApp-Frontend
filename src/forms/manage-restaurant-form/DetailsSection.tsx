@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import {
   FormControl,
@@ -9,7 +9,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Restaurant } from "@/types";
 
 type DetailsSectionProps = {
@@ -17,36 +16,25 @@ type DetailsSectionProps = {
   currentUserEmail?: string; // Add currentUserEmail prop
 };
 
-const DetailsSection: React.FC<DetailsSectionProps> = ({ restaurant, currentUserEmail }) => {
-  const { control, setValue, getValues } = useFormContext();
-  const [cities, setCities] = useState<string[]>(restaurant?.city || getValues("city") || [""]);
+const DetailsSection: React.FC<DetailsSectionProps> = ({
+  restaurant,
+  currentUserEmail,
+}) => {
+  const { control, setValue } = useFormContext();
 
   useEffect(() => {
-    if (restaurant?.city) {
-      setCities(restaurant.city);
-    }
-
     // Set the email field to the logged-in user's email
     setValue("email", currentUserEmail);
+
+    // Pre-fill form values if restaurant data is provided
+    if (restaurant) {
+      setValue("restaurantName", restaurant.restaurantName || "");
+      setValue("cellphone", restaurant.cellphone || "");
+      setValue("country", restaurant.country || "");
+      setValue("deliveryPrice", restaurant.deliveryPrice || 0);
+      setValue("estimatedDeliveryTime", restaurant.estimatedDeliveryTime || 0);
+    }
   }, [restaurant, currentUserEmail, setValue]);
-
-  const addCity = () => {
-    setCities([...cities, ""]);
-  };
-
-  const removeCity = (index: number) => {
-    const updatedCities = cities.filter((_, i) => i !== index);
-    setCities(updatedCities);
-    setValue("city", updatedCities);
-  };
-
-  const handleCityChange = (index: number, value: string) => {
-    const updatedCities = cities.map((city, i) =>
-      i === index ? value : city
-    );
-    setCities(updatedCities);
-    setValue("city", updatedCities);
-  };
 
   return (
     <div className="space-y-6">
@@ -82,8 +70,7 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({ restaurant, currentUser
               <FormLabel>Restaurant Name</FormLabel>
               <FormControl>
                 <Input
-                  value={field.value}
-                  onChange={field.onChange}
+                  {...field}
                   className="bg-white border-gray-300 rounded-md"
                 />
               </FormControl>
@@ -102,8 +89,7 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({ restaurant, currentUser
               <FormControl>
                 <Input
                   type="tel"
-                  value={field.value}
-                  onChange={field.onChange}
+                  {...field}
                   className="bg-white border-gray-300 rounded-md"
                 />
               </FormControl>
@@ -119,8 +105,7 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({ restaurant, currentUser
               <FormLabel>Country</FormLabel>
               <FormControl>
                 <Input
-                  value={field.value}
-                  onChange={field.onChange}
+                  {...field}
                   className="bg-white border-gray-300 rounded-md"
                 />
               </FormControl>
@@ -128,35 +113,6 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({ restaurant, currentUser
             </FormItem>
           )}
         />
-      </div>
-      <div className="space-y-4">
-        {cities.map((city, index) => (
-          <div key={index} className="flex items-center gap-4">
-            <FormItem className="flex-1">
-              <FormLabel>City {index + 1}</FormLabel>
-              <FormControl>
-                <Input
-                  value={city}
-                  onChange={(e) => handleCityChange(index, e.target.value)}
-                  className={`bg-white border-gray-300 rounded-md ${!city ? 'border-red-500' : ''}`}
-                />
-              </FormControl>
-              {!city && <FormMessage>City cannot be empty</FormMessage>}
-            </FormItem>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => removeCity(index)}
-              className="text-red-500"
-              type="button" // This ensures the button doesn't submit the form
-            >
-              Remove
-            </Button>
-          </div>
-        ))}
-        <Button variant="outline" size="sm" onClick={addCity} type="button">
-          Add City
-        </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
@@ -167,8 +123,7 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({ restaurant, currentUser
               <FormLabel>Delivery Price ($)</FormLabel>
               <FormControl>
                 <Input
-                  value={field.value}
-                  onChange={field.onChange}
+                  {...field}
                   className="bg-white border-gray-300 rounded-md"
                   placeholder="0.00"
                 />
@@ -185,8 +140,7 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({ restaurant, currentUser
               <FormLabel>Estimated Delivery Time (minutes)</FormLabel>
               <FormControl>
                 <Input
-                  value={field.value}
-                  onChange={field.onChange}
+                  {...field}
                   className="bg-white border-gray-300 rounded-md"
                   placeholder="0"
                 />
