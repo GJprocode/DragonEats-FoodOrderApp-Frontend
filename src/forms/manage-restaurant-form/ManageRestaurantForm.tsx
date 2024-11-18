@@ -90,11 +90,30 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
     if (restaurant) {
       const updatedRestaurant = {
         ...restaurant,
-        branchesInfo: restaurant.branchesInfo || [{ cities: "", branchName: "", latitude: 0.0, longitude: 0.0 }],
+        branchesInfo: restaurant.branchesInfo?.length
+          ? restaurant.branchesInfo // Use existing branchesInfo if available
+          : [
+              {
+                cities: "Default City",
+                branchName: "Default Branch",
+                latitude: 0.0,
+                longitude: 0.0,
+              },
+            ], // Default value for branchesInfo
+        menuItems: restaurant.menuItems?.length
+          ? restaurant.menuItems
+          : [
+              {
+                name: "Default Item",
+                price: 0,
+                imageUrl: "",
+              },
+            ], // Default value for menu items
       };
       form.reset(updatedRestaurant);
     }
   }, [restaurant, form]);
+  
   
   
   

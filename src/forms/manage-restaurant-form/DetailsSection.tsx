@@ -33,6 +33,15 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({
       setValue("country", restaurant.country || "");
       setValue("deliveryPrice", restaurant.deliveryPrice || 0);
       setValue("estimatedDeliveryTime", restaurant.estimatedDeliveryTime || 0);
+      setValue(
+        "branchesInfo",
+        restaurant.branchesInfo.map((branch: { cities: unknown; branchName: unknown; latitude: unknown; longitude: unknown; }, index: number) => ({
+          cities: branch.cities,
+          branchName: branch.branchName || `Branch ${index + 1}`,
+          latitude: branch.latitude || 0.0,
+          longitude: branch.longitude || 0.0,
+        }))
+      );
     }
   }, [restaurant, currentUserEmail, setValue]);
 
