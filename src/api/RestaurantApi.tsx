@@ -1,4 +1,4 @@
-// C:\Users\gertf\Desktop\FoodApp\frontend\src\api\RestaurantApi.tsx
+// src/api/RestaurantApi.ts
 
 import { SearchState } from "@/pages/SearchPage";
 import { Restaurant, RestaurantSearchResponse } from "@/types";
@@ -13,10 +13,13 @@ export const useGetRestaurant = (restaurantId?: string) => {
     );
 
     if (!response.ok) {
+      console.error("Failed to get restaurant. Status:", response.status);
       throw new Error("Failed to get restaurant");
     }
 
-    return response.json();
+    const data = await response.json();
+    console.log("Fetched restaurant:", data);
+    return data;
   };
 
   const { data: restaurant, isLoading } = useQuery(
@@ -30,7 +33,6 @@ export const useGetRestaurant = (restaurantId?: string) => {
   return { restaurant, isLoading };
 };
 
-// API hook to search restaurants in a city
 export const useSearchRestaurants = (
   searchState: SearchState,
   city?: string
@@ -41,18 +43,20 @@ export const useSearchRestaurants = (
     params.set("page", searchState.page.toString());
     params.set("selectedCuisines", searchState.selectedCuisines.join(","));
     params.set("sortOption", searchState.sortOption);
-    params.set("selectedBusinessType", searchState.selectedBusinessType.join(",")); // Add business type to params
+    params.set("selectedBusinessType", searchState.selectedBusinessType.join(","));
 
-    // Call the backend to search restaurants in the city, ensuring only approved restaurants are returned
     const response = await fetch(
       `${API_BASE_URL}/api/restaurant/search/${city}?${params.toString()}`
     );
 
     if (!response.ok) {
+      console.error("Failed to get restaurants. Status:", response.status);
       throw new Error("Failed to get restaurants");
     }
 
-    return response.json();
+    const data = await response.json();
+    console.log("Fetched restaurant search results:", data);
+    return data;
   };
 
   const { data: results, isLoading } = useQuery(
@@ -61,8 +65,5 @@ export const useSearchRestaurants = (
     { enabled: !!city }
   );
 
-  return {
-    results,
-    isLoading,
-  };
+  return { results, isLoading };
 };

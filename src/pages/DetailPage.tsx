@@ -1,3 +1,5 @@
+// src/pages/DetailPage.tsx
+
 import React, { useState } from "react";
 import { useGetRestaurant } from "@/api/RestaurantApi";
 import { useParams } from "react-router-dom";
@@ -5,7 +7,7 @@ import MenuItem from "@/components/MenuItem";
 import { Card, CardFooter } from "@/components/ui/card";
 import OrderSummary from "@/components/OrderSummary";
 import CheckoutButton from "@/components/CheckoutButton";
-import { MenuItem as MenuItemType, User } from "@/types";
+import { MenuItem as MenuItemType, User } from "@/types"; // Removed Restaurant import
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useCreateCheckoutSession } from "@/api/OrderApi";
 
@@ -18,7 +20,7 @@ export type CartItem = {
 };
 
 const DetailPage = () => {
-  const { restaurantId } = useParams();
+  const { restaurantId } = useParams<{ restaurantId: string }>();
   const { restaurant, isLoading } = useGetRestaurant(restaurantId);
   const { createCheckoutSession, isLoading: isCheckoutLoading } = useCreateCheckoutSession();
 
@@ -69,7 +71,7 @@ const DetailPage = () => {
     });
   };
 
-  const onCheckout = async (userFormData: Partial<User>, orderId: string) => {
+  const onCheckout = async (userFormData: Partial<User>) => {
     if (!restaurant) return;
 
     const checkoutData = {
@@ -77,7 +79,7 @@ const DetailPage = () => {
         menuItemId: cartItem._id,
         name: cartItem.name,
         quantity: cartItem.quantity,
-        price: Number(cartItem.price), // Ensure price is a number
+        price: Number(cartItem.price),
       })),
       restaurantId: restaurant._id,
       deliveryDetails: {
@@ -102,6 +104,11 @@ const DetailPage = () => {
     return "Loading...";
   }
 
+  // Extract unique cities from branchesInfo
+  const cities = Array.from(
+    new Set(restaurant.branchesInfo.map((branch) => branch.cities))
+  );
+
   return (
     <div className="flex flex-col gap-10 md:px-32">
       <AspectRatio ratio={16 / 5}>
@@ -115,7 +122,7 @@ const DetailPage = () => {
       {/* Restaurant Details */}
       <div className="text-center">
         <h2 className="text-3xl font-bold">{restaurant.restaurantName}</h2>
-        <p className="text-gray-500">Cities: {restaurant.city.join(", ")}</p>
+        <p className="text-gray-500">Cities: {cities.join(", ")}</p>
         <p className="text-gray-600">
           Business Type: {restaurant.wholesale ? "Wholesaler" : "Restaurant"}
         </p>

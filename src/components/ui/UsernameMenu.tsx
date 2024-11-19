@@ -31,24 +31,25 @@ const UsernameMenu = () => {
               'Content-Type': 'application/json',
             },
           });
-
+  
           if (!response.ok) {
-            console.log(`Admin check failed with status: ${response.status}`);
+            console.error(`Admin check failed with status: ${response.status}`);
             setIsAdmin(false);
             return;
           }
-
+  
           const data = await response.json();
           setIsAdmin(data.isAdmin);
         }
       } catch (error) {
-        console.error('Error checking admin role:', error);
+        console.error("Error checking admin role:", error);
         setIsAdmin(false);
       }
     };
-
+  
     checkAdminRole();
   }, [user, getAccessTokenSilently]);
+  
 
   const handleLogout = () => {
     const isProduction = process.env.NODE_ENV === 'production';
