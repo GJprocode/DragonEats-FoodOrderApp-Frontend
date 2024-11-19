@@ -13,7 +13,7 @@ const SearchResultCard = ({ branch }: Props) => {
 
   const handleClick = () => {
     console.log(`Navigating to details page for restaurant: ${branch.restaurantId}`);
-    navigate(`/details/${branch.restaurantId}`); // Use restaurantId here
+    navigate(`/detail/${branch.restaurantId}`); // Use restaurantId here
   };
 
   return (
