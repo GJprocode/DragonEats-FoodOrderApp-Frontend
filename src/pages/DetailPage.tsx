@@ -1,13 +1,11 @@
-// src/pages/DetailPage.tsx
-
 import React, { useState } from "react";
 import { useGetRestaurant } from "@/api/RestaurantApi";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import MenuItem from "@/components/MenuItem";
 import { Card, CardFooter } from "@/components/ui/card";
 import OrderSummary from "@/components/OrderSummary";
 import CheckoutButton from "@/components/CheckoutButton";
-import { MenuItem as MenuItemType, User } from "@/types"; // Removed Restaurant import
+import { MenuItem as MenuItemType, User, Branch } from "@/types";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useCreateCheckoutSession } from "@/api/OrderApi";
 
@@ -21,6 +19,8 @@ export type CartItem = {
 
 const DetailPage = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
+  const { state } = useLocation();
+  const { branch } = state as { branch: Branch }; // Extract branch from state
   const { restaurant, isLoading } = useGetRestaurant(restaurantId);
   const { createCheckoutSession, isLoading: isCheckoutLoading } = useCreateCheckoutSession();
 
@@ -28,9 +28,6 @@ const DetailPage = () => {
     const storedCartItems = sessionStorage.getItem(`cartItems-${restaurantId}`);
     return storedCartItems ? JSON.parse(storedCartItems) : [];
   });
-
-  // Extract the first branch by default, or adjust logic to select the branch based on GPS
-  const branch = restaurant?.branchesInfo[0]; // Replace [0] with dynamic selection logic if necessary
 
   const addToCart = (menuItem: MenuItemType) => {
     setCartItems((prevCartItems) => {
@@ -75,7 +72,7 @@ const DetailPage = () => {
   };
 
   const onCheckout = async (userFormData: Partial<User>) => {
-    if (!restaurant || !branch) return; // Ensure restaurant and branch data are available
+    if (!restaurant || !branch) return;
 
     const checkoutData = {
       cartItems: cartItems.map((cartItem) => ({
@@ -85,12 +82,12 @@ const DetailPage = () => {
         price: Number(cartItem.price),
       })),
       restaurantId: restaurant._id,
-      branchId: branch._id, // Include branch ID in the payload
-      branchName: branch.branchName, // Include branch name in the payload
+      branchId: branch._id,
+      branchName: branch.branchName,
       deliveryDetails: {
         name: userFormData.name || "Unnamed",
         address: userFormData.address || "No Address",
-        city: userFormData.city || "No City",
+        city: branch.cities, // Use the branch's city
         country: userFormData.country || "No Country",
         email: userFormData.email || "no-email@example.com",
         cellphone: userFormData.cellphone || "000-000-0000",
@@ -109,10 +106,6 @@ const DetailPage = () => {
     return "Loading...";
   }
 
-  const cities = Array.from(
-    new Set(restaurant.branchesInfo.map((branch) => branch.cities))
-  );
-
   return (
     <div className="flex flex-col gap-10 md:px-32">
       <AspectRatio ratio={16 / 5}>
@@ -126,8 +119,8 @@ const DetailPage = () => {
       {/* Restaurant Details */}
       <div className="text-center">
         <h2 className="text-3xl font-bold">{restaurant.restaurantName}</h2>
-        {branch && <p className="text-lg text-gray-500">{branch.branchName}</p>}
-        <p className="text-gray-500">Cities: {cities.join(", ")}</p>
+        <p className="text-lg text-gray-500">{branch.branchName}</p>
+        <p className="text-gray-500">City: {branch.cities}</p>
         <p className="text-gray-600">
           Business Type: {restaurant.wholesale ? "Wholesaler" : "Restaurant"}
         </p>
@@ -175,4 +168,3 @@ const DetailPage = () => {
 };
 
 export default DetailPage;
-

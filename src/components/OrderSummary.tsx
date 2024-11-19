@@ -1,19 +1,19 @@
-import { CartItem } from "@/pages/DetailPage"; 
-import { Restaurant } from "@/types";
+import React from "react";
+import { CartItem } from "@/pages/DetailPage";
+import { Restaurant, Branch } from "@/types";
 import { CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
 import { Trash } from "lucide-react";
-import React from "react";
-
 
 type Props = {
   restaurant: Restaurant;
+  branch: Branch | null;
   cartItems: CartItem[];
   removeFromCart: (cartItem: CartItem) => void;
 };
 
-const OrderSummary = ({ restaurant, cartItems, removeFromCart }: Props) => {
+const OrderSummary = ({ restaurant, branch, cartItems, removeFromCart }: Props) => {
   const getTotalCost = () => {
     const totalInCents = cartItems.reduce(
       (total, cartItem) => total + cartItem.price * cartItem.quantity,
@@ -30,12 +30,20 @@ const OrderSummary = ({ restaurant, cartItems, removeFromCart }: Props) => {
       <CardHeader>
         <CardTitle className="text-2xl font-bold tracking-tight flex justify-between">
           <span>Order Summary</span>
-        
         </CardTitle>
-        {/* Adjusted layout: Name and Estimated Delivery below each other */}
         <div className="flex flex-col mt-2">
-          <span className="text-sm text-gray-600">Restaurant: {restaurant.restaurantName}</span>
-          <span className="text-sm text-gray-600">Estimated Delivery: {restaurant.estimatedDeliveryTime} min</span>
+          <span className="text-sm text-gray-600">
+            Restaurant: {restaurant.restaurantName}
+          </span>
+          {branch && (
+            <>
+              <span className="text-sm text-gray-600">Branch: {branch.branchName}</span>
+              <span className="text-sm text-gray-600">City: {branch.cities}</span>
+            </>
+          )}
+          <span className="text-sm text-gray-600">
+            Estimated Delivery: {restaurant.estimatedDeliveryTime} min
+          </span>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
@@ -74,4 +82,3 @@ const OrderSummary = ({ restaurant, cartItems, removeFromCart }: Props) => {
 };
 
 export default OrderSummary;
-  

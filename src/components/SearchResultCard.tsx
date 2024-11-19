@@ -1,5 +1,3 @@
-// src/components/SearchResultCard.tsx
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { EnrichedBranch } from "../types";
@@ -12,8 +10,8 @@ const SearchResultCard = ({ branch }: Props) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    console.log(`Navigating to details page for restaurant: ${branch.restaurantId}`);
-    navigate(`/detail/${branch.restaurantId}`); // Use restaurantId here
+    console.log(`Navigating to details page for branch: ${branch.branchName}`);
+    navigate(`/detail/${branch.restaurantId}`, { state: { branch } }); // Pass branch as state
   };
 
   return (
