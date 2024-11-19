@@ -91,7 +91,7 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
       const updatedRestaurant = {
         ...restaurant,
         branchesInfo: restaurant.branchesInfo?.length
-          ? restaurant.branchesInfo // Use existing branchesInfo if available
+          ? restaurant.branchesInfo
           : [
               {
                 cities: "Default City",
@@ -99,7 +99,7 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
                 latitude: 0.0,
                 longitude: 0.0,
               },
-            ], // Default value for branchesInfo
+            ],
         menuItems: restaurant.menuItems?.length
           ? restaurant.menuItems
           : [
@@ -108,15 +108,26 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
                 price: 0,
                 imageUrl: "",
               },
-            ], // Default value for menu items
+            ],
       };
       form.reset(updatedRestaurant);
     }
   }, [restaurant, form]);
-  
-  
-  
-  
+
+  const getStatusWidth = () => {
+    switch (restaurant?.status) {
+      case "submitted":
+        return "33%";
+      case "pending":
+        return "66%";
+      case "rejected":
+        return "0%";
+      case "approved":
+        return "100%";
+      default:
+        return "33%";
+    }
+  };
 
   const onSubmit = async (data: RestaurantFormData) => {
     const formData = new FormData();
@@ -125,19 +136,19 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
     formData.append("country", data.country);
     formData.append("deliveryPrice", data.deliveryPrice.toString());
     formData.append("estimatedDeliveryTime", data.estimatedDeliveryTime.toString());
-  
+    formData.append("wholesale", data.wholesale ? "true" : "false");
+
     data.branchesInfo.forEach((branch, index) => {
       formData.append(`branchesInfo[${index}][cities]`, branch.cities);
       formData.append(`branchesInfo[${index}][branchName]`, branch.branchName);
       formData.append(`branchesInfo[${index}][latitude]`, branch.latitude.toString());
       formData.append(`branchesInfo[${index}][longitude]`, branch.longitude.toString());
     });
-    
-  
+
     data.cuisines.forEach((cuisine, index) => {
       formData.append(`cuisines[${index}]`, cuisine);
     });
-  
+
     data.menuItems.forEach((menuItem, index) => {
       formData.append(`menuItems[${index}][name]`, menuItem.name);
       formData.append(`menuItems[${index}][price]`, menuItem.price.toString());
@@ -147,83 +158,101 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
         formData.append(`menuItems[${index}][imageUrl]`, menuItem.imageUrl);
       }
     });
-  
+
     if (data.imageFile) {
       formData.append("imageFile", data.imageFile);
     } else if (data.imageUrl) {
       formData.append("imageUrl", data.imageUrl);
     }
-  
+
     onSave(formData);
   };
-  
-  
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 bg-gray-50 p-10 rounded-lg"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 bg-gray-50 p-10 rounded-lg">
         <DetailsSection restaurant={restaurant} currentUserEmail={currentUserEmail} />
         <Separator />
 
-              <div className="space-y-4">
-        <label className="block text-lg font-bold">Cities and Branches</label>
-        <FormDescription>Enter details about cities, branches, and GPS coordinates.</FormDescription>
-        {fields.map((field, index) => (
-          <div key={field.id} className="flex flex-col md:flex-row gap-2 items-center">
-            <input
-              {...form.register(`branchesInfo.${index}.cities`)} // Use `cities` for city name
-              className="border rounded p-2"
-              placeholder="City Name"
-              defaultValue={field.cities || ""}
-            />
-            <input
-              {...form.register(`branchesInfo.${index}.branchName`)}
-              className="border rounded p-2"
-              placeholder="Branch Name"
-              defaultValue={field.branchName || ""}
-            />
-            <input
-              {...form.register(`branchesInfo.${index}.latitude`, { valueAsNumber: true })}
-              placeholder="Latitude (e.g., 0.3345)"
-              className="border rounded p-2"
-              defaultValue={field.latitude || 0.0}
-            />
-            <input
-              {...form.register(`branchesInfo.${index}.longitude`, { valueAsNumber: true })}
-              placeholder="Longitude (e.g., 103.8669)"
-              className="border rounded p-2"
-              defaultValue={field.longitude || 0.0}
-            />
-            <Button
-              type="button"
-              onClick={() => remove(index)}
-              className="bg-red-500 text-white text-xs px-2 py-1"
-            >
-              Remove
-            </Button>
-          </div>
-        ))}
-        <Button
-          type="button"
-          onClick={() =>
-            append({ cities: "", branchName: "", latitude: 0.0, longitude: 0.0 })
-          }
-          className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Add Branch
-        </Button>
-      </div>
+        <div className="space-y-4">
+          <label className="block text-lg font-bold">Cities and Branches</label>
+          <FormDescription>Enter details about cities, branches, and GPS coordinates.</FormDescription>
+          {fields.map((field, index) => (
+            <div key={field.id} className="flex flex-col md:flex-row gap-2 items-center">
+              <input
+                {...form.register(`branchesInfo.${index}.cities`)}
+                className="border rounded p-2"
+                placeholder="City Name"
+                defaultValue={field.cities || ""}
+              />
+              <input
+                {...form.register(`branchesInfo.${index}.branchName`)}
+                className="border rounded p-2"
+                placeholder="Branch Name"
+                defaultValue={field.branchName || ""}
+              />
+              <input
+                {...form.register(`branchesInfo.${index}.latitude`, { valueAsNumber: true })}
+                placeholder="Latitude (e.g., 0.3345)"
+                className="border rounded p-2"
+                defaultValue={field.latitude || 0.0}
+              />
+              <input
+                {...form.register(`branchesInfo.${index}.longitude`, { valueAsNumber: true })}
+                placeholder="Longitude (e.g., 103.8669)"
+                className="border rounded p-2"
+                defaultValue={field.longitude || 0.0}
+              />
+              <Button
+                type="button"
+                onClick={() => remove(index)}
+                className="bg-red-500 text-white text-xs px-2 py-1"
+              >
+                Remove
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            onClick={() =>
+              append({ cities: "", branchName: "", latitude: 0.0, longitude: 0.0 })
+            }
+            className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Add Branch
+          </Button>
+        </div>
 
+        <Separator />
 
+        
         <Separator />
         <CuisinesSection />
         <Separator />
         <MenuSection />
         <Separator />
         <RestaurantImage />
+        <Separator />
+        <div className="mt-6">
+          <label htmlFor="progress" className="block text-sm font-medium text-gray-700">
+            Restaurant Status:
+          </label>
+          <p className="text-xs text-gray-500">
+            Your submission has been sent for admin approval.
+          </p>
+          <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+            <div
+              className={`bg-blue-600 h-2.5 rounded-full`}
+              style={{ width: getStatusWidth() }}
+            ></div>
+          </div>
+          <div className="flex justify-between text-xs md:text-sm text-gray-500 mt-2">
+            <span>Submitted</span>
+            <span>Pending Approval</span>
+            <span>{restaurant?.status === "rejected" ? "Rejected" : "Approved"}</span>
+          </div>
+        </div>
+
         <Separator />
         <div className="flex justify-start">
           {isLoading ? <LoadingButton /> : <Button type="submit">Submit</Button>}

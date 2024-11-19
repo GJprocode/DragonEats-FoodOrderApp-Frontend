@@ -29,6 +29,9 @@ const DetailPage = () => {
     return storedCartItems ? JSON.parse(storedCartItems) : [];
   });
 
+  // Extract the first branch by default, or adjust logic to select the branch based on GPS
+  const branch = restaurant?.branchesInfo[0]; // Replace [0] with dynamic selection logic if necessary
+
   const addToCart = (menuItem: MenuItemType) => {
     setCartItems((prevCartItems) => {
       const existingCartItem = prevCartItems.find(
@@ -72,7 +75,7 @@ const DetailPage = () => {
   };
 
   const onCheckout = async (userFormData: Partial<User>) => {
-    if (!restaurant) return;
+    if (!restaurant || !branch) return; // Ensure restaurant and branch data are available
 
     const checkoutData = {
       cartItems: cartItems.map((cartItem) => ({
@@ -82,6 +85,8 @@ const DetailPage = () => {
         price: Number(cartItem.price),
       })),
       restaurantId: restaurant._id,
+      branchId: branch._id, // Include branch ID in the payload
+      branchName: branch.branchName, // Include branch name in the payload
       deliveryDetails: {
         name: userFormData.name || "Unnamed",
         address: userFormData.address || "No Address",
@@ -104,7 +109,6 @@ const DetailPage = () => {
     return "Loading...";
   }
 
-  // Extract unique cities from branchesInfo
   const cities = Array.from(
     new Set(restaurant.branchesInfo.map((branch) => branch.cities))
   );
@@ -122,6 +126,7 @@ const DetailPage = () => {
       {/* Restaurant Details */}
       <div className="text-center">
         <h2 className="text-3xl font-bold">{restaurant.restaurantName}</h2>
+        {branch && <p className="text-lg text-gray-500">{branch.branchName}</p>}
         <p className="text-gray-500">Cities: {cities.join(", ")}</p>
         <p className="text-gray-600">
           Business Type: {restaurant.wholesale ? "Wholesaler" : "Restaurant"}
@@ -150,6 +155,7 @@ const DetailPage = () => {
           <Card className="shadow-md pt-1 lg:pt-0">
             <OrderSummary
               restaurant={restaurant}
+              branch={branch} // Pass branch to OrderSummary
               cartItems={cartItems}
               removeFromCart={removeFromCart}
             />
@@ -169,3 +175,4 @@ const DetailPage = () => {
 };
 
 export default DetailPage;
+
