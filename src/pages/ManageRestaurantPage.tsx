@@ -1,3 +1,5 @@
+// C:\Users\gertf\Desktop\FoodApp\frontend\src\pages\ManageRestaurantPage.tsx
+
 import React, { useState } from "react";
 import ManageRestaurantForm from "../forms/manage-restaurant-form/ManageRestaurantForm";
 import {

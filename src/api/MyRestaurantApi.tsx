@@ -175,6 +175,7 @@ export const useGetMyRestaurantOrders = () => {
 type UpdateOrderStatusRequest = {
   orderId: string;
   status: string;
+  rejectionMessage?: string; // Add optional rejectionMessage
 };
 
 
@@ -187,15 +188,22 @@ export const useUpdateMyRestaurantOrder = () => {
   ) => {
     const accessToken = await getAccessTokenSilently();
 
+    const { orderId, status, rejectionMessage } = updateStatusOrderRequest;
+
+    const body = {
+      status,
+      ...(rejectionMessage && { rejectionMessage }), // Include rejectionMessage if provided
+    };
+
     const response = await fetch(
-      `${API_BASE_URL}/api/my/restaurant/order/${updateStatusOrderRequest.orderId}/status`,
+      `${API_BASE_URL}/api/my/restaurant/order/${orderId}/status`,
       {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status: updateStatusOrderRequest.status }),
+        body: JSON.stringify(body),
       }
     );
 
@@ -225,3 +233,4 @@ export const useUpdateMyRestaurantOrder = () => {
 
   return { updateRestaurantStatus, isLoading };
 };
+

@@ -69,7 +69,9 @@ export type OrderStatus =
   | "paid"
   | "inProgress"
   | "outForDelivery"
-  | "delivered";
+  | "delivered"
+  | "rejected"; // Add "rejected" status
+
 
 // Order type updated to reflect the backend schema
 export type Order = {
@@ -91,6 +93,7 @@ export type Order = {
   };
   totalAmount: number;
   status: OrderStatus;
+  rejectionMessage?: string; // Add optional rejectionMessage property
   createdAt: string;
   dateDelivered?: string;
   restaurantID: string;
