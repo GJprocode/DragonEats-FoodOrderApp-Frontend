@@ -12,7 +12,7 @@ const MenuItem = ({ menuItem, addToCart }: Props) => {
   const formattedPrice = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-  }).format(menuItem.price / 100);
+  }).format(menuItem.price / 100); // Already in dollars
 
   return (
     <Card className="cursor-pointer p-4">
