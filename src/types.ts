@@ -1,6 +1,7 @@
 // src/types.ts
 
-// User type reflecting the backend model
+
+// Types reflecting the backend model
 export type User = {
   _id: string;
   auth0Id: string[];
@@ -70,10 +71,15 @@ export type OrderStatus =
   | "inProgress"
   | "outForDelivery"
   | "delivered"
-  | "rejected"; // Add "rejected" status
+  | "rejected"
+  | "resolved";
 
+export type OrderMessage = {
+  status: OrderStatus;
+  message: string;
+  timestamp: string;
+};
 
-// Order type updated to reflect the backend schema
 export type Order = {
   _id: string;
   restaurant: Restaurant;
@@ -93,11 +99,12 @@ export type Order = {
   };
   totalAmount: number;
   status: OrderStatus;
-  rejectionMessage?: string; // Add optional rejectionMessage property
+  rejectionMessage?: string;
+  messages: OrderMessage[];
   createdAt: string;
   dateDelivered?: string;
-  restaurantID: string;
 };
+
 
 // Pagination interface updated to include totalBranches and totalRestaurants
 export interface Pagination {
@@ -106,6 +113,13 @@ export interface Pagination {
   page: number;
   pages: number;
 }
+
+// RestaurantSearchResponse updated to use the new Pagination interface
+export interface RestaurantSearchResponse {
+  data: Restaurant[];
+  pagination: Pagination;
+}
+
 
 // RestaurantSearchResponse updated to use the new Pagination interface
 export interface RestaurantSearchResponse {

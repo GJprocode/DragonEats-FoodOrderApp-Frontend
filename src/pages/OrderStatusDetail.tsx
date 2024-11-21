@@ -68,6 +68,18 @@ const OrderStatusDetail = ({ order }: Props) => {
         )}
       </div>
 
+          <div className="flex flex-col">
+            <span className="font-bold">Order Messages:</span>
+              {order.messages.map((msg, index) => (
+                <div key={index}>
+                  <strong>Status:</strong> {msg.status} <br />
+                  <strong>Message:</strong> {msg.message} <br />
+                <strong>Timestamp:</strong> {new Date(msg.timestamp).toLocaleString()}
+              </div>
+            ))}
+          </div>
+
+
       {/* Delivery Cost */}
       <div className="flex flex-col">
         <span className="font-bold">Delivery Cost:</span>
