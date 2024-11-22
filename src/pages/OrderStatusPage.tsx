@@ -12,12 +12,12 @@ import { loadStripe } from "@stripe/stripe-js";
 const OrderStatusPage = () => {
   const { orders, isLoading } = useGetMyOrders();
   const { createCheckoutSession } = useCreateCheckoutSession();
-  const [filterDate, setFilterDate] = useState<string>("");
+  const [filterDate, setFilterDate] = useState<string>(""); // Store the filter date
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
 
   // Handle payment initiation
   const handlePayNow = (orderId: string) => {
-    setSelectedOrder(orderId); // Set the selected order ID to open the payment dialog
+    setSelectedOrder(orderId);
   };
 
   // Proceed with Stripe payment
@@ -35,7 +35,7 @@ const OrderStatusPage = () => {
         cartItems: order.cartItems,
         deliveryDetails: order.deliveryDetails,
         restaurantId: order.restaurant._id,
-        orderId: order._id, // Include orderId to ensure the backend updates it properly
+        orderId: order._id,
       };
 
       const response = await createCheckoutSession(checkoutSessionRequest);
@@ -50,16 +50,20 @@ const OrderStatusPage = () => {
     }
   };
 
+  // Filter orders based on the selected date
+  const filteredOrderHistory = orders
+  ?.filter((order) => order.status === "delivered")
+  .filter((order) =>
+    filterDate
+      ? new Date(order.dateDelivered ?? "").toLocaleDateString() ===
+        new Date(filterDate).toLocaleDateString()
+      : true
+  ) || [];
+
+
   // Manage active orders and order history
   const activeOrders = orders?.filter((order) => order.status !== "delivered") || [];
-  const orderHistory =
-    orders?.filter(
-      (order) =>
-        order.status === "delivered" ||
-        order.status === "rejected" ||
-        (order.status === "paid" && order.rejectionMessage)
-    ) || [];
-
+  
   // Add `useEffect` to manage the "Paid" toaster message
   useEffect(() => {
     orders?.forEach((order) => {
@@ -67,7 +71,7 @@ const OrderStatusPage = () => {
         const toastKey = `toast-${order._id}-paid`;
         if (!sessionStorage.getItem(toastKey)) {
           toast.success("Your order has been successfully paid.");
-          sessionStorage.setItem(toastKey, "true"); // Mark toast as shown
+          sessionStorage.setItem(toastKey, "true");
         }
       }
     });
@@ -86,15 +90,18 @@ const OrderStatusPage = () => {
           <div>Loading...</div>
         ) : activeOrders.length > 0 ? (
           activeOrders.map((order) => (
-            <div key={order._id} className="space-y-10">
+            <div
+              key={order._id}
+              className="space-y-10 bg-white rounded-lg shadow-md border border-yellow-400 p-4"
+            >
               <OrderStatusHeader order={order} />
               <div className="grid gap-10 md:grid-cols-2">
                 <OrderStatusDetail order={order} />
-                <AspectRatio ratio={16 / 5}>
+                <AspectRatio ratio={16 / 9} className="relative bg-white rounded-md overflow-hidden">
                   <img
-                    alt="image"
+                    alt="Restaurant Image"
                     src={order.restaurant.restaurantImageUrl}
-                    className="rounded-md object-cover h-full w-full"
+                    className="absolute inset-0 w-full h-full object-contain p-2"
                   />
                 </AspectRatio>
               </div>
@@ -138,7 +145,7 @@ const OrderStatusPage = () => {
       </TabsContent>
 
       <TabsContent value="order-history" className="space-y-10 bg-gray-50 p-10 rounded-lg">
-        <h2 className="text-2xl font-bold">{orderHistory.length} delivered orders</h2>
+        <h2 className="text-2xl font-bold">{filteredOrderHistory.length} delivered orders</h2>
         <div>
           <label htmlFor="filter-date" className="font-bold">Filter by date:</label>
           <input
@@ -149,17 +156,20 @@ const OrderStatusPage = () => {
             className="ml-2 p-2 border border-gray-300 rounded"
           />
         </div>
-        {orderHistory.length > 0 ? (
-          orderHistory.map((order) => (
-            <div key={order._id} className="space-y-10">
+        {filteredOrderHistory.length > 0 ? (
+          filteredOrderHistory.map((order) => (
+            <div
+              key={order._id}
+              className="space-y-10 bg-white rounded-lg shadow-md border border-yellow-400 p-4"
+            >
               <OrderStatusHeader order={order} />
               <div className="grid gap-10 md:grid-cols-2">
                 <OrderStatusDetail order={order} />
-                <AspectRatio ratio={16 / 5}>
+                <AspectRatio ratio={16 / 9} className="relative overflow-hidden">
                   <img
-                    alt="image"
+                    alt="Restaurant Image"
                     src={order.restaurant.restaurantImageUrl}
-                    className="rounded-md object-cover h-full w-full"
+                    className="absolute inset-0 w-full h-full object-contain p-2"
                   />
                 </AspectRatio>
               </div>
