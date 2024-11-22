@@ -1,5 +1,3 @@
-// frontend/src/components/OrderStatusHeader.tsx
-
 import React, { useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { Order } from "@/types";
@@ -34,6 +32,13 @@ const OrderStatusHeader: React.FC<Props> = ({ order }) => {
 
   const showPopupOnStatusChange = useCallback(
     (status: string) => {
+      const toastKey = `toast-${order._id}-${status}`;
+  
+      // Prevent duplicate toasts for the same status
+      if (localStorage.getItem(toastKey)) {
+        return;
+      }
+  
       if (status === "confirmed") {
         toast.success(
           "Your order has been confirmed. Please click the green button to proceed with payment."
@@ -45,13 +50,16 @@ const OrderStatusHeader: React.FC<Props> = ({ order }) => {
           `Your order has been rejected. Reason: ${order.rejectionMessage}`
         );
       }
+  
+      localStorage.setItem(toastKey, "true"); // Mark the toast as shown
     },
-    [order.rejectionMessage]
+    [order.rejectionMessage, order._id]
   );
-
+  
   useEffect(() => {
     showPopupOnStatusChange(order.status);
   }, [order.status, showPopupOnStatusChange]);
+  
 
   const statusInfo = getOrderStatusInfo();
 
