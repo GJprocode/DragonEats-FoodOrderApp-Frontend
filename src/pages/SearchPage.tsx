@@ -1,5 +1,3 @@
-// src/pages/SearchPage.tsx
-
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSearchRestaurants } from "../api/RestaurantApi";
@@ -18,6 +16,7 @@ export type SearchState = {
   selectedCuisines: string[];
   selectedBusinessType: string[];
   sortOption: string;
+  isExpanded: boolean; // Added for expand/collapse
 };
 
 const SearchPage = () => {
@@ -28,6 +27,7 @@ const SearchPage = () => {
     selectedCuisines: [],
     selectedBusinessType: [],
     sortOption: "bestMatch",
+    isExpanded: false,
   });
 
   const { results, isLoading } = useSearchRestaurants(searchState, city);
@@ -41,14 +41,12 @@ const SearchPage = () => {
     return <span>No results found</span>;
   }
 
-  // Use totalBranches from the server response
   const totalBranches = results.pagination.totalBranches || 0;
 
-  // Process the results to display
   const filteredBranches: EnrichedBranch[] = results.data.flatMap((restaurant: Restaurant) =>
     (restaurant.branches || []).map((branch: Branch) => ({
       ...branch,
-      restaurantId: restaurant._id, // Add this line
+      restaurantId: restaurant._id,
       restaurantImageUrl: restaurant.restaurantImageUrl || "placeholder.png",
       restaurantName: restaurant.restaurantName,
       cuisines: restaurant.cuisines,
@@ -86,8 +84,13 @@ const SearchPage = () => {
               page: 1,
             }))
           }
-          isExpanded={false}
-          onExpandedClick={() => {}}
+          isExpanded={searchState.isExpanded}
+          onExpandedClick={() =>
+            setSearchState((prevState) => ({
+              ...prevState,
+              isExpanded: !prevState.isExpanded,
+            }))
+          }
         />
       </div>
       <div id="main-content" className="flex flex-col gap-5">
@@ -141,3 +144,4 @@ const SearchPage = () => {
 };
 
 export default SearchPage;
+    

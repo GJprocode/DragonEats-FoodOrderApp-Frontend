@@ -6,7 +6,6 @@ import { Card, CardFooter } from "@/components/ui/card";
 import OrderSummary from "@/components/OrderSummary";
 import CheckoutButton from "@/components/CheckoutButton";
 import { MenuItem as MenuItemType, User, Branch } from "@/types";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useCreateCheckoutSession } from "@/api/OrderApi";
 
 export type CartItem = {
@@ -108,13 +107,14 @@ const DetailPage = () => {
 
   return (
     <div className="flex flex-col gap-10 md:px-32">
-      <AspectRatio ratio={16 / 5}>
+      {/* Adjusted Image Section */}
+      <div className="w-full flex justify-center">
         <img
           src={restaurant.restaurantImageUrl}
           alt={`Image of ${restaurant.restaurantName}`}
-          className="rounded-md object-cover h-full w-full"
+          className="rounded-md max-h-[300px] w-auto object-contain" // Compact styling
         />
-      </AspectRatio>
+      </div>
 
       {/* Restaurant Details */}
       <div className="text-center">

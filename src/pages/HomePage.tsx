@@ -39,9 +39,10 @@ const HomePage = () => {
         setLoading(false);
       }
     };
-
+  
     fetchCities();
   }, []);
+  
 
   const handleSearchSubmit = (searchFormValues: SearchForm) => {
     navigate({

@@ -56,7 +56,7 @@ const CuisineFilter = ({
                   value={cuisine.name}
                   checked={isSelected}
                   onChange={handleCuisinesChange}
-                  title={`Filter by ${cuisine.name}`} // Added title for accessibility
+                  title={`Filter by ${cuisine.name}`} // Accessibility title
                 />
                 <Label
                   htmlFor={`cuisine_${cuisine.id}`}

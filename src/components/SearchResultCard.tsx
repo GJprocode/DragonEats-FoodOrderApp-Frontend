@@ -16,31 +16,36 @@ const SearchResultCard = ({ branch }: Props) => {
 
   return (
     <div
-      className="p-4 border border-gray-200 rounded-md hover:shadow-md cursor-pointer"
+      className="p-4 border border-gray-200 rounded-md hover:shadow-md cursor-pointer flex flex-col lg:flex-row gap-4"
       onClick={handleClick}
     >
-      <div className="mb-2">
+      {/* Image Section */}
+      <div className="w-full lg:w-1/3">
         <img
           src={branch.restaurantImageUrl}
           alt={`${branch.restaurantName} image`}
-          className="rounded-md w-full h-32 object-cover"
+          className="rounded-md w-full h-32 lg:h-40 object-cover"
         />
       </div>
-      <h3 className="text-lg font-bold">{branch.restaurantName}</h3>
-      <p className="text-sm text-gray-500">
-        {branch.branchName} - {branch.cities}
-      </p>
-      <div className="flex flex-wrap gap-2 mt-2 text-sm text-gray-600">
-        {branch.cuisines.map((cuisine, index) => (
-          <span key={index} className="bg-gray-100 px-2 py-1 rounded-md">
-            {cuisine}
-          </span>
-        ))}
-      </div>
-      <div className="mt-3 text-sm">
-        <p>{branch.wholesale ? "Wholesale" : "Restaurant"}</p>
-        <p>{branch.estimatedDeliveryTime} mins flying time</p>
-        <p>Delivery fee ${(branch.deliveryPrice / 100).toFixed(2)}</p>
+
+      {/* Details Section */}
+      <div className="flex flex-col w-full lg:w-2/3">
+        <h3 className="text-lg font-bold">{branch.restaurantName}</h3>
+        <p className="text-sm text-gray-500">
+          {branch.branchName} - {branch.cities}
+        </p>
+        <div className="flex flex-wrap gap-2 mt-2 text-sm text-gray-600">
+          {branch.cuisines.map((cuisine, index) => (
+            <span key={index} className="bg-gray-100 px-2 py-1 rounded-md">
+              {cuisine}
+            </span>
+          ))}
+        </div>
+        <div className="mt-3 text-sm">
+          <p>{branch.wholesale ? "Wholesale" : "Restaurant"}</p>
+          <p>{branch.estimatedDeliveryTime} mins flying time</p>
+          <p>Delivery fee ${(branch.deliveryPrice / 100).toFixed(2)}</p>
+        </div>
       </div>
     </div>
   );
