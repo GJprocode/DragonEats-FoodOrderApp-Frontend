@@ -12,9 +12,6 @@ import {
 } from "./ui/select";
 import { useUpdateMyRestaurantOrder } from "@/api/MyRestaurantApi";
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogFooter, DialogTitle } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Textarea } from "./ui/textarea";
 
 type Props = {
   order: Order;
@@ -23,8 +20,6 @@ type Props = {
 const OrderItemCard = ({ order }: Props) => {
   const { updateRestaurantStatus, isLoading } = useUpdateMyRestaurantOrder();
   const [status, setStatus] = useState<OrderStatus>(order.status);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [rejectionMessage, setRejectionMessage] = useState("");
 
   useEffect(() => {
     setStatus(order.status);
@@ -32,7 +27,7 @@ const OrderItemCard = ({ order }: Props) => {
 
   const invalidTransitions: Record<OrderStatus, OrderStatus[]> = {
     placed: ["paid", "inProgress", "outForDelivery", "delivered", "resolved"],
-    confirmed: ["inProgress", "outForDelivery", "delivered", "resolved"],
+    confirmed: ["placed", "resolved"],
     paid: ["placed", "confirmed", "resolved"],
     inProgress: ["placed", "confirmed", "paid", "resolved"],
     outForDelivery: ["placed", "confirmed", "paid", "inProgress", "resolved"],
@@ -41,12 +36,11 @@ const OrderItemCard = ({ order }: Props) => {
     resolved: [], // No further transitions from resolved
   };
 
-  const updateOrder = async (newStatus: OrderStatus, message: string) => {
+  const updateOrder = async (newStatus: OrderStatus) => {
     try {
       await updateRestaurantStatus({
         orderId: order._id,
         status: newStatus,
-        ...(message && { message }), // Include the message field if it exists
       });
       setStatus(newStatus);
     } catch (error) {
@@ -56,24 +50,9 @@ const OrderItemCard = ({ order }: Props) => {
 
   const handleStatusChange = (newStatus: OrderStatus) => {
     if (invalidTransitions[status]?.includes(newStatus)) {
-      alert("Invalid status transition.");
-      return;
+      return; // Prevent selection of restricted statuses
     }
-
-    if (["rejected", "resolved"].includes(newStatus)) {
-      setIsDialogOpen(true);
-    } else {
-      updateOrder(newStatus, "");
-    }
-  };
-
-  const handleReject = async () => {
-    if (!rejectionMessage) {
-      alert("Rejection message is required.");
-      return;
-    }
-    await updateOrder("rejected", rejectionMessage);
-    setIsDialogOpen(false);
+    updateOrder(newStatus);
   };
 
   const formatDate = (date: string | undefined) => {
@@ -153,39 +132,21 @@ const OrderItemCard = ({ order }: Props) => {
             </SelectTrigger>
             <SelectContent position="popper">
               {Object.keys(invalidTransitions).map((key) => (
-                <SelectItem key={key} value={key}>
-                  {key}
+                <SelectItem
+                  key={key}
+                  value={key}
+                  disabled={invalidTransitions[status]?.includes(key as OrderStatus)}
+                >
+                  {key === "placed" || key === "paid" ? `${key} (restricted)` : key}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
       </CardContent>
-
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogTitle>Reject Order</DialogTitle>
-          <Textarea
-            placeholder="Enter rejection message"
-            value={rejectionMessage}
-            onChange={(e) => setRejectionMessage(e.target.value)}
-          />
-          <DialogFooter>
-            <Button variant="secondary" onClick={() => setIsDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleReject}
-              disabled={isLoading}
-            >
-              Reject Order
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </Card>
   );
 };
 
 export default OrderItemCard;
+  
