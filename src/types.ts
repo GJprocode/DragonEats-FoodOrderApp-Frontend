@@ -74,36 +74,40 @@ export type OrderStatus =
   | "rejected"
   | "resolved";
 
-export type OrderMessage = {
-  status: OrderStatus;
-  message: string;
-  timestamp: string;
-};
-
-export type Order = {
-  _id: string;
-  restaurant: Restaurant;
-  user: User;
-  cartItems: {
-    menuItemId: string;
-    name: string;
-    quantity: number;
-    price: number;
-  }[];
-  deliveryDetails: {
-    name: string;
-    address: string;
-    city: string;
-    email: string;
-    cellphone: string;
+  export type OrderMessage = {
+    status: "rejected" | "resolved"; // Matches the enum in the schema
+    message: string; // The content of the message
+    timestamp: string; // ISO timestamp of when the message was added
   };
-  totalAmount: number;
-  status: OrderStatus;
-  rejectionMessage?: string;
-  messages: OrderMessage[];
-  createdAt: string;
-  dateDelivered?: string;
-};
+  
+  export type Order = {
+    _id: string;
+    restaurant: Restaurant;
+    user: User;
+    cartItems: {
+      menuItemId: string;
+      name: string;
+      quantity: number;
+      price: number;
+    }[];
+    deliveryDetails: {
+      name: string;
+      address: string;
+      city: string;
+      email: string;
+      cellphone: string;
+    };
+    totalAmount: number;
+    status: "placed" | "confirmed" | "paid" | "inProgress" | "outForDelivery" | "delivered" | "rejected" | "resolved";
+    rejectionMessage?: string;
+    resolutionMessage?: string;
+    messages: OrderMessage[]; // Updated to reflect the messages structure
+    createdAt: string;
+    updatedAt?: string;
+    dateDelivered?: string;
+  };
+  
+
 
 
 // Pagination interface updated to include totalBranches and totalRestaurants

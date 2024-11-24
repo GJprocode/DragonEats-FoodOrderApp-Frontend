@@ -29,7 +29,7 @@ export const useGetMyRestaurant = () => {
     const response = await fetch(`${API_BASE_URL}/api/my/restaurant`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${accessToken}`, // added to get access fix 400 error in headers
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
@@ -38,9 +38,6 @@ export const useGetMyRestaurant = () => {
     }
 
     const data = await response.json();
-    console.log("Fetched restaurant data:", data);
-
-    // Enforce HTTPS for all image URLs
     return enforceHttpsUrls(data);
   };
 
@@ -94,8 +91,6 @@ export const useCreateMyRestaurant = () => {
   return { createRestaurant, isLoading };
 };
 
-
-
 export const useUpdateMyRestaurant = () => {
   const { getAccessTokenSilently } = useAuth0();
 
@@ -139,14 +134,9 @@ export const useUpdateMyRestaurant = () => {
   return { updateRestaurant, isLoading };
 };
 
-
-
-
-
 export const useGetMyRestaurantOrders = () => {
   const { getAccessTokenSilently } = useAuth0();
 
-  
   const getMyRestaurantOrdersRequest = async (): Promise<Order[]> => {
     const accessToken = await getAccessTokenSilently();
 
@@ -172,65 +162,64 @@ export const useGetMyRestaurantOrders = () => {
   return { orders, isLoading };
 };
 
-type UpdateOrderStatusRequest = {
-  orderId: string;
-  status: string;
-  rejectionMessage?: string; // Add optional rejectionMessage
-};
+// type UpdateOrderStatusRequest = {
+//   orderId: string;
+//   status: string;
+//   message?: string; // Optional `message` field
+// };
+
+// export const useUpdateMyRestaurantOrder = () => {
+//   const { getAccessTokenSilently } = useAuth0();
+
+//   const updateMyRestaurantOrder = async (updateStatusOrderRequest: UpdateOrderStatusRequest) => {
+//     const accessToken = await getAccessTokenSilently();
+
+//     const { orderId, status, message } = updateStatusOrderRequest;
+
+//     const body = { status, ...(message && { message }) }; // Ensure message is sent
+
+//     console.log("Sending update order request:", body);
+
+//     const response = await fetch(
+//       `${API_BASE_URL}/api/my/restaurant/order/${orderId}/status`,
+//       {
+//         method: "PATCH",
+//         headers: {
+//           Authorization: `Bearer ${accessToken}`,
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(body),
+//       }
+//     );
+
+//     if (!response.ok) {
+//       const errorText = await response.text();
+//       console.error("Failed to update order status:", errorText);
+//       throw new Error("Failed to update order status");
+//     }
+
+//     return response.json();
+//   };
+
+//   const {
+//     mutateAsync: updateRestaurantStatus,
+//     isLoading,
+//     isError,
+//     isSuccess,
+//     reset,
+//   } = useMutation(updateMyRestaurantOrder);
+
+//   if (isSuccess) {
+//     toast.success("Order updated");
+//   }
+
+//   if (isError) {
+//     toast.error("Unable to update order");
+//     reset();
+//   }
+
+//   return { updateRestaurantStatus, isLoading };
+// };
 
 
-
-export const useUpdateMyRestaurantOrder = () => {
-  const { getAccessTokenSilently } = useAuth0();
-
-  const updateMyRestaurantOrder = async (
-    updateStatusOrderRequest: UpdateOrderStatusRequest
-  ) => {
-    const accessToken = await getAccessTokenSilently();
-
-    const { orderId, status, rejectionMessage } = updateStatusOrderRequest;
-
-    const body = {
-      status,
-      ...(rejectionMessage && { rejectionMessage }), // Include rejectionMessage if provided
-    };
-
-    const response = await fetch(
-      `${API_BASE_URL}/api/my/restaurant/order/${orderId}/status`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to update status");
-    }
-
-    return response.json();
-  };
-
-  const {
-    mutateAsync: updateRestaurantStatus,
-    isLoading,
-    isError,
-    isSuccess,
-    reset,
-  } = useMutation(updateMyRestaurantOrder);
-
-  if (isSuccess) {
-    toast.success("Order updated");
-  }
-
-  if (isError) {
-    toast.error("Unable to update order");
-    reset();
-  }
-
-  return { updateRestaurantStatus, isLoading };
-};
 
