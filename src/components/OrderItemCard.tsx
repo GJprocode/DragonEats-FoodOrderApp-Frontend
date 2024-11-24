@@ -18,7 +18,7 @@ import {
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Order, OrderStatus } from "@/types";
-// import { useUpdateMyRestaurantOrder } from "@/api/MyRestaurantApi";
+import { useUpdateMyRestaurantOrder } from "@/api/MyRestaurantApi";
 
 type Props = {
   order: Order;

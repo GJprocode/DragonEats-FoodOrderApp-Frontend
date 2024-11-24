@@ -162,64 +162,64 @@ export const useGetMyRestaurantOrders = () => {
   return { orders, isLoading };
 };
 
-// type UpdateOrderStatusRequest = {
-//   orderId: string;
-//   status: string;
-//   message?: string; // Optional `message` field
-// };
+type UpdateOrderStatusRequest = {
+  orderId: string;
+  status: string;
+  message?: string; // Optional `message` field
+};
 
-// export const useUpdateMyRestaurantOrder = () => {
-//   const { getAccessTokenSilently } = useAuth0();
+export const useUpdateMyRestaurantOrder = () => {
+  const { getAccessTokenSilently } = useAuth0();
 
-//   const updateMyRestaurantOrder = async (updateStatusOrderRequest: UpdateOrderStatusRequest) => {
-//     const accessToken = await getAccessTokenSilently();
+  const updateMyRestaurantOrder = async (updateStatusOrderRequest: UpdateOrderStatusRequest) => {
+    const accessToken = await getAccessTokenSilently();
 
-//     const { orderId, status, message } = updateStatusOrderRequest;
+    const { orderId, status, message } = updateStatusOrderRequest;
 
-//     const body = { status, ...(message && { message }) }; // Ensure message is sent
+    const body = { status, ...(message && { message }) }; // Ensure message is sent
 
-//     console.log("Sending update order request:", body);
+    console.log("Sending update order request:", body);
 
-//     const response = await fetch(
-//       `${API_BASE_URL}/api/my/restaurant/order/${orderId}/status`,
-//       {
-//         method: "PATCH",
-//         headers: {
-//           Authorization: `Bearer ${accessToken}`,
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(body),
-//       }
-//     );
+    const response = await fetch(
+      `${API_BASE_URL}/api/my/restaurant/order/${orderId}/status`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      }
+    );
 
-//     if (!response.ok) {
-//       const errorText = await response.text();
-//       console.error("Failed to update order status:", errorText);
-//       throw new Error("Failed to update order status");
-//     }
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to update order status:", errorText);
+      throw new Error("Failed to update order status");
+    }
 
-//     return response.json();
-//   };
+    return response.json();
+  };
 
-//   const {
-//     mutateAsync: updateRestaurantStatus,
-//     isLoading,
-//     isError,
-//     isSuccess,
-//     reset,
-//   } = useMutation(updateMyRestaurantOrder);
+  const {
+    mutateAsync: updateRestaurantStatus,
+    isLoading,
+    isError,
+    isSuccess,
+    reset,
+  } = useMutation(updateMyRestaurantOrder);
 
-//   if (isSuccess) {
-//     toast.success("Order updated");
-//   }
+  if (isSuccess) {
+    toast.success("Order updated");
+  }
 
-//   if (isError) {
-//     toast.error("Unable to update order");
-//     reset();
-//   }
+  if (isError) {
+    toast.error("Unable to update order");
+    reset();
+  }
 
-//   return { updateRestaurantStatus, isLoading };
-// };
+  return { updateRestaurantStatus, isLoading };
+};
 
 
 
