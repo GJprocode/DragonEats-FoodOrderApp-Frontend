@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { Order } from "@/types";
 import { Progress } from "./ui/progress";
@@ -45,21 +45,25 @@ const OrderStatusHeader: React.FC<Props> = ({ order }) => {
         );
       } else if (status === "paid") {
         toast.success("Your order has been successfully paid.");
-      } else if (status === "rejected" && order.rejectionMessage) {
+      } else if (status === "rejected" && order.rejectionMessage?.message) {
         toast.error(
-          `Your order has been rejected. Reason: ${order.rejectionMessage}`
+          `Your order has been rejected. Reason: ${order.rejectionMessage.message}`
+        );
+      } else if (status === "resolved" && order.resolutionMessage?.message) {
+        toast.success(
+          `Your order has been resolved. Note: ${order.resolutionMessage.message}`
         );
       }
   
       localStorage.setItem(toastKey, "true"); // Mark the toast as shown
     },
-    [order.rejectionMessage, order._id]
+    [order.rejectionMessage, order.resolutionMessage, order._id]
   );
   
+
   useEffect(() => {
     showPopupOnStatusChange(order.status);
   }, [order.status, showPopupOnStatusChange]);
-  
 
   const statusInfo = getOrderStatusInfo();
 

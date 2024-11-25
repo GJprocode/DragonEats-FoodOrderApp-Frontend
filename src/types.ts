@@ -1,4 +1,4 @@
-// src/types.ts
+// C:\Users\gertf\Desktop\FoodApp\frontend\src\types.ts
 
 
 // Types reflecting the backend model
@@ -99,13 +99,14 @@ export type OrderStatus =
     };
     totalAmount: number;
     status: "placed" | "confirmed" | "paid" | "inProgress" | "outForDelivery" | "delivered" | "rejected" | "resolved";
-    rejectionMessage?: string;
-    resolutionMessage?: string;
-    messages: OrderMessage[]; // Updated to reflect the messages structure
+    messages?: OrderMessage[]; // Add this line to include messages
+    rejectionMessage?: { message: string; timestamp: string };
+    resolutionMessage?: { message: string; timestamp: string };
+    dateDelivered?: string;
     createdAt: string;
     updatedAt?: string;
-    dateDelivered?: string;
   };
+  
   
 
 

@@ -18,14 +18,15 @@ import {
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Order, OrderStatus } from "@/types";
-import { useUpdateMyRestaurantOrder } from "@/api/MyRestaurantApi";
+import { useUpdateRestaurantOrderStatus } from "@/api/MyRestaurantApi";
+import { toast } from "sonner";
 
 type Props = {
   order: Order;
 };
 
 const OrderItemCard = ({ order }: Props) => {
-  const { updateRestaurantStatus, isLoading } = useUpdateMyRestaurantOrder();
+  const { mutate: updateRestaurantStatus, isLoading } = useUpdateRestaurantOrderStatus();
   const [status, setStatus] = useState<OrderStatus>(order.status);
   const [showDialog, setShowDialog] = useState(false);
   const [dialogType, setDialogType] = useState<"rejected" | "resolved" | null>(null);
@@ -51,28 +52,19 @@ const OrderItemCard = ({ order }: Props) => {
       alert("Invalid status transition.");
       return;
     }
-
+  
     const isBeforePay = ["placed", "confirmed"].includes(order.status);
     const defaultMessages = {
-      rejected: {
-        beforePay: "Out of stock, dragons flying to get ingredients.",
-        afterPay: "Refund pending.",
-      },
-      resolved: {
-        beforePay: "Order cancelled due to stock issues and dragons' wings.",
-        afterPay: "Underground dragons refunded successfully.",
-      },
+      rejected: isBeforePay
+        ? "Out of stock, dragons flying to get ingredients."
+        : "Refund pending.",
+      resolved: isBeforePay
+        ? "Order resolved before payment, no refund needed."
+        : "Order resolved after payment, refund paid.",
     };
-
-    const dialogMessage =
-      newStatus === "rejected"
-        ? isBeforePay
-          ? defaultMessages.rejected.beforePay
-          : defaultMessages.rejected.afterPay
-        : isBeforePay
-        ? defaultMessages.resolved.beforePay
-        : defaultMessages.resolved.afterPay;
-
+  
+    const dialogMessage = newStatus === "rejected" ? defaultMessages.rejected : defaultMessages.resolved;
+  
     if (newStatus === "rejected" || newStatus === "resolved") {
       setDialogType(newStatus);
       setDefaultMessage(dialogMessage);
@@ -81,40 +73,44 @@ const OrderItemCard = ({ order }: Props) => {
       updateOrder(newStatus);
     }
   };
+  
 
   const updateOrder = async (newStatus: OrderStatus) => {
     try {
       const isBeforePay = ["placed", "confirmed"].includes(order.status);
       const defaultMessages = {
-        rejected: {
-          beforePay: "Out of stock, dragons flying to get ingredients.",
-          afterPay: "Refund pending.",
-        },
-        resolved: {
-          beforePay: "Order cancelled due to stock issues and dragons' wings.",
-          afterPay: "Underground dragons refunded successfully.",
-        },
+        rejected: isBeforePay
+          ? "Out of stock, dragons flying to get ingredients."
+          : "Refund pending.",
+        resolved: isBeforePay
+          ? "Order resolved before payment, no refund needed."
+          : "Order resolved after payment, refund paid.",
       };
-
-      const message =
-        dialogType === "rejected"
-          ? isBeforePay
-            ? defaultMessages.rejected.beforePay
-            : defaultMessages.rejected.afterPay
-          : isBeforePay
-          ? defaultMessages.resolved.beforePay
-          : defaultMessages.resolved.afterPay;
-
-      await updateRestaurantStatus({
+  
+      const message = newStatus === "rejected" ? defaultMessages.rejected : defaultMessages.resolved;
+  
+      const updatePayload = {
         orderId: order._id,
         status: newStatus,
-        message,
-      });
+        ...(newStatus === "rejected" && { message }),
+        ...(newStatus === "resolved" && { message }),
+      };
+  
+      await updateRestaurantStatus(updatePayload);
+  
+      // Trigger toaster only if status changes
+      if (newStatus !== status) {
+        toast.success("Order status updated");
+      }
+  
       setStatus(newStatus);
     } catch (error) {
       console.error("Failed to update status:", error);
+      toast.error("Failed to update order status");
     }
   };
+  
+  
 
   const formatDate = (date: string | undefined) => {
     if (!date) return "N/A";

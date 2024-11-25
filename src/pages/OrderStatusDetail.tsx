@@ -1,4 +1,4 @@
-import { Order } from "@/types";
+import { Order, OrderMessage } from "@/types";
 import { Separator } from "@/components/ui/separator";
 
 type Props = {
@@ -69,17 +69,22 @@ const OrderStatusDetail = ({ order }: Props) => {
 
 
 
-      {/* Order Messages */}
+     {/* Order Messages */}
       <div className="flex flex-col">
         <span className="font-bold">Order Messages:</span>
-        {order.messages.map((msg, index) => (
-          <div key={index}>
-            <strong>Status:</strong> {msg.status} <br />
-            <strong>Message:</strong> {msg.message} <br />
-            <strong>Timestamp:</strong> {new Date(msg.timestamp).toLocaleString()}
-          </div>
-        ))}
-      </div>
+        {order.messages && order.messages.length > 0 ? (
+          order.messages.map((msg: OrderMessage, index: number) => (
+            <div key={index}>
+              <strong>Status:</strong> {msg.status} <br />
+              <strong>Message:</strong> {msg.message} <br />
+              <strong>Timestamp:</strong> {new Date(msg.timestamp).toLocaleString()}
+            </div>
+          ))
+        ) : (
+          <span>No messages available</span>
+        )}
+</div>
+
 
 
 

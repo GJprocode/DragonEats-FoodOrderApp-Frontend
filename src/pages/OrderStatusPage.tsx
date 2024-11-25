@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useGetMyOrders, useCreateCheckoutSession } from "@/api/OrderApi";
+import { useGetUserOrders, useCreateCheckoutSession } from "@/api/OrderApi";
 import OrderStatusHeader from "../components/OrderStatusHeader";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import OrderStatusDetail from "./OrderStatusDetail";
@@ -10,17 +10,15 @@ import { toast } from "sonner";
 import { loadStripe } from "@stripe/stripe-js";
 
 const OrderStatusPage = () => {
-  const { orders, isLoading } = useGetMyOrders();
+  const { orders, isLoading } = useGetUserOrders(); // Updated hook
   const { createCheckoutSession } = useCreateCheckoutSession();
   const [filterDate, setFilterDate] = useState<string>(""); // Store the filter date
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
 
-  // Handle payment initiation
   const handlePayNow = (orderId: string) => {
     setSelectedOrder(orderId);
   };
 
-  // Proceed with Stripe payment
   const proceedWithStripe = async () => {
     if (!selectedOrder) return;
 
@@ -50,21 +48,17 @@ const OrderStatusPage = () => {
     }
   };
 
-  // Filter orders based on the selected date
   const filteredOrderHistory = orders
-  ?.filter((order) => order.status === "delivered")
-  .filter((order) =>
-    filterDate
-      ? new Date(order.dateDelivered ?? "").toLocaleDateString() ===
-        new Date(filterDate).toLocaleDateString()
-      : true
-  ) || [];
+    ?.filter((order) => order.status === "delivered")
+    .filter((order) =>
+      filterDate
+        ? new Date(order.dateDelivered ?? "").toLocaleDateString() ===
+          new Date(filterDate).toLocaleDateString()
+        : true
+    ) || [];
 
-
-  // Manage active orders and order history
   const activeOrders = orders?.filter((order) => order.status !== "delivered") || [];
-  
-  // Add `useEffect` to manage the "Paid" toaster message
+
   useEffect(() => {
     orders?.forEach((order) => {
       if (order.status === "paid") {
