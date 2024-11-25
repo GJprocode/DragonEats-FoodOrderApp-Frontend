@@ -3,7 +3,7 @@ import ManageRestaurantForm from "../forms/manage-restaurant-form/ManageRestaura
 import {
   useCreateMyRestaurant,
   useGetMyRestaurant,
-  useGetRestaurantOrders, // Corrected
+  useGetRestaurantOrders,
   useUpdateMyRestaurant,
 } from "../api/MyRestaurantApi";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
@@ -28,14 +28,23 @@ const ManageRestaurantPage: React.FC = () => {
     }
   };
 
-  // Filter for active and delivered orders
-  const activeOrders = orders?.filter((order: Order) => order.status !== "delivered");
+// Filter for active orders (exclude delivered and resolved)
+const activeOrders = orders?.filter(
+  (order: Order) => !["delivered", "resolved"].includes(order.status)
+);
 
-  // Filter delivered orders with date filtering
-  const orderHistory = orders?.filter((order: Order) =>
-    order.status === "delivered" &&
-    (!filterDate || (order.dateDelivered && new Date(order.dateDelivered).toISOString().split("T")[0] === filterDate))
-  );
+// Filter for history orders (delivered or resolved) with date filtering
+const orderHistory = orders?.filter((order: Order) => {
+  const isHistoryOrder = ["delivered", "resolved"].includes(order.status);
+
+  // Match the date based on the backend format
+  const orderDate = new Date(order.dateDelivered || order.createdAt)
+    .toISOString()
+    .split("T")[0]; // Extract YYYY-MM-DD format
+
+  return isHistoryOrder && (!filterDate || orderDate === filterDate);
+});
+
 
   return (
     <Tabs defaultValue="orders">
@@ -53,7 +62,7 @@ const ManageRestaurantPage: React.FC = () => {
       </TabsContent>
 
       <TabsContent value="orders-history" className="space-y-5 bg-gray-50 p-10 rounded-lg">
-        <h2 className="text-2xl font-bold">{orderHistory?.length} delivered orders</h2>
+        <h2 className="text-2xl font-bold">{orderHistory?.length} orders in history</h2>
         <div>
           <label htmlFor="filter-date" className="font-bold">Filter by date:</label>
           <input

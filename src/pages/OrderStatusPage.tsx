@@ -10,9 +10,9 @@ import { toast } from "sonner";
 import { loadStripe } from "@stripe/stripe-js";
 
 const OrderStatusPage = () => {
-  const { orders, isLoading } = useGetUserOrders(); // Updated hook
+  const { orders, isLoading } = useGetUserOrders();
   const { createCheckoutSession } = useCreateCheckoutSession();
-  const [filterDate, setFilterDate] = useState<string>(""); // Store the filter date
+  const [filterDate, setFilterDate] = useState<string>("");
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
 
   const handlePayNow = (orderId: string) => {
@@ -48,16 +48,22 @@ const OrderStatusPage = () => {
     }
   };
 
-  const filteredOrderHistory = orders
-    ?.filter((order) => order.status === "delivered")
-    .filter((order) =>
-      filterDate
-        ? new Date(order.dateDelivered ?? "").toLocaleDateString() ===
-          new Date(filterDate).toLocaleDateString()
-        : true
-    ) || [];
+  // Define active orders
+  const activeOrders = orders?.filter(
+    (order) => !["delivered", "resolved"].includes(order.status)
+  ) || [];
 
-  const activeOrders = orders?.filter((order) => order.status !== "delivered") || [];
+  // Define filtered order history
+  const filteredOrderHistory = orders?.filter((order) => {
+    const isHistoryOrder = ["delivered", "resolved"].includes(order.status);
+
+    // Match the date based on the backend format
+    const orderDate = new Date(order.dateDelivered || order.createdAt)
+      .toISOString()
+      .split("T")[0]; // Extract YYYY-MM-DD format
+
+    return isHistoryOrder && (!filterDate || orderDate === filterDate);
+  }) || []; // Default to empty array
 
   useEffect(() => {
     orders?.forEach((order) => {
@@ -139,7 +145,7 @@ const OrderStatusPage = () => {
       </TabsContent>
 
       <TabsContent value="order-history" className="space-y-10 bg-gray-50 p-10 rounded-lg">
-        <h2 className="text-2xl font-bold">{filteredOrderHistory.length} delivered orders</h2>
+        <h2 className="text-2xl font-bold">{filteredOrderHistory.length} orders in history</h2>
         <div>
           <label htmlFor="filter-date" className="font-bold">Filter by date:</label>
           <input
