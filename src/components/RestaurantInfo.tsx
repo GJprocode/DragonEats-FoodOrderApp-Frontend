@@ -7,6 +7,9 @@ type Props = {
 };
 
 const RestaurantInfo = ({ restaurant }: Props) => {
+  // Extract the first branch's city for display
+  const city = restaurant.branchesInfo?.[0]?.cities || "Unknown City";
+
   return (
     <Card className="border-sla">
       <CardHeader>
@@ -14,7 +17,7 @@ const RestaurantInfo = ({ restaurant }: Props) => {
           {restaurant.restaurantName}
         </CardTitle>
         <CardDescription>
-          {restaurant.city}, {restaurant.country}
+          {city}, {restaurant.country}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex">
