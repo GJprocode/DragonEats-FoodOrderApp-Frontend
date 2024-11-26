@@ -5,11 +5,36 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="dragon.svg" />
+    <link rel="preload" href="dragon.svg" as="image" type="image/svg+xml" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DragonEats</title>
   </head>
-  <body>
-    <div id="root"></div>
+  <body class="bg-white">
+    <!-- Loading container -->
+    <div id="loading-container" class="flex justify-center items-center h-screen bg-white">
+      <img
+        id="loading-logo"
+        src="dragon.svg"
+        alt="Loading..."
+        class="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 animate-pulse"
+      />
+    </div>
+
+    <!-- Main React app root -->
+    <div id="root" class="hidden"></div>
+
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Hide the loading container once React is ready
+      document.addEventListener("DOMContentLoaded", () => {
+        const loadingContainer = document.getElementById("loading-container");
+        const root = document.getElementById("root");
+
+        if (loadingContainer && root) {
+          loadingContainer.classList.add("hidden");
+          root.classList.remove("hidden");
+        }
+      });
+    </script>
   </body>
 </html>

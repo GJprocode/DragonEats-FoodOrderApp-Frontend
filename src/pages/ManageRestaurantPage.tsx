@@ -3,18 +3,19 @@ import ManageRestaurantForm from "../forms/manage-restaurant-form/ManageRestaura
 import {
   useCreateMyRestaurant,
   useGetMyRestaurant,
-  useGetMyRestaurantOrders,
+  useGetRestaurantOrders,
   useUpdateMyRestaurant,
 } from "../api/MyRestaurantApi";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import OrderItemCard from "../components/OrderItemCard";
+import { Order } from "@/types";
 
 const ManageRestaurantPage: React.FC = () => {
   const { createRestaurant, isLoading: isCreateLoading } = useCreateMyRestaurant();
   const { restaurant } = useGetMyRestaurant();
   const { updateRestaurant, isLoading: isUpdateLoading } = useUpdateMyRestaurant();
-  const { orders } = useGetMyRestaurantOrders();
-  
+  const { orders } = useGetRestaurantOrders();
+
   const [filterDate, setFilterDate] = useState("");
 
   const isEditing = Boolean(restaurant);
@@ -27,13 +28,23 @@ const ManageRestaurantPage: React.FC = () => {
     }
   };
 
-  // Filter for active and delivered orders
-  const activeOrders = orders?.filter(order => order.status !== "delivered");
- // Filter delivered orders with date filtering
-const orderHistory = orders?.filter((order) =>
-  order.status === "delivered" &&
-  (!filterDate || (order.dateDelivered && new Date(order.dateDelivered).toISOString().split('T')[0] === filterDate))
+// Filter for active orders (exclude delivered and resolved)
+const activeOrders = orders?.filter(
+  (order: Order) => !["delivered", "resolved"].includes(order.status)
 );
+
+// Filter for history orders (delivered or resolved) with date filtering
+const orderHistory = orders?.filter((order: Order) => {
+  const isHistoryOrder = ["delivered", "resolved"].includes(order.status);
+
+  // Match the date based on the backend format
+  const orderDate = new Date(order.dateDelivered || order.createdAt)
+    .toISOString()
+    .split("T")[0]; // Extract YYYY-MM-DD format
+
+  return isHistoryOrder && (!filterDate || orderDate === filterDate);
+});
+
 
   return (
     <Tabs defaultValue="orders">
@@ -45,13 +56,13 @@ const orderHistory = orders?.filter((order) =>
 
       <TabsContent value="orders" className="space-y-5 bg-gray-50 p-10 rounded-lg">
         <h2 className="text-2xl font-bold">{activeOrders?.length} active orders</h2>
-        {activeOrders?.map(order => (
+        {activeOrders?.map((order: Order) => (
           <OrderItemCard key={order._id} order={order} />
         ))}
       </TabsContent>
 
       <TabsContent value="orders-history" className="space-y-5 bg-gray-50 p-10 rounded-lg">
-        <h2 className="text-2xl font-bold">{orderHistory?.length} delivered orders</h2>
+        <h2 className="text-2xl font-bold">{orderHistory?.length} orders in history</h2>
         <div>
           <label htmlFor="filter-date" className="font-bold">Filter by date:</label>
           <input
@@ -62,7 +73,7 @@ const orderHistory = orders?.filter((order) =>
             className="ml-2 p-2 border border-gray-300 rounded"
           />
         </div>
-        {orderHistory?.map(order => (
+        {orderHistory?.map((order: Order) => (
           <OrderItemCard key={order._id} order={order} />
         ))}
       </TabsContent>

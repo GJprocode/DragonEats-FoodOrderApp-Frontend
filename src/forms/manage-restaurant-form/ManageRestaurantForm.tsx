@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import { Form } from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormDescription } from "@/components/ui/form";
 import DetailsSection from "./DetailsSection";
 import { Separator } from "@/components/ui/separator";
 import CuisinesSection from "./CuisinesSection";
@@ -17,9 +17,16 @@ import { useAuth0 } from "@auth0/auth0-react";
 const formSchema = z.object({
   restaurantName: z.string({ required_error: "Restaurant name is required" }),
   cellphone: z.string({ required_error: "Cellphone number is required" }),
-  city: z
-    .array(z.string())
-    .nonempty({ message: "At least one city is required" }),
+  branchesInfo: z
+    .array(
+      z.object({
+        cities: z.string({ required_error: "City name is required" }),
+        branchName: z.string({ required_error: "Branch name is required" }),
+        latitude: z.coerce.number({ invalid_type_error: "Latitude must be a number" }),
+        longitude: z.coerce.number({ invalid_type_error: "Longitude must be a number" }),
+      })
+    )
+    .min(1, { message: "At least one city is required" }),
   country: z.string({ required_error: "Country is required" }),
   deliveryPrice: z.coerce.number({
     required_error: "Delivery price is required",
@@ -31,14 +38,14 @@ const formSchema = z.object({
   }),
   wholesale: z.boolean().optional(),
   cuisines: z.array(z.string()).nonempty({
-    message: "Please select at least one item",
+    message: "Please select at least one cuisine",
   }),
   menuItems: z.array(
     z.object({
-      name: z.string().min(1, "Name is required"),
+      name: z.string().min(1, "Menu item name is required"),
       price: z.coerce.number().min(1, "Price is required"),
-      imageFile: z.instanceof(File).optional(),
       imageUrl: z.string().optional(),
+      imageFile: z.instanceof(File).optional(),
     })
   ),
   imageUrl: z.string().optional(),
@@ -53,11 +60,7 @@ type Props = {
   isLoading: boolean;
 };
 
-const ManageRestaurantForm: React.FC<Props> = ({
-  onSave,
-  isLoading,
-  restaurant,
-}) => {
+const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }) => {
   const { user } = useAuth0();
   const currentUserEmail = user?.email || "";
 
@@ -65,95 +68,51 @@ const ManageRestaurantForm: React.FC<Props> = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       restaurantName: "",
-      cellphone: " 0 ",
-      city: [""],
+      cellphone: "",
+      branchesInfo: [{ cities: "", branchName: "", latitude: 0.3345, longitude: 103.8669 }],
       country: "",
-      deliveryPrice: 0,
-      estimatedDeliveryTime: 0,
+      deliveryPrice: undefined,
+      estimatedDeliveryTime: undefined,
       wholesale: false,
       cuisines: [],
-      menuItems: [{ name: "", price: 0, imageFile: undefined, imageUrl: "" }],
+      menuItems: [{ name: "", price: 0, imageUrl: "", imageFile: undefined }],
       imageUrl: "",
       imageFile: undefined,
     },
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "branchesInfo",
+  });
+
   useEffect(() => {
     if (restaurant) {
-      const deliveryPriceFormatted = parseFloat(
-        (restaurant.deliveryPrice / 100).toFixed(2)
-      );
-      const menuItemsFormatted = restaurant.menuItems.map((item) => ({
-        ...item,
-        price: parseFloat((item.price / 100).toFixed(2)),
-      }));
-
       const updatedRestaurant = {
         ...restaurant,
-        deliveryPrice: deliveryPriceFormatted,
-        menuItems: menuItemsFormatted,
-        city: Array.isArray(restaurant.city)
-          ? restaurant.city
-          : [restaurant.city],
-        cellphone: restaurant.cellphone, // Ensure this is included
+        branchesInfo: restaurant.branchesInfo?.length
+          ? restaurant.branchesInfo
+          : [
+              {
+                cities: "Default City",
+                branchName: "Default Branch",
+                latitude: 0.0,
+                longitude: 0.0,
+              },
+            ],
+        menuItems: restaurant.menuItems?.length
+          ? restaurant.menuItems
+          : [
+              {
+                name: "Default Item",
+                price: 0,
+                imageUrl: "",
+              },
+            ],
       };
-
       form.reset(updatedRestaurant);
     }
   }, [restaurant, form]);
-
-  const onSubmit = async (formDataJson: RestaurantFormData) => {
-    const formData = new FormData();
-    formData.append("restaurantName", formDataJson.restaurantName);
-    formData.append('cellphone', formDataJson.cellphone.trim()); // Trim to remove any leading/trailing whitespace
-    formDataJson.city.forEach((city, index) => {
-      formData.append(`city[${index}]`, city);
-    });
-
-    formData.append("country", formDataJson.country);
-    formData.append(
-      "deliveryPrice",
-      (formDataJson.deliveryPrice * 100).toFixed(2)
-    );
-    formData.append(
-      "estimatedDeliveryTime",
-      formDataJson.estimatedDeliveryTime.toString()
-    );
-    formData.append("wholesale", formDataJson.wholesale ? "true" : "false");
-    formDataJson.cuisines.forEach((cuisine, index) => {
-      formData.append(`cuisines[${index}]`, cuisine);
-    });
-
-    formDataJson.menuItems.forEach((menuItem, index) => {
-      if (menuItem.name && menuItem.price) {
-        formData.append(`menuItems[${index}][name]`, menuItem.name);
-        formData.append(
-          `menuItems[${index}][price]`,
-          (menuItem.price * 100).toFixed(2)
-        );
-        if (menuItem.imageFile) {
-          formData.append(
-            `menuItems[${index}].menuItemImageFile`,
-            menuItem.imageFile
-          );
-        } else if (menuItem.imageUrl) {
-          formData.append(`menuItems[${index}][imageUrl]`, menuItem.imageUrl);
-        }
-      }
-    });
-
-    if (formDataJson.imageFile) {
-      formData.append("restaurantImageFile", formDataJson.imageFile);
-    } else if (formDataJson.imageUrl) {
-      formData.append("imageUrl", formDataJson.imageUrl);
-    }
-
-    try {
-      await onSave(formData);
-    } catch (error) {
-      console.error("Error during submission:", error);
-    }
-  };
 
   const getStatusWidth = () => {
     switch (restaurant?.status) {
@@ -170,17 +129,103 @@ const ManageRestaurantForm: React.FC<Props> = ({
     }
   };
 
+  const onSubmit = async (data: RestaurantFormData) => {
+    const formData = new FormData();
+    formData.append("restaurantName", data.restaurantName);
+    formData.append("cellphone", data.cellphone);
+    formData.append("country", data.country);
+    formData.append("deliveryPrice", data.deliveryPrice.toString());
+    formData.append("estimatedDeliveryTime", data.estimatedDeliveryTime.toString());
+    formData.append("wholesale", data.wholesale ? "true" : "false");
+
+    data.branchesInfo.forEach((branch, index) => {
+      formData.append(`branchesInfo[${index}][cities]`, branch.cities);
+      formData.append(`branchesInfo[${index}][branchName]`, branch.branchName);
+      formData.append(`branchesInfo[${index}][latitude]`, branch.latitude.toString());
+      formData.append(`branchesInfo[${index}][longitude]`, branch.longitude.toString());
+    });
+
+    data.cuisines.forEach((cuisine, index) => {
+      formData.append(`cuisines[${index}]`, cuisine);
+    });
+
+    data.menuItems.forEach((menuItem, index) => {
+      formData.append(`menuItems[${index}][name]`, menuItem.name);
+      formData.append(`menuItems[${index}][price]`, menuItem.price.toString());
+      if (menuItem.imageFile) {
+        formData.append(`menuItems[${index}][imageFile]`, menuItem.imageFile);
+      } else if (menuItem.imageUrl) {
+        formData.append(`menuItems[${index}][imageUrl]`, menuItem.imageUrl);
+      }
+    });
+
+    if (data.imageFile) {
+      formData.append("imageFile", data.imageFile);
+    } else if (data.imageUrl) {
+      formData.append("imageUrl", data.imageUrl);
+    }
+
+    onSave(formData);
+  };
+
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 bg-gray-50 p-10 rounded-lg"
-      >
-        <DetailsSection
-          restaurant={restaurant}
-          currentUserEmail={currentUserEmail}
-        />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 bg-gray-50 p-10 rounded-lg">
+        <DetailsSection restaurant={restaurant} currentUserEmail={currentUserEmail} />
+        <Separator />
 
+        <div className="space-y-4">
+          <label className="block text-lg font-bold">Cities and Branches</label>
+          <FormDescription>Enter details about cities, branches, and GPS coordinates.</FormDescription>
+          {fields.map((field, index) => (
+            <div key={field.id} className="flex flex-col md:flex-row gap-2 items-center">
+              <input
+                {...form.register(`branchesInfo.${index}.cities`)}
+                className="border rounded p-2"
+                placeholder="City Name"
+                defaultValue={field.cities || ""}
+              />
+              <input
+                {...form.register(`branchesInfo.${index}.branchName`)}
+                className="border rounded p-2"
+                placeholder="Branch Name"
+                defaultValue={field.branchName || ""}
+              />
+              <input
+                {...form.register(`branchesInfo.${index}.latitude`, { valueAsNumber: true })}
+                placeholder="Latitude (e.g., 0.3345)"
+                className="border rounded p-2"
+                defaultValue={field.latitude || 0.0}
+              />
+              <input
+                {...form.register(`branchesInfo.${index}.longitude`, { valueAsNumber: true })}
+                placeholder="Longitude (e.g., 103.8669)"
+                className="border rounded p-2"
+                defaultValue={field.longitude || 0.0}
+              />
+              <Button
+                type="button"
+                onClick={() => remove(index)}
+                className="bg-red-500 text-white text-xs px-2 py-1"
+              >
+                Remove
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            onClick={() =>
+              append({ cities: "", branchName: "", latitude: 0.0, longitude: 0.0 })
+            }
+            className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Add Branch
+          </Button>
+        </div>
+
+        <Separator />
+
+        
         <Separator />
         <CuisinesSection />
         <Separator />
@@ -189,10 +234,7 @@ const ManageRestaurantForm: React.FC<Props> = ({
         <RestaurantImage />
         <Separator />
         <div className="mt-6">
-          <label
-            htmlFor="progress"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="progress" className="block text-sm font-medium text-gray-700">
             Restaurant Status:
           </label>
           <p className="text-xs text-gray-500">
@@ -207,12 +249,14 @@ const ManageRestaurantForm: React.FC<Props> = ({
           <div className="flex justify-between text-xs md:text-sm text-gray-500 mt-2">
             <span>Submitted</span>
             <span>Pending Approval</span>
-            <span>
-              {restaurant?.status === "rejected" ? "Rejected" : "Approved"}
-            </span>
+            <span>{restaurant?.status === "rejected" ? "Rejected" : "Approved"}</span>
           </div>
         </div>
-        {isLoading ? <LoadingButton /> : <Button type="submit">Submit</Button>}
+
+        <Separator />
+        <div className="flex justify-start">
+          {isLoading ? <LoadingButton /> : <Button type="submit">Submit</Button>}
+        </div>
       </form>
     </Form>
   );

@@ -1,4 +1,4 @@
-// C:\Users\gertf\Desktop\FoodApp\frontend\src\forms\admin-action-form\AdminActionForm.tsx
+
 
 // C:\Users\gertf\Desktop\FoodApp\frontend\src\forms\admin-action-form\AdminActionForm.tsx
 import React, { useState } from "react";
@@ -44,7 +44,7 @@ const AdminActionForm: React.FC<AdminActionFormProps> = ({ restaurants, onUpdate
             {restaurants.map((restaurant) => (
               <tr key={restaurant._id}>
                 <td className="py-2 px-4 border-b">{restaurant.restaurantName}</td>
-                <td className="py-2 px-4 border-b">{restaurant.city.join(", ")}</td>
+                <td className="py-2 px-4 border-b">{[...new Set(restaurant.branchesInfo.map((branch: { cities: unknown; }) => branch.cities))].join(", ")}</td>
                 <td className="py-2 px-4 border-b">
                   <label>
                     Status:

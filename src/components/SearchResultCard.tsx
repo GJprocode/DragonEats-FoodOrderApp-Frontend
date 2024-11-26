@@ -1,55 +1,53 @@
-import { Link } from "react-router-dom";
-import { Restaurant } from "../types";
-import { AspectRatio } from "@radix-ui/react-aspect-ratio";
-import { Banknote, Clock, Dot } from "lucide-react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { EnrichedBranch } from "../types";
 
 type Props = {
-  restaurant: Restaurant;
+  branch: EnrichedBranch;
 };
 
-const SearchResultCard = ({ restaurant }: Props) => {
+const SearchResultCard = ({ branch }: Props) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    console.log(`Navigating to details page for branch: ${branch.branchName}`);
+    navigate(`/detail/${branch.restaurantId}`, { state: { branch } }); // Pass branch as state
+  };
+
   return (
-    <Link
-      to={`/detail/${restaurant._id}`}
-      className="grid lg:grid-cols-[2fr_3fr] gap-5 group"
+    <div
+      className="p-4 border border-gray-200 rounded-md hover:shadow-md cursor-pointer flex flex-col lg:flex-row gap-4"
+      onClick={handleClick}
     >
-      <AspectRatio ratio={16 / 6}>
+      {/* Image Section */}
+      <div className="w-full lg:w-1/3">
         <img
-          src={restaurant.restaurantImageUrl} // Updated to the correct property
-          className="rounded-md w-full h-full object-cover"
-          alt={`${restaurant.restaurantName} restaurant`} // Added alt attribute
+          src={branch.restaurantImageUrl}
+          alt={`${branch.restaurantName} image`}
+          className="rounded-md w-full h-32 lg:h-40 object-cover"
         />
-      </AspectRatio>
-      <div>
-        <h3 className="text-2xl font-bold tracking-tight mb-2 group-hover:underline">
-          {restaurant.restaurantName}
-        </h3>
-        <div id="card-content" className="grid md:grid-cols-2 gap-2">
-          <div className="flex flex-row flex-wrap">
-            {restaurant.cuisines.map((item, index) => (
-              <span className="flex" key={item + index}> {/* Unique key added */}
-                <span>{item}</span>
-                {index < restaurant.cuisines.length - 1 && <Dot />}
-              </span>
-            ))}
-          </div>
-          <div className="flex gap-2 flex-col">
-            {/* Show whether it's wholesale or restaurant */}
-            <div className="flex items-center gap-1 text-blue-600">
-              {restaurant.wholesale ? "Wholesale" : "Restaurant"}
-            </div>
-            <div className="flex items-center gap-1 text-green-600">
-              <Clock className="text-green-600" />
-              {restaurant.estimatedDeliveryTime} mins flying time
-            </div>
-            <div className="flex items-center gap-1">
-              <Banknote />
-              Delivery fee ${(restaurant.deliveryPrice / 100).toFixed(2)}
-            </div>
-          </div>
+      </div>
+
+      {/* Details Section */}
+      <div className="flex flex-col w-full lg:w-2/3">
+        <h3 className="text-lg font-bold">{branch.restaurantName}</h3>
+        <p className="text-sm text-gray-500">
+          {branch.branchName} - {branch.cities}
+        </p>
+        <div className="flex flex-wrap gap-2 mt-2 text-sm text-gray-600">
+          {branch.cuisines.map((cuisine, index) => (
+            <span key={index} className="bg-gray-100 px-2 py-1 rounded-md">
+              {cuisine}
+            </span>
+          ))}
+        </div>
+        <div className="mt-3 text-sm">
+          <p>{branch.wholesale ? "Wholesale" : "Restaurant"}</p>
+          <p>{branch.estimatedDeliveryTime} mins flying time</p>
+          <p>Delivery fee ${(branch.deliveryPrice / 100).toFixed(2)}</p>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 

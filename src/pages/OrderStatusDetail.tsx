@@ -1,8 +1,4 @@
-
-
-//C:\Users\gertf\Desktop\FoodApp\frontend\src\pages\OrderStatusDetail.tsx
-
-import { Order } from "@/types";
+import { Order, OrderMessage } from "@/types";
 import { Separator } from "@/components/ui/separator";
 
 type Props = {
@@ -24,7 +20,6 @@ const OrderStatusDetail = ({ order }: Props) => {
     const deliveryPrice = order.restaurant.deliveryPrice || 0;
     return ((itemsTotal + deliveryPrice) / 100).toFixed(2);
   };
-  
 
   return (
     <div className="space-y-5">
@@ -37,6 +32,8 @@ const OrderStatusDetail = ({ order }: Props) => {
         </span>
         <span>{order.deliveryDetails.cellphone}</span>
       </div>
+
+      <Separator className="my-3 border-t border-gray-400" />
 
       {/* Order Details */}
       <div className="flex flex-col">
@@ -56,6 +53,8 @@ const OrderStatusDetail = ({ order }: Props) => {
         </ul>
       </div>
 
+     
+
       {/* Order Date Information */}
       <div className="flex flex-col">
         <div>
@@ -68,13 +67,34 @@ const OrderStatusDetail = ({ order }: Props) => {
         )}
       </div>
 
+
+
+     {/* Order Messages */}
+      <div className="flex flex-col">
+        <span className="font-bold">Order Messages:</span>
+        {order.messages && order.messages.length > 0 ? (
+          order.messages.map((msg: OrderMessage, index: number) => (
+            <div key={index}>
+              <strong>Status:</strong> {msg.status} <br />
+              <strong>Message:</strong> {msg.message} <br />
+              <strong>Timestamp:</strong> {new Date(msg.timestamp).toLocaleString()}
+            </div>
+          ))
+        ) : (
+          <span>No messages available</span>
+        )}
+</div>
+
+
+
+
       {/* Delivery Cost */}
       <div className="flex flex-col">
         <span className="font-bold">Delivery Cost:</span>
         <span>${(order.restaurant.deliveryPrice / 100).toFixed(2)}</span>
       </div>
 
-      <Separator />
+      <Separator className="my-3 border-t-2 border-gray-500" />
 
       {/* Total Amount */}
       <div className="flex flex-col">
@@ -86,5 +106,3 @@ const OrderStatusDetail = ({ order }: Props) => {
 };
 
 export default OrderStatusDetail;
-
-

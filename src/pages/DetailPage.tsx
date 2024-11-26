@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { useGetRestaurant } from "@/api/RestaurantApi";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import MenuItem from "@/components/MenuItem";
 import { Card, CardFooter } from "@/components/ui/card";
 import OrderSummary from "@/components/OrderSummary";
 import CheckoutButton from "@/components/CheckoutButton";
-import { MenuItem as MenuItemType, User } from "@/types";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { MenuItem as MenuItemType, User, Branch } from "@/types";
 import { useCreateCheckoutSession } from "@/api/OrderApi";
 
 export type CartItem = {
@@ -18,7 +17,9 @@ export type CartItem = {
 };
 
 const DetailPage = () => {
-  const { restaurantId } = useParams();
+  const { restaurantId } = useParams<{ restaurantId: string }>();
+  const { state } = useLocation();
+  const { branch } = state as { branch: Branch }; // Extract branch from state
   const { restaurant, isLoading } = useGetRestaurant(restaurantId);
   const { createCheckoutSession, isLoading: isCheckoutLoading } = useCreateCheckoutSession();
 
@@ -69,21 +70,23 @@ const DetailPage = () => {
     });
   };
 
-  const onCheckout = async (userFormData: Partial<User>, orderId: string) => {
-    if (!restaurant) return;
+  const onCheckout = async (userFormData: Partial<User>) => {
+    if (!restaurant || !branch) return;
 
     const checkoutData = {
       cartItems: cartItems.map((cartItem) => ({
         menuItemId: cartItem._id,
         name: cartItem.name,
         quantity: cartItem.quantity,
-        price: Number(cartItem.price), // Ensure price is a number
+        price: Number(cartItem.price),
       })),
       restaurantId: restaurant._id,
+      branchId: branch._id,
+      branchName: branch.branchName,
       deliveryDetails: {
         name: userFormData.name || "Unnamed",
         address: userFormData.address || "No Address",
-        city: userFormData.city || "No City",
+        city: branch.cities, // Use the branch's city
         country: userFormData.country || "No Country",
         email: userFormData.email || "no-email@example.com",
         cellphone: userFormData.cellphone || "000-000-0000",
@@ -104,18 +107,20 @@ const DetailPage = () => {
 
   return (
     <div className="flex flex-col gap-10 md:px-32">
-      <AspectRatio ratio={16 / 5}>
+      {/* Adjusted Image Section */}
+      <div className="w-full flex justify-center">
         <img
           src={restaurant.restaurantImageUrl}
           alt={`Image of ${restaurant.restaurantName}`}
-          className="rounded-md object-cover h-full w-full"
+          className="rounded-md max-h-[300px] w-auto object-contain" // Compact styling
         />
-      </AspectRatio>
+      </div>
 
       {/* Restaurant Details */}
       <div className="text-center">
         <h2 className="text-3xl font-bold">{restaurant.restaurantName}</h2>
-        <p className="text-gray-500">Cities: {restaurant.city.join(", ")}</p>
+        <p className="text-lg text-gray-500">{branch.branchName}</p>
+        <p className="text-gray-500">City: {branch.cities}</p>
         <p className="text-gray-600">
           Business Type: {restaurant.wholesale ? "Wholesaler" : "Restaurant"}
         </p>
@@ -143,6 +148,7 @@ const DetailPage = () => {
           <Card className="shadow-md pt-1 lg:pt-0">
             <OrderSummary
               restaurant={restaurant}
+              branch={branch} // Pass branch to OrderSummary
               cartItems={cartItems}
               removeFromCart={removeFromCart}
             />

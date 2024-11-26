@@ -1,83 +1,133 @@
 // C:\Users\gertf\Desktop\FoodApp\frontend\src\types.ts
 
-// Updated User type to reflect changes from the backend
+
+// Types reflecting the backend model
 export type User = {
   _id: string;
-  auth0Id: string[]; // Store multiple auth0Ids, matching the backend model
+  auth0Id: string[];
   email: string;
-  name?: string;       // Optional, as per your schema
-  address?: string;    // Optional
-  city?: string;       // Optional
-  country?: string;    // Optional
-  role?: string;       // Optional, default is "user"
-  cellphone?: string;  // Optional, for storing user's cellphone number
+  name?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  role?: string;
+  cellphone?: string;
 };
 
-// Updated MenuItem type to match changes from the backend
+// MenuItem type matching the backend model
 export type MenuItem = {
-  _id: string;          // Matches the _id field from mongoose in the backend
+  _id: string;
   name: string;
   price: number;
-  imageUrl?: string;    // Optional imageUrl field
+  imageUrl?: string;
 };
 
-// Updated Restaurant type to reflect backend schema changes
+// Branch type matching the branchesInfo schema
+export type Branch = {
+  _id: string;
+  cities: string;
+  branchName: string;
+  latitude: number;
+  longitude: number;
+};
+
+export type EnrichedBranch = Branch & {
+  restaurantId: string;
+  restaurantImageUrl: string;
+  restaurantName: string;
+  cuisines: string[];
+  wholesale: boolean;
+  estimatedDeliveryTime: number;
+  deliveryPrice: number;
+};
+
+// Restaurant type updated to reflect the backend schema
 export type Restaurant = {
   _id: string;
-  user: string;         // Reference to the user who owns the restaurant
-  email?: string;       // Optional
   restaurantName: string;
-  city: string[];       // Array of city names
+  branchesInfo: Branch[];
+  branches?: Branch[]; // Optional, for filtered branches
   country: string;
   deliveryPrice: number;
   estimatedDeliveryTime: number;
-  cuisines: string[];   // Array of cuisine types
-  menuItems: MenuItem[]; // Array of MenuItem objects
-  restaurantImageUrl?: string; // Optional restaurant image URL
-  lastUpdated: string;
-  wholesale?: boolean;  // Optional, as per your schema
-  status: "submitted" | "pending" | "approved" | "rejected";  // Enum for status
+  cuisines: string[];
+  menuItems: MenuItem[];
+  restaurantImageUrl?: string;
+  status: "submitted" | "pending" | "approved" | "rejected";
+  contractType?: string;
   contractId?: string;
-  contractType?: string;  
-  cellphone?: string;   // Optional cellphone field for the restaurant
+  lastUpdated?: string;
+  user: string;
+  wholesale?: boolean;
+  email?: string;
+  cellphone?: string;
 };
 
-export type OrderStatus = "placed" | "confirmed" | "paid" | "inProgress" | "outForDelivery" | "delivered";
+// OrderStatus enum
+export type OrderStatus =
+  | "placed"
+  | "confirmed"
+  | "paid"
+  | "inProgress"
+  | "outForDelivery"
+  | "delivered"
+  | "rejected"
+  | "resolved";
 
-
-// Updated Order type to reflect changes in Restaurant and User
-export type Order = {
-  _id: string;
-  restaurant: Restaurant;  // Reference to the Restaurant type
-  user: User;              // Reference to the User type
-  cartItems: {
-    menuItemId: string;
-    name: string;
-    quantity: number;    // Changed to number for consistency
-    price: number;       // Ensure this is a number and not optional
-  }[];
-  deliveryDetails: {
-    name: string;
-    address: string;
-    city: string;
-    email: string;
-    cellphone: string;   // Changed to string for better flexibility
+  export type OrderMessage = {
+    status: "rejected" | "resolved"; // Matches the enum in the schema
+    message: string; // The content of the message
+    timestamp: string; // ISO timestamp of when the message was added
   };
-  totalAmount: number;
-  status: OrderStatus;
-  createdAt: string;     // The date when the order was placed
-  dateDelivered?: string; // Optional, the date when the order was delivered
-  restaurantID: string;
-};
+  
+  export type Order = {
+    _id: string;
+    restaurant: Restaurant;
+    user: User;
+    cartItems: {
+      menuItemId: string;
+      name: string;
+      quantity: number;
+      price: number;
+    }[];
+    deliveryDetails: {
+      name: string;
+      address: string;
+      city: string;
+      email: string;
+      cellphone: string;
+    };
+    totalAmount: number;
+    status: "placed" | "confirmed" | "paid" | "inProgress" | "outForDelivery" | "delivered" | "rejected" | "resolved";
+    messages?: OrderMessage[]; // Add this line to include messages
+    rejectionMessage?: { message: string; timestamp: string };
+    resolutionMessage?: { message: string; timestamp: string };
+    dateDelivered?: string;
+    createdAt: string;
+    updatedAt?: string;
+  };
+  
+  
 
 
 
-// For restaurant search results with pagination
-export type RestaurantSearchResponse = {
+// Pagination interface updated to include totalBranches and totalRestaurants
+export interface Pagination {
+  totalRestaurants: number;
+  totalBranches: number;
+  page: number;
+  pages: number;
+}
+
+// RestaurantSearchResponse updated to use the new Pagination interface
+export interface RestaurantSearchResponse {
   data: Restaurant[];
-  pagination: {
-    total: number;
-    page: number;
-    pages: number;
-  };
-};
+  pagination: Pagination;
+}
+
+
+// RestaurantSearchResponse updated to use the new Pagination interface
+export interface RestaurantSearchResponse {
+  data: Restaurant[];
+  pagination: Pagination;
+}
