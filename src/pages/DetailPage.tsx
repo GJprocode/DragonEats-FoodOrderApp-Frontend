@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useGetRestaurant } from "@/api/RestaurantApi";
 import { useLocation, useParams } from "react-router-dom";
 import MenuItem from "@/components/MenuItem";
@@ -19,9 +19,22 @@ export type CartItem = {
 const DetailPage = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const { state } = useLocation();
-  const { branch } = state as { branch: Branch }; // Extract branch from state
+  const [branch, setBranch] = useState<Branch | null>(null);
   const { restaurant, isLoading } = useGetRestaurant(restaurantId);
   const { createCheckoutSession, isLoading: isCheckoutLoading } = useCreateCheckoutSession();
+
+  // Load branch from state or session storage
+  useEffect(() => {
+    if (state?.branch) {
+      setBranch(state.branch);
+      sessionStorage.setItem("selectedBranch", JSON.stringify(state.branch));
+    } else {
+      const storedBranch = sessionStorage.getItem("selectedBranch");
+      if (storedBranch) {
+        setBranch(JSON.parse(storedBranch));
+      }
+    }
+  }, [state]);
 
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     const storedCartItems = sessionStorage.getItem(`cartItems-${restaurantId}`);
@@ -101,7 +114,7 @@ const DetailPage = () => {
     }
   };
 
-  if (isLoading || !restaurant) {
+  if (isLoading || !restaurant || !branch) {
     return "Loading...";
   }
 

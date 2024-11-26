@@ -13,31 +13,33 @@ const Auth0ProviderWithNavigate = ({ children }: Props) => {
 
   const domain = import.meta.env.VITE_AUTH0_DOMAIN;
   const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
-  const redirectUri = import.meta.env.VITE_AUTH0_CALLBACK_URL;
+  const redirectUri = import.meta.env.VITE_AUTH0_CALLBACK_URL || window.location.origin;
   const audience = import.meta.env.VITE_AUTH0_AUDIENCE;
 
   if (!domain || !clientId || !redirectUri || !audience) {
-    throw new Error("unable to initialise auth");
+    throw new Error("Unable to initialize Auth0");
   }
 
   const onRedirectCallback = (appState?: AppState) => {
-    navigate(appState?.returnTo || "/auth-callback");
+    const intendedPath = localStorage.getItem("intendedRedirect");
+    console.log("Redirecting to:", appState?.returnTo || intendedPath || "/");
+    localStorage.removeItem("intendedRedirect");
+    navigate(appState?.returnTo || intendedPath || "/");
   };
 
   return (
-<Auth0Provider
-  domain={domain}
-  clientId={clientId}
-  authorizationParams={{
-    redirect_uri: redirectUri,
-    audience,
-  }}
-  onRedirectCallback={onRedirectCallback}
-  cacheLocation="localstorage"
->
-  {children}
-</Auth0Provider>
-
+    <Auth0Provider
+      domain={domain}
+      clientId={clientId}
+      authorizationParams={{
+        redirect_uri: redirectUri,
+        audience,
+      }}
+      onRedirectCallback={onRedirectCallback}
+      cacheLocation="localstorage"
+    >
+      {children}
+    </Auth0Provider>
   );
 };
 

@@ -32,6 +32,7 @@ const CheckoutButton: React.FC<Props> = ({
 
   // bypass unknown redirect to homepage back to /order-status
   const handleUserOrderUpdate = (data: Partial<User>) => {
+    console.log("Setting intendedRedirect to /order-status");
     onCheckout(data, orderId);
     localStorage.setItem("intendedRedirect", "/order-status");
     navigate("/order-status", { replace: true });
