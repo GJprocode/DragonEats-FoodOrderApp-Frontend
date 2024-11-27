@@ -83,6 +83,13 @@ export type OrderStatus =
   export type Order = {
     _id: string;
     restaurant: Restaurant;
+    restaurantName: string;
+    branchDetails: {
+      branchName: string;
+      city: string;
+      latitude: number;
+      longitude: number;
+    };
     user: User;
     cartItems: {
       menuItemId: string;
@@ -99,13 +106,14 @@ export type OrderStatus =
     };
     totalAmount: number;
     status: "placed" | "confirmed" | "paid" | "inProgress" | "outForDelivery" | "delivered" | "rejected" | "resolved";
-    messages?: OrderMessage[]; // Add this line to include messages
+    messages?: OrderMessage[];
     rejectionMessage?: { message: string; timestamp: string };
     resolutionMessage?: { message: string; timestamp: string };
     dateDelivered?: string;
     createdAt: string;
     updatedAt?: string;
   };
+  
   
   
 

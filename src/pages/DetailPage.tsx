@@ -94,6 +94,12 @@ const DetailPage = () => {
         price: Number(cartItem.price),
       })),
       restaurantId: restaurant._id,
+      branchDetails: {
+        branchName: branch.branchName,
+        city: branch.cities,
+        latitude: branch.latitude,
+        longitude: branch.longitude,
+      },
       branchId: branch._id,
       branchName: branch.branchName,
       deliveryDetails: {
