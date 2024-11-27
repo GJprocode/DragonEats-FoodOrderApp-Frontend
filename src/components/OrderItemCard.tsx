@@ -147,6 +147,14 @@ const OrderItemCard = ({ order }: Props) => {
               <span className="ml-2 font-normal">{order.restaurant.cellphone}</span>
             </div>
             <div>
+              Restaurant Name:
+              <span className="ml-2 font-normal">{order.restaurantName}</span>
+            </div>
+            <div>
+              Branch Name:
+              <span className="ml-2 font-normal">{order.branchDetails?.branchName}</span>
+            </div>
+            <div>
               Total Cost:
               <span className="ml-2 font-normal">${calculateTotalAmount()}</span>
             </div>

@@ -1,4 +1,4 @@
-import { Order, OrderMessage } from "@/types";
+import { Order} from "@/types";
 import { Separator } from "@/components/ui/separator";
 
 type Props = {
@@ -39,10 +39,14 @@ const OrderStatusDetail = ({ order }: Props) => {
       <div className="flex flex-col">
         <span className="font-bold">Your Order</span>
         <span className="font-bold">
-          Restaurant: {order.restaurant.restaurantName}
+          Restaurant: {order.restaurantName}
         </span>
+        <div className="flex flex-col">
+          <span className="font-bold">Branch:</span>
+          <span>{order.branchDetails?.branchName}, {order.branchDetails?.city}</span>
+        </div>
         <span className="font-bold">
-          Restaurant Cell: {order.restaurant.cellphone}
+          Restaurant Cell: {order.deliveryDetails.cellphone}
         </span>
         <ul>
           {order.cartItems.map((item) => (
@@ -52,8 +56,6 @@ const OrderStatusDetail = ({ order }: Props) => {
           ))}
         </ul>
       </div>
-
-     
 
       {/* Order Date Information */}
       <div className="flex flex-col">
@@ -66,26 +68,6 @@ const OrderStatusDetail = ({ order }: Props) => {
           </div>
         )}
       </div>
-
-
-
-     {/* Order Messages */}
-      <div className="flex flex-col">
-        <span className="font-bold">Order Messages:</span>
-        {order.messages && order.messages.length > 0 ? (
-          order.messages.map((msg: OrderMessage, index: number) => (
-            <div key={index}>
-              <strong>Status:</strong> {msg.status} <br />
-              <strong>Message:</strong> {msg.message} <br />
-              <strong>Timestamp:</strong> {new Date(msg.timestamp).toLocaleString()}
-            </div>
-          ))
-        ) : (
-          <span>No messages available</span>
-        )}
-</div>
-
-
 
 
       {/* Delivery Cost */}
@@ -104,5 +86,6 @@ const OrderStatusDetail = ({ order }: Props) => {
     </div>
   );
 };
+
 
 export default OrderStatusDetail;
