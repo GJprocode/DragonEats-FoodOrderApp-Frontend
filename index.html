@@ -5,24 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DragonEats</title>
 
-    <!-- upgraded svg with svgomg -->
-
-    <!-- Icons -->
+    <!-- Optimized SVG and Favicon -->
     <link rel="icon" type="image/svg+xml" href="dragon.svg" />
     <link rel="manifest" href="site.webmanifest" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
-    <!-- Preload the SVG for better rendering -->
+    <!-- Preload SVG -->
     <link rel="preload" href="dragon.svg" as="image" type="image/svg+xml" />
   </head>
   <body>
     <!-- Loading Splash Screen -->
-    <div id="loading-container" style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #ffffff;">
-      <img
-        src="dragon.svg"
-        alt="Loading Dragon Eats"
-        style="width: 100px; height: auto; max-width: 100px;"
-      />
+    <div id="loading-container" class="three-d" style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: var(--background);">
+      <picture>
+        <source srcset="dragon.svg" type="image/svg+xml" />
+        <img
+          src="dragon.png"
+          alt="Loading Dragon Eats"
+          class="svg-logo"
+          style="width: 100px; height: auto; max-width: 100px;"
+        />
+      </picture>
     </div>
 
     <!-- React Root -->
