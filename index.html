@@ -5,36 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DragonEats</title>
 
-    <!-- Optimized SVG and Favicon -->
+    <!-- Optimized SVG -->
     <link rel="icon" type="image/svg+xml" href="dragon.svg" />
-    <link rel="manifest" href="site.webmanifest" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-
-    <!-- Preload SVG -->
-    <link rel="preload" href="dragon.svg" as="image" type="image/svg+xml" />
+    <link rel="preload" href="dragon.svg" as="image" type="image/svg+xml" crossorigin="anonymous" />
   </head>
-  <body>
+  <body class="bg-background text-foreground">
     <!-- Loading Splash Screen -->
-    <div id="loading-container" class="three-d" style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: var(--background);">
-      <picture>
-        <source srcset="dragon.svg" type="image/svg+xml" />
-        <img
-          src="dragon.png"
-          alt="Loading Dragon Eats"
-          class="svg-logo"
-          style="width: 100px; height: auto; max-width: 100px;"
-        />
-      </picture>
+    <div id="loading-container" class="flex justify-center items-center h-screen">
+      <img
+        src="dragon.svg"
+        alt="Dragon Eats Logo"
+        class="w-24 sm:w-32 md:w-40 lg:w-48 xl:w-56 h-auto"
+      />
     </div>
 
     <!-- React Root -->
-    <div id="root" style="display: none;"></div>
+    <div id="root" class="hidden"></div>
 
     <script type="module" src="/src/main.tsx"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("loading-container").style.display = "none";
-        document.getElementById("root").style.display = "block";
+        document.getElementById("loading-container").classList.add("hidden");
+        document.getElementById("root").classList.remove("hidden");
       });
     </script>
   </body>
