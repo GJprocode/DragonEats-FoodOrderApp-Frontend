@@ -4,12 +4,24 @@
  /* src/styles.css */
 
  .svg-logo {
-  width: 100px; /* Adjust as needed */
-  height: auto;
-  transform: scale(2); /* Enlarges before rasterize */
-  margin: -50%; /* Adjust position after scale */
-  display: block; /* Ensures block rendering */
+  width: 100%; /* Make the SVG fully responsive */
+  max-width: 300px; /* Prevent it from becoming too large */
+  height: auto; /* Maintain aspect ratio */
+  display: block; /* Ensures the SVG renders as a block element */
+  margin: 0 auto; /* Center horizontally */
 }
+
+
+.svg-container {
+  display: flex; /* Flexbox for centering */
+  justify-content: center; /* Horizontal centering */
+  align-items: center; /* Vertical centering */
+  height: 100vh; /* Fill the viewport height */
+  background-color: #f8f8f8; /* Optional light background */
+}
+
+
+
 
 
  /* Example for a 3D effect */
