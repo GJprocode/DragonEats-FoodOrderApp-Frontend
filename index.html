@@ -10,19 +10,27 @@
     <!-- Optimized SVG Icon -->
     <link rel="icon" type="image/svg+xml" href="public/dragon.svg" />
     <link rel="preload" href="public/dragon.svg" as="image" type="image/svg+xml" crossorigin="anonymous" />
-
-    <!-- Fallback Icons for Android -->
-    <!-- <link rel="icon" type="image/png" sizes="192x192" href="public/web-app-manifest-192x192.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="vweb-app-manifest-512x512.png" /> -->
   </head>
-  <body class="bg-background text-foreground">
+  <body class="bg-background text-foreground min-h-screen flex flex-col items-center justify-center">
+    <!-- Loading Screen -->
+    <div id="loading-container" class="flex justify-center items-center w-full h-full">
+      <img
+        src="public/dragon.svg"
+        alt="Dragon Eats Logo"
+        class="w-full max-w-[200px] h-auto mx-auto"
+      />
+    </div>
+
     <!-- React Root -->
-    <div id="root"></div>
+    <div id="root" class="hidden w-full flex-1"></div>
 
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("loading-container").classList.add("hidden");
+        document.getElementById("root").classList.remove("hidden");
+      });
+    </script>
   </body>
 </html>
-
-
-
 
