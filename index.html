@@ -12,26 +12,12 @@
     <link rel="preload" href="dragon.svg" as="image" type="image/svg+xml" crossorigin="anonymous" />
   </head>
   <body class="bg-background text-foreground">
-    <!-- Loading Splash Screen -->
-    <div id="loading-container" class="svg-container">
-      <img
-        src="dragon.svg"
-        alt="Dragon Eats Logo"
-        class="svg-logo"
-      />
-    </div>
-
     <!-- React Root -->
-    <div id="root" class="hidden"></div>
+    <div id="root"></div>
 
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("loading-container").classList.add("hidden");
-        document.getElementById("root").classList.remove("hidden");
-      });
-    </script>
   </body>
 </html>
+
 
 
