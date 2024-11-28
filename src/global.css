@@ -3,25 +3,22 @@
 @tailwind utilities;
  /* src/styles.css */
 
- .svg-logo {
-  width: 100%; /* Make the SVG fully responsive */
-  max-width: 300px; /* Prevent it from becoming too large */
+/* Ensure the SVG Logo Renders Properly */
+.svg-logo {
+  width: 100%; /* Use full width for responsiveness */
+  max-width: 300px; /* Prevent oversized rendering */
   height: auto; /* Maintain aspect ratio */
-  display: block; /* Ensures the SVG renders as a block element */
-  margin: 0 auto; /* Center horizontally */
+  display: block; /* Ensure block rendering */
+  margin: 0 auto; /* Center horizontally if needed */
 }
 
-
-.svg-container {
-  display: flex; /* Flexbox for centering */
-  justify-content: center; /* Horizontal centering */
-  align-items: center; /* Vertical centering */
-  height: 100vh; /* Fill the viewport height */
-  background-color: #f8f8f8; /* Optional light background */
+/* Ensure No Overlap or Hidden Containers */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Fullscreen container */
+  background-color: var(--background); /* Use Tailwind's CSS variable */
 }
-
-
-/* hello */
 
 
  /* Example for a 3D effect */
