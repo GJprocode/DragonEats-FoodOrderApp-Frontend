@@ -1,15 +1,26 @@
 <!-- C:\Users\gertf\Desktop\FoodApp\frontend\index.html -->
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DragonEats</title>
 
     <!-- Optimized SVG Icon -->
     <link rel="icon" type="image/svg+xml" href="public/dragon.svg" />
-    <link rel="preload" href="public/dragon.svg" as="image" type="image/svg+xml" crossorigin="anonymous" />
+
+    <link  href="public/dragon.svg" as="image" type="image/svg+xml" />
+
+    <!-- Fallback Icons for Android -->
+    <!-- <link rel="icon" type="image/png" sizes="192x192" href="public/web-app-manifest-192x192.png" />
+  
+
+  </head>
+  <body class="bg-background text-foreground min-h-screen flex flex-col items-center justify-center">
+ Loading Screen -->
+  
+    <div id="loading-container" class="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-white z-50">
+      <img
+        src="public/dragon.svg"
+        alt="Dragon Eats Logo"
+        class="w-[125px] h-[125px] mx-auto"
+      />
+    </div>
 
     <!-- Fallback Icons for Android -->
     <!-- <link rel="icon" type="image/png" sizes="192x192" href="public/web-app-manifest-192x192.png" />
@@ -17,12 +28,22 @@
   </head>
   <body class="bg-background text-foreground">
     <!-- React Root -->
-    <div id="root"></div>
+    <div id="root" class="w-full flex-1"></div>
 
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const loadingContainer = document.getElementById("loading-container");
+        const rootContainer = document.getElementById("root");
 
+        // Hide the loading screen
+        loadingContainer.classList.add("hidden");
 
-
-
+        // Show the React app
+        rootContainer.classList.remove("hidden");
+      });
+    </script>
+  </body>
+</html>
