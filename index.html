@@ -1,19 +1,41 @@
 <!-- C:\Users\gertf\Desktop\FoodApp\frontend\index.html -->
 
 
-
-
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DragonEats</title>
-
-    <!-- Optimized SVG Icon -->
-    <link rel="icon" type="image/svg+xml" href="public/dragon.svg" />
-   
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="dragon.svg" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <!-- Preload the SVG for better rendering -->
+    <link rel="preload" href="dragon.svg" as="image" type="image/svg+xml" />
   </head>
+
+  <body>
+    <div id="root"></div>
+    <!-- Loading Splash Screen -->
+    <div id="loading-container" style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #ffffff;">
+      <img
+        src="dragon.svg"
+        alt="Loading Dragon Eats"
+        style="width: 100px; height: auto; max-width: 100px;"
+      />
+    </div>
+    <!-- React Root -->
+    <div id="root" style="display: none;"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("loading-container").style.display = "none";
+        document.getElementById("root").style.display = "block";
+      });
+    </script>
+  </body>
+=======
   <body class="bg-background text-foreground min-h-screen flex flex-col items-center justify-center">
  Loading Screen -->
   
@@ -43,4 +65,5 @@
 
   </body>
 </html>
+
 
