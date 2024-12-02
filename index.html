@@ -1,47 +1,40 @@
 <!-- C:\Users\gertf\Desktop\FoodApp\frontend\index.html -->
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DragonEats</title>
 
-    <!-- Favicon for Browsers -->
-    <!-- Favicon for Browsers -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-
-    <!-- Apple Touch Icon -->
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-
-    <!-- Manifest -->
-    <link rel="manifest" href="/site.webmanifest">
-
-
+    <!-- Optimized SVG Icon -->
+    <link rel="icon" type="image/svg+xml" href="public/dragon.svg" />
+    <link  href="public/dragon.svg" as="image" type="image/svg+xml"  />
   </head>
   <body class="bg-background text-foreground min-h-screen flex flex-col items-center justify-center">
     <!-- Loading Screen -->
     <div id="loading-container" class="flex justify-center items-center w-full h-full">
+    <div id="loading-container" class="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-white z-50">
       <img
-        src="/favicon.svg"
+        src="public/dragon.svg"
         alt="Dragon Eats Logo"
-        class="w-[75px] h-[75px]"
+        class="w-[125px] h-[125px] mx-auto"
+        class="w-[125px] h-auto"
       />
     </div>
 
     <!-- React Root -->
-    <div id="root" class="hidden"></div>
+    <div id="root" class="w-full flex-1"></div>
+    <div id="root" class="hidden w-full flex-1"></div>
 
-    <script type="module">
-      // Show the React app after DOM content is loaded
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+    <script>
       document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("loading-container").classList.add("hidden");
-        document.getElementById("root").classList.remove("hidden");
+        const loadingContainer = document.getElementById("loading-container");
+        const rootContainer = document.getElementById("root");
+
+        // Hide the loading screen
+        loadingContainer.classList.add("hidden");
+
+        // Show the React app
+        rootContainer.classList.remove("hidden");
       });
     </script>
-
-    <!-- React App Script -->
-    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
