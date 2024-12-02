@@ -1,33 +1,36 @@
 <!-- C:\Users\gertf\Desktop\FoodApp\frontend\index.html -->
+
+<!-- fixed -->
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DragonEats</title>
-    <!-- Optimized SVG Icon -->
-    <link rel="icon" type="image/svg+xml" href="public/dragon.svg" />
-    <link rel="preload" href="public/dragon.svg" as="image" type="image/svg+xml" crossorigin="anonymous" />
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="dragon.svg" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <!-- Preload the SVG for better rendering -->
+    <link rel="preload" href="dragon.svg" as="image" type="image/svg+xml" />
   </head>
-  <body class="bg-background text-foreground min-h-screen flex flex-col items-center justify-center">
-    <!-- Loading Screen -->
-    <div id="loading-container" class="flex justify-center items-center w-full h-full">
+  <body>
+    <div id="root"></div>
+    <!-- Loading Splash Screen -->
+    <div id="loading-container" style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #ffffff;">
       <img
-        src="public/dragon.svg"
-        alt="Dragon Eats Logo"
-        class="w-full max-w-[200px] h-auto mx-auto"
+        src="dragon.svg"
+        alt="Loading Dragon Eats"
+        style="width: 100px; height: auto; max-width: 100px;"
       />
     </div>
-
     <!-- React Root -->
-    <div id="root" class="hidden w-full flex-1"></div>
-
+    <div id="root" style="display: none;"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("loading-container").classList.add("hidden");
-        document.getElementById("root").classList.remove("hidden");
+        document.getElementById("loading-container").style.display = "none";
+        document.getElementById("root").style.display = "block";
       });
     </script>
   </body>
-</html>
