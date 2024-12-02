@@ -1,6 +1,6 @@
 <!-- C:\Users\gertf\Desktop\FoodApp\frontend\index.html -->
 
-<!-- fixed -->
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -14,6 +14,7 @@
     <!-- Preload the SVG for better rendering -->
     <link rel="preload" href="dragon.svg" as="image" type="image/svg+xml" />
   </head>
+
   <body>
     <div id="root"></div>
     <!-- Loading Splash Screen -->
@@ -34,3 +35,35 @@
       });
     </script>
   </body>
+=======
+  <body class="bg-background text-foreground min-h-screen flex flex-col items-center justify-center">
+ Loading Screen -->
+  
+    <div id="loading-container" class="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-white z-50">
+      <img
+        src="public/dragon.svg"
+        alt="Dragon Eats Logo"
+        class="w-[125px] h-[125px] mx-auto"
+      />
+    </div>
+
+    <!-- Fallback Icons for Android -->
+    <!-- <link rel="icon" type="image/png" sizes="192x192" href="public/web-app-manifest-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="vweb-app-manifest-512x512.png" /> -->
+
+
+
+    <!-- React Root -->
+
+    <div id="root" class="hidden w-full flex-1"></div>
+
+
+
+
+    <script type="module" src="/src/main.tsx"></script>
+
+
+  </body>
+</html>
+
+
