@@ -3,6 +3,22 @@
 @tailwind utilities;
  /* src/styles.css */
 
+/* Ensure the SVG Logo Renders Properly */
+.svg-logo {
+  width: 100%; /* Use full width for responsiveness */
+  max-width: 300px; /* Prevent oversized rendering */
+  height: auto; /* Maintain aspect ratio */
+  display: block; /* Ensure block rendering */
+  margin: 0 auto; /* Center horizontally if needed */
+}
+
+/* Ensure No Overlap or Hidden Containers */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Fullscreen container */
+  background-color: var(--background); /* Use Tailwind's CSS variable */
+}
 
 
  /* Example for a 3D effect */
@@ -97,5 +113,3 @@
 
   
 }
-
-
