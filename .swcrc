@@ -1,0 +1,30 @@
+{
+    "jsc": {
+      "transform": {
+        "optimizer": {
+          "globals": {
+            "vars": {
+              "__DEBUG__": "false"
+            }
+          },
+          "simplify": true
+        }
+      }
+    },
+    "env": {
+      "targets": {
+        "chrome": "58",
+        "ie": "11"
+      },
+      "mode": "entry"
+    },
+    "module": {
+      "type": "es6",
+      "strict": true,
+      "strictMode": true,
+      "lazy": false,
+      "noInterop": false
+    },
+    "minify": true
+  }
+  

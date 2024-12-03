@@ -1,0 +1,16 @@
+{
+    "short_name": "Dragon Eats",
+    "name": "Dragon Eats",
+    "icons": [
+      {
+        "src": "dragon.svg",  
+        "sizes": "192x192",
+        "type": "image/svg+xml"
+      }
+    ], 
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff"
+  }
+  

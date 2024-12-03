@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DragonEats</title>
+
+    <!-- Optimized SVG Icon -->
+    <link rel="icon" type="image/svg+xml" href="dragon.svg" />
+  </head>
+
+    <!-- Loading Screen -->
+    <div id="loading-container" class="flex justify-center items-center w-full h-full">
+      <img
+        src="dragon.svg"
+        alt="Dragon Eats Logo"
+        class="w-full max-w-[200px] h-auto mx-auto"
+      />
+    </div>
+
+    <!-- React Root -->
+    <div id="root" class="hidden w-full flex-1"></div>
+
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("DOMContentLoaded fired");
+        const loadingContainer = document.getElementById("loading-container");
+        const root = document.getElementById("root");
+
+        if (loadingContainer && root) {
+          loadingContainer.classList.add("hidden");
+          root.classList.remove("hidden");
+        } else {
+          console.error("Elements not found: loading-container or root");
+        }
+      });
+    </script>
+  </body>
+</html>
