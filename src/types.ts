@@ -12,6 +12,8 @@ export type User = {
   country?: string;
   role?: string;
   cellphone?: string;
+  latitude?: number; // Added latitude
+  longitude?: number; // Added longitude
 };
 
 // MenuItem type matching the backend model

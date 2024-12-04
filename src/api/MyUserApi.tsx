@@ -94,9 +94,15 @@ export const useCreateMyUser = () => {
 export const useUpdateMyUser = () => {
   const { getAccessTokenSilently } = useAuth0();
 
-  const updateMyUserRequest = async (formData: { name: string; address: string; city: string; country: string }) => {
+  const updateMyUserRequest = async (formData: {
+    name: string;
+    address: string;
+    city: string;
+    country: string;
+    latitude?: number;
+    longitude?: number;
+  }) => {
     try {
-      console.log("Updating user with data:", formData); // Log the form data being sent
       const accessToken = await getAccessTokenSilently();
 
       const response = await fetch(`${API_BASE_URL}/api/my/user`, {
@@ -109,7 +115,6 @@ export const useUpdateMyUser = () => {
       });
 
       if (!response.ok) {
-        console.error("Failed to update user:", response.statusText); // Log server response if failed
         throw new Error(`Failed to update user: ${response.statusText}`);
       }
 
@@ -120,16 +125,8 @@ export const useUpdateMyUser = () => {
     }
   };
 
-  const { mutateAsync: updateUser, isLoading, isSuccess, error, reset } = useMutation(updateMyUserRequest);
-
-  if (isSuccess) {
-    toast.success("User profile updated!");
-  }
-
-  if (error) {
-    toast.error(error.toString());
-    reset();
-  }
-
-  return { updateUser, isLoading };
+  return useMutation(updateMyUserRequest, {
+    mutationKey: "updateUser",
+  });
 };
+
