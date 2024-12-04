@@ -12,6 +12,8 @@ import LoadingButton from "@/components/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { Restaurant } from "@/types";
 import { useAuth0 } from "@auth0/auth0-react";
+import PriceDeliveryComponent from "@/components/PriceDeliveryComponent";
+import { restaurantDeliveryPricing, wholesaleDeliveryPricing } from "../../lib/deliveryPricing";
 
 // Define the schema with Zod
 const formSchema = z.object({
@@ -26,20 +28,10 @@ const formSchema = z.object({
         longitude: z.coerce.number({ invalid_type_error: "Longitude must be a number" }),
       })
     )
-    .min(1, { message: "At least one city is required" }),
+    .min(1, { message: "At least one branch is required" }),
   country: z.string({ required_error: "Country is required" }),
-  deliveryPrice: z.coerce.number({
-    required_error: "Delivery price is required",
-    invalid_type_error: "Must be a valid number",
-  }),
-  estimatedDeliveryTime: z.coerce.number({
-    required_error: "Estimated delivery time is required",
-    invalid_type_error: "Must be a valid number",
-  }),
   wholesale: z.boolean().optional(),
-  cuisines: z.array(z.string()).nonempty({
-    message: "Please select at least one cuisine",
-  }),
+  cuisines: z.array(z.string()).nonempty({ message: "Select at least one cuisine" }),
   menuItems: z.array(
     z.object({
       name: z.string().min(1, "Menu item name is required"),
@@ -69,10 +61,8 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
     defaultValues: {
       restaurantName: "",
       cellphone: "",
-      branchesInfo: [{ cities: "", branchName: "", latitude: 0.3345, longitude: 103.8669 }],
+      branchesInfo: [{ cities: "", branchName: "", latitude: 0, longitude: 0 }],
       country: "",
-      deliveryPrice: undefined,
-      estimatedDeliveryTime: undefined,
       wholesale: false,
       cuisines: [],
       menuItems: [{ name: "", price: 0, imageUrl: "", imageFile: undefined }],
@@ -134,8 +124,6 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
     formData.append("restaurantName", data.restaurantName);
     formData.append("cellphone", data.cellphone);
     formData.append("country", data.country);
-    formData.append("deliveryPrice", data.deliveryPrice.toString());
-    formData.append("estimatedDeliveryTime", data.estimatedDeliveryTime.toString());
     formData.append("wholesale", data.wholesale ? "true" : "false");
 
     data.branchesInfo.forEach((branch, index) => {
@@ -171,9 +159,13 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 bg-gray-50 p-10 rounded-lg">
-        <DetailsSection restaurant={restaurant} currentUserEmail={currentUserEmail} />
+        <DetailsSection restaurant={restaurant} />
         <Separator />
-
+        <div className="space-y-8">
+          <PriceDeliveryComponent type="restaurant" deliveryData={restaurantDeliveryPricing} />
+          <PriceDeliveryComponent type="wholesale" deliveryData={wholesaleDeliveryPricing} />
+        </div>
+        <Separator />
         <div className="space-y-4">
           <label className="block text-lg font-bold">Cities and Branches</label>
           <FormDescription>Enter details about cities, branches, and GPS coordinates.</FormDescription>
@@ -214,18 +206,12 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
           ))}
           <Button
             type="button"
-            onClick={() =>
-              append({ cities: "", branchName: "", latitude: 0.0, longitude: 0.0 })
-            }
+            onClick={() => append({ cities: "", branchName: "", latitude: 0.0, longitude: 0.0 })}
             className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
           >
             Add Branch
           </Button>
         </div>
-
-        <Separator />
-
-        
         <Separator />
         <CuisinesSection />
         <Separator />
@@ -237,14 +223,9 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
           <label htmlFor="progress" className="block text-sm font-medium text-gray-700">
             Restaurant Status:
           </label>
-          <p className="text-xs text-gray-500">
-            Your submission has been sent for admin approval.
-          </p>
+          <p className="text-xs text-gray-500">Your submission has been sent for admin approval.</p>
           <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-            <div
-              className={`bg-blue-600 h-2.5 rounded-full`}
-              style={{ width: getStatusWidth() }}
-            ></div>
+            <div className={`bg-blue-600 h-2.5 rounded-full`} style={{ width: getStatusWidth() }}></div>
           </div>
           <div className="flex justify-between text-xs md:text-sm text-gray-500 mt-2">
             <span>Submitted</span>
@@ -252,11 +233,8 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
             <span>{restaurant?.status === "rejected" ? "Rejected" : "Approved"}</span>
           </div>
         </div>
-
         <Separator />
-        <div className="flex justify-start">
-          {isLoading ? <LoadingButton /> : <Button type="submit">Submit</Button>}
-        </div>
+        <div className="flex justify-start">{isLoading ? <LoadingButton /> : <Button type="submit">Submit</Button>}</div>
       </form>
     </Form>
   );

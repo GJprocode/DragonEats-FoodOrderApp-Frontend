@@ -10,17 +10,22 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Restaurant } from "@/types";
+import { calculateDeliveryDetails } from "@/lib/deliveryUtils"; // Utility function for delivery calculations
 
 type DetailsSectionProps = {
   restaurant?: Restaurant | null;
   currentUserEmail?: string; // Add currentUserEmail prop
+  userLocation?: { latitude: number; longitude: number }; // Add userLocation prop
 };
 
 const DetailsSection: React.FC<DetailsSectionProps> = ({
   restaurant,
   currentUserEmail,
+  userLocation,
 }) => {
-  const { control, setValue } = useFormContext();
+  const { control, setValue, watch } = useFormContext();
+
+  const branchesInfo = watch("branchesInfo"); // Watch branchesInfo array
 
   useEffect(() => {
     // Set the email field to the logged-in user's email
@@ -35,23 +40,43 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({
       setValue("estimatedDeliveryTime", restaurant.estimatedDeliveryTime || 0);
       setValue(
         "branchesInfo",
-        restaurant.branchesInfo.map((branch: { cities: unknown; branchName: unknown; latitude: unknown; longitude: unknown; }, index: number) => ({
-          cities: branch.cities,
-          branchName: branch.branchName || `Branch ${index + 1}`,
-          latitude: branch.latitude || 0.0,
-          longitude: branch.longitude || 0.0,
-        }))
+        restaurant.branchesInfo.map(
+          (
+            branch: {
+              cities: string;
+              branchName: string;
+              latitude: number;
+              longitude: number;
+            },
+            index: number
+          ) => ({
+            cities: branch.cities,
+            branchName: branch.branchName || `Branch ${index + 1}`,
+            latitude: branch.latitude || 0.0,
+            longitude: branch.longitude || 0.0,
+          })
+        )
       );
     }
   }, [restaurant, currentUserEmail, setValue]);
 
+  useEffect(() => {
+    if (branchesInfo && userLocation) {
+      const { price, time, distance } = calculateDeliveryDetails(
+        branchesInfo,
+        userLocation,
+        "restaurant" // Or "wholesale" depending on the use case
+      );
+      setValue("deliveryPrice", price);
+      setValue("estimatedDeliveryTime", time);
+    }
+  }, [branchesInfo, userLocation, setValue]);
+  
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Details</h2>
-        <FormDescription>
-          Enter the details about your restaurant
-        </FormDescription>
+        <FormDescription>Enter the details about your restaurant</FormDescription>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
@@ -133,7 +158,8 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({
               <FormControl>
                 <Input
                   {...field}
-                  className="bg-white border-gray-300 rounded-md"
+                  readOnly
+                  className="bg-gray-200 cursor-not-allowed" // Lock and grey out the field
                   placeholder="0.00"
                 />
               </FormControl>
@@ -150,7 +176,8 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({
               <FormControl>
                 <Input
                   {...field}
-                  className="bg-white border-gray-300 rounded-md"
+                  readOnly
+                  className="bg-gray-200 cursor-not-allowed" // Lock and grey out the field
                   placeholder="0"
                 />
               </FormControl>
