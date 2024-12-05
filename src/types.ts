@@ -2,6 +2,7 @@
 
 
 // Types reflecting the backend model
+// src/types.ts
 export type User = {
   _id: string;
   auth0Id: string[];
@@ -12,9 +13,9 @@ export type User = {
   country?: string;
   role?: string;
   cellphone?: string;
-  latitude?: number; // Added latitude
-  longitude?: number; // Added longitude
+  userLocation?: [number, number]; // Array for [latitude, longitude]
 };
+
 
 // MenuItem type matching the backend model
 export type MenuItem = {
