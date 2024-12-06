@@ -32,6 +32,8 @@ export type Branch = {
   branchName: string;
   latitude: number;
   longitude: number;
+  deliveryPrice: number; // Add deliveryPrice
+  deliveryTime: number; // Add deliveryTime
 };
 
 export type EnrichedBranch = Branch & {
@@ -51,8 +53,8 @@ export type Restaurant = {
   branchesInfo: Branch[];
   branches?: Branch[]; // Optional, for filtered branches
   country: string;
-  deliveryPrice: number;
-  estimatedDeliveryTime: number;
+  // deliveryPrice: number;  deleted is under branches
+  // estimatedDeliveryTime: number; deleted is under branches
   cuisines: string[];
   menuItems: MenuItem[];
   restaurantImageUrl?: string;
@@ -92,6 +94,8 @@ export type OrderStatus =
       city: string;
       latitude: number;
       longitude: number;
+      deliveryPrice?: number;
+      deliveryTime?: number;
     };
     user: User;
     cartItems: {
@@ -118,10 +122,6 @@ export type OrderStatus =
   };
   
   
-  
-
-
-
 // Pagination interface updated to include totalBranches and totalRestaurants
 export interface Pagination {
   totalRestaurants: number;
@@ -137,8 +137,3 @@ export interface RestaurantSearchResponse {
 }
 
 
-// RestaurantSearchResponse updated to use the new Pagination interface
-export interface RestaurantSearchResponse {
-  data: Restaurant[];
-  pagination: Pagination;
-}

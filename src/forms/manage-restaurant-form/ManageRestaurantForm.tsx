@@ -12,10 +12,7 @@ import LoadingButton from "@/components/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { Restaurant } from "@/types";
 import { useAuth0 } from "@auth0/auth0-react";
-import PriceDeliveryComponent from "@/components/PriceDeliveryComponent";
-import { restaurantDeliveryPricing, wholesaleDeliveryPricing } from "../../lib/deliveryPricing";
 
-// Define the schema with Zod
 const formSchema = z.object({
   restaurantName: z.string({ required_error: "Restaurant name is required" }),
   cellphone: z.string({ required_error: "Cellphone number is required" }),
@@ -26,6 +23,8 @@ const formSchema = z.object({
         branchName: z.string({ required_error: "Branch name is required" }),
         latitude: z.coerce.number({ invalid_type_error: "Latitude must be a number" }),
         longitude: z.coerce.number({ invalid_type_error: "Longitude must be a number" }),
+        deliveryPrice: z.coerce.number().optional(),
+        deliveryTime: z.coerce.number().optional(),
       })
     )
     .min(1, { message: "At least one branch is required" }),
@@ -61,7 +60,16 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
     defaultValues: {
       restaurantName: "",
       cellphone: "",
-      branchesInfo: [{ cities: "", branchName: "", latitude: 0, longitude: 0 }],
+      branchesInfo: [
+        {
+          cities: "",
+          branchName: "",
+          latitude: 0,
+          longitude: 0,
+          deliveryPrice: 0,
+          deliveryTime: 0,
+        },
+      ],
       country: "",
       wholesale: false,
       cuisines: [],
@@ -71,38 +79,22 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, replace } = useFieldArray({
     control: form.control,
     name: "branchesInfo",
   });
 
   useEffect(() => {
     if (restaurant) {
-      const updatedRestaurant = {
-        ...restaurant,
-        branchesInfo: restaurant.branchesInfo?.length
-          ? restaurant.branchesInfo
-          : [
-              {
-                cities: "Default City",
-                branchName: "Default Branch",
-                latitude: 0.0,
-                longitude: 0.0,
-              },
-            ],
-        menuItems: restaurant.menuItems?.length
-          ? restaurant.menuItems
-          : [
-              {
-                name: "Default Item",
-                price: 0,
-                imageUrl: "",
-              },
-            ],
-      };
-      form.reset(updatedRestaurant);
+      // console.log("ManageRestaurantForm useEffect - received restaurant:", restaurant);
+      // Directly reset form with the plain JSON restaurant
+      form.reset(restaurant);
+      replace(restaurant.branchesInfo);
+
+      // console.log("After form.reset and replace:");
+      // console.log("form.getValues('branchesInfo'):", form.getValues("branchesInfo"));
     }
-  }, [restaurant, form]);
+  }, [restaurant, form, replace]);
 
   const getStatusWidth = () => {
     switch (restaurant?.status) {
@@ -120,6 +112,7 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
   };
 
   const onSubmit = async (data: RestaurantFormData) => {
+    // console.log("ManageRestaurantForm onSubmit - data:", data);
     const formData = new FormData();
     formData.append("restaurantName", data.restaurantName);
     formData.append("cellphone", data.cellphone);
@@ -131,6 +124,8 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
       formData.append(`branchesInfo[${index}][branchName]`, branch.branchName);
       formData.append(`branchesInfo[${index}][latitude]`, branch.latitude.toString());
       formData.append(`branchesInfo[${index}][longitude]`, branch.longitude.toString());
+      formData.append(`branchesInfo[${index}][deliveryPrice]`, (branch.deliveryPrice ?? 0).toString());
+      formData.append(`branchesInfo[${index}][deliveryTime]`, (branch.deliveryTime ?? 0).toString());
     });
 
     data.cuisines.forEach((cuisine, index) => {
@@ -159,59 +154,84 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 bg-gray-50 p-10 rounded-lg">
-        <DetailsSection restaurant={restaurant} />
-        <Separator />
-        <div className="space-y-8">
-          <PriceDeliveryComponent type="restaurant" deliveryData={restaurantDeliveryPricing} />
-          <PriceDeliveryComponent type="wholesale" deliveryData={wholesaleDeliveryPricing} />
-        </div>
+        <DetailsSection restaurant={restaurant} currentUserEmail={currentUserEmail} />
+
         <Separator />
         <div className="space-y-4">
           <label className="block text-lg font-bold">Cities and Branches</label>
           <FormDescription>Enter details about cities, branches, and GPS coordinates.</FormDescription>
+
+          <div className="hidden md:flex gap-2 font-bold items-center">
+            <div className="w-1/6">City Name</div>
+            <div className="w-1/6">Branch Name</div>
+            <div className="w-1/6">Latitude</div>
+            <div className="w-1/6">Longitude</div>
+            <div className="w-1/6">Delivery Price</div>
+            <div className="w-1/6">Delivery Time</div>
+            <div className="w-1/6">Actions</div>
+          </div>
+
           {fields.map((field, index) => (
             <div key={field.id} className="flex flex-col md:flex-row gap-2 items-center">
               <input
                 {...form.register(`branchesInfo.${index}.cities`)}
-                className="border rounded p-2"
+                className="border rounded p-2 w-full md:w-1/6"
                 placeholder="City Name"
-                defaultValue={field.cities || ""}
               />
               <input
                 {...form.register(`branchesInfo.${index}.branchName`)}
-                className="border rounded p-2"
+                className="border rounded p-2 w-full md:w-1/6"
                 placeholder="Branch Name"
-                defaultValue={field.branchName || ""}
               />
               <input
                 {...form.register(`branchesInfo.${index}.latitude`, { valueAsNumber: true })}
-                placeholder="Latitude (e.g., 0.3345)"
-                className="border rounded p-2"
-                defaultValue={field.latitude || 0.0}
+                placeholder="Latitude"
+                className="border rounded p-2 w-full md:w-1/6"
               />
               <input
                 {...form.register(`branchesInfo.${index}.longitude`, { valueAsNumber: true })}
-                placeholder="Longitude (e.g., 103.8669)"
-                className="border rounded p-2"
-                defaultValue={field.longitude || 0.0}
+                placeholder="Longitude"
+                className="border rounded p-2 w-full md:w-1/6"
               />
-              <Button
-                type="button"
-                onClick={() => remove(index)}
-                className="bg-red-500 text-white text-xs px-2 py-1"
-              >
-                Remove
-              </Button>
+              <input
+                {...form.register(`branchesInfo.${index}.deliveryPrice`, { valueAsNumber: true })}
+                placeholder="Delivery Price ($)"
+                className="border rounded p-2 w-full md:w-1/6"
+              />
+              <input
+                {...form.register(`branchesInfo.${index}.deliveryTime`, { valueAsNumber: true })}
+                placeholder="Delivery Time"
+                className="border rounded p-2 w-full md:w-1/6"
+              />
+              <div className="w-full md:w-1/6">
+                <Button
+                  type="button"
+                  onClick={() => remove(index)}
+                  className="bg-red-500 text-white text-xs px-2 py-1"
+                >
+                  Remove
+                </Button>
+              </div>
             </div>
           ))}
           <Button
             type="button"
-            onClick={() => append({ cities: "", branchName: "", latitude: 0.0, longitude: 0.0 })}
+            onClick={() =>
+              append({
+                cities: "",
+                branchName: "",
+                latitude: 0.0,
+                longitude: 0.0,
+                deliveryPrice: 0,
+                deliveryTime: 0,
+              })
+            }
             className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
           >
             Add Branch
           </Button>
         </div>
+
         <Separator />
         <CuisinesSection />
         <Separator />

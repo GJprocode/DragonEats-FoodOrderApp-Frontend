@@ -1,10 +1,7 @@
+// src/components/OrderItemCard.tsx
+
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
 import { Badge } from "./ui/badge";
 import { Label } from "./ui/label";
@@ -15,7 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Order, OrderStatus } from "@/types";
 import { useUpdateRestaurantOrderStatus } from "@/api/MyRestaurantApi";
@@ -26,10 +29,13 @@ type Props = {
 };
 
 const OrderItemCard = ({ order }: Props) => {
-  const { mutate: updateRestaurantStatus, isLoading } = useUpdateRestaurantOrderStatus();
+  const { mutate: updateRestaurantStatus, isLoading } =
+    useUpdateRestaurantOrderStatus();
   const [status, setStatus] = useState<OrderStatus>(order.status);
   const [showDialog, setShowDialog] = useState(false);
-  const [dialogType, setDialogType] = useState<"rejected" | "resolved" | null>(null);
+  const [dialogType, setDialogType] = useState<"rejected" | "resolved" | null>(
+    null
+  );
   const [defaultMessage, setDefaultMessage] = useState("");
 
   useEffect(() => {
@@ -52,7 +58,7 @@ const OrderItemCard = ({ order }: Props) => {
       alert("Invalid status transition.");
       return;
     }
-  
+
     const isBeforePay = ["placed", "confirmed"].includes(order.status);
     const defaultMessages = {
       rejected: isBeforePay
@@ -62,9 +68,12 @@ const OrderItemCard = ({ order }: Props) => {
         ? "Order resolved before payment, no refund needed."
         : "Order resolved after payment, refund paid.",
     };
-  
-    const dialogMessage = newStatus === "rejected" ? defaultMessages.rejected : defaultMessages.resolved;
-  
+
+    const dialogMessage =
+      newStatus === "rejected"
+        ? defaultMessages.rejected
+        : defaultMessages.resolved;
+
     if (newStatus === "rejected" || newStatus === "resolved") {
       setDialogType(newStatus);
       setDefaultMessage(dialogMessage);
@@ -73,7 +82,6 @@ const OrderItemCard = ({ order }: Props) => {
       updateOrder(newStatus);
     }
   };
-  
 
   const updateOrder = async (newStatus: OrderStatus) => {
     try {
@@ -86,31 +94,30 @@ const OrderItemCard = ({ order }: Props) => {
           ? "Order resolved before payment, no refund needed."
           : "Order resolved after payment, refund paid.",
       };
-  
-      const message = newStatus === "rejected" ? defaultMessages.rejected : defaultMessages.resolved;
-  
+
+      const message =
+        newStatus === "rejected"
+          ? defaultMessages.rejected
+          : defaultMessages.resolved;
+
       const updatePayload = {
         orderId: order._id,
         status: newStatus,
         ...(newStatus === "rejected" && { message }),
         ...(newStatus === "resolved" && { message }),
       };
-  
+
       await updateRestaurantStatus(updatePayload);
-  
-      // Trigger toaster only if status changes
+
       if (newStatus !== status) {
         toast.success("Order status updated");
       }
-  
+
       setStatus(newStatus);
     } catch (error) {
-      console.error("Failed to update status:", error);
       toast.error("Failed to update order status");
     }
   };
-  
-  
 
   const formatDate = (date: string | undefined) => {
     if (!date) return "N/A";
@@ -123,9 +130,13 @@ const OrderItemCard = ({ order }: Props) => {
       (total, item) => total + item.price * item.quantity,
       0
     );
-    const deliveryPrice = order.restaurant.deliveryPrice || 0;
+    const deliveryPrice = order.branchDetails?.deliveryPrice ?? 0;
     return ((itemsTotal + deliveryPrice) / 100).toFixed(2);
   };
+
+  // Extract delivery details
+  const deliveryPrice = order.branchDetails?.deliveryPrice ?? 0;
+  const deliveryTime = order.branchDetails?.deliveryTime ?? 0; // Ensure deliveryTime is defined
 
   return (
     <>
@@ -133,35 +144,36 @@ const OrderItemCard = ({ order }: Props) => {
         <CardHeader>
           <CardTitle className="grid md:grid-cols-4 gap-4 justify-between mb-3">
             <div>
-              Customer Name:
+              <strong>Customer Name:</strong>
               <span className="ml-2 font-normal">{order.deliveryDetails.name}</span>
             </div>
             <div>
-              Delivery Address:
+              <strong>Delivery Address:</strong>
               <span className="ml-2 font-normal">
                 {order.deliveryDetails.address}, {order.deliveryDetails.city}
               </span>
             </div>
             <div>
-              Restaurant Contact:
+              <strong>Restaurant Contact:</strong>
               <span className="ml-2 font-normal">{order.restaurant.cellphone}</span>
             </div>
             <div>
-              Restaurant Name:
+              <strong>Restaurant Name:</strong>
               <span className="ml-2 font-normal">{order.restaurantName}</span>
             </div>
             <div>
-              Branch Name:
+              <strong>Branch Name:</strong>
               <span className="ml-2 font-normal">{order.branchDetails?.branchName}</span>
             </div>
             <div>
-              Total Cost:
+              <strong>Total Cost:</strong>
               <span className="ml-2 font-normal">${calculateTotalAmount()}</span>
             </div>
           </CardTitle>
           <Separator />
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
+          {/* Ordered On and Delivered On */}
           <div className="flex flex-col gap-2">
             <div>
               <strong>Ordered on:</strong> {formatDate(order.createdAt)}
@@ -172,6 +184,25 @@ const OrderItemCard = ({ order }: Props) => {
               </div>
             )}
           </div>
+
+          <div>
+                <strong>Delivered on:</strong> {formatDate(order.dateDelivered)}
+          </div>
+
+          {/* Delivery Cost and Delivery Time */}
+          <div className="flex flex-col gap-2">
+            
+            <div>
+              <strong>Estimated Delivery Time:</strong> {deliveryTime} min
+            </div>
+          </div>
+          <div>
+              <strong>Delivery Cost:</strong> ${(deliveryPrice / 100).toFixed(2)}
+          </div>
+
+          <Separator />
+
+          {/* Menu Items */}
           <div className="flex flex-col gap-2">
             {order.cartItems.map((cartItem) => (
               <span key={cartItem.menuItemId}>
@@ -182,6 +213,10 @@ const OrderItemCard = ({ order }: Props) => {
               </span>
             ))}
           </div>
+
+          <Separator />
+
+          {/* Order Status */}
           <div className="flex flex-col space-y-1.5">
             <Label htmlFor="status">Order Status:</Label>
             <Select
@@ -208,6 +243,7 @@ const OrderItemCard = ({ order }: Props) => {
         </CardContent>
       </Card>
 
+      {/* Confirmation Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>

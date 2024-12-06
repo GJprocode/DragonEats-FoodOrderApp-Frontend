@@ -10,68 +10,29 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Restaurant } from "@/types";
-import { calculateDeliveryDetails } from "@/lib/deliveryUtils"; // Utility function for delivery calculations
 
 type DetailsSectionProps = {
   restaurant?: Restaurant | null;
-  currentUserEmail?: string; // Add currentUserEmail prop
-  userLocation?: { latitude: number; longitude: number }; // Add userLocation prop
+  currentUserEmail?: string;
 };
 
 const DetailsSection: React.FC<DetailsSectionProps> = ({
   restaurant,
   currentUserEmail,
-  userLocation,
 }) => {
-  const { control, setValue, watch } = useFormContext();
-
-  const branchesInfo = watch("branchesInfo"); // Watch branchesInfo array
+  const { control, setValue } = useFormContext();
 
   useEffect(() => {
-    // Set the email field to the logged-in user's email
-    setValue("email", currentUserEmail);
+    // console.log("DetailsSection useEffect - restaurant:", restaurant);
+    // console.log("DetailsSection useEffect - currentUserEmail:", currentUserEmail);
 
-    // Pre-fill form values if restaurant data is provided
-    if (restaurant) {
-      setValue("restaurantName", restaurant.restaurantName || "");
-      setValue("cellphone", restaurant.cellphone || "");
-      setValue("country", restaurant.country || "");
-      setValue("deliveryPrice", restaurant.deliveryPrice || 0);
-      setValue("estimatedDeliveryTime", restaurant.estimatedDeliveryTime || 0);
-      setValue(
-        "branchesInfo",
-        restaurant.branchesInfo.map(
-          (
-            branch: {
-              cities: string;
-              branchName: string;
-              latitude: number;
-              longitude: number;
-            },
-            index: number
-          ) => ({
-            cities: branch.cities,
-            branchName: branch.branchName || `Branch ${index + 1}`,
-            latitude: branch.latitude || 0.0,
-            longitude: branch.longitude || 0.0,
-          })
-        )
-      );
-    }
+    setValue("email", currentUserEmail || "");
+    setValue("restaurantName", restaurant?.restaurantName || "");
+    setValue("cellphone", restaurant?.cellphone || "");
+    setValue("country", restaurant?.country || "");
+    // Do NOT set branchesInfo here!
   }, [restaurant, currentUserEmail, setValue]);
 
-  useEffect(() => {
-    if (branchesInfo && userLocation) {
-      const { price, time, distance } = calculateDeliveryDetails(
-        branchesInfo,
-        userLocation,
-        "restaurant" // Or "wholesale" depending on the use case
-      );
-      setValue("deliveryPrice", price);
-      setValue("estimatedDeliveryTime", time);
-    }
-  }, [branchesInfo, userLocation, setValue]);
-  
   return (
     <div className="space-y-6">
       <div>
@@ -86,16 +47,13 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  readOnly
-                  className="bg-gray-200 cursor-not-allowed" // Lock and grey out the field
-                />
+                <Input {...field} readOnly className="bg-gray-200 cursor-not-allowed" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={control}
           name="restaurantName"
@@ -103,10 +61,7 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({
             <FormItem>
               <FormLabel>Restaurant Name</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  className="bg-white border-gray-300 rounded-md"
-                />
+                <Input {...field} className="bg-white border-gray-300 rounded-md" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -121,16 +76,13 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({
             <FormItem>
               <FormLabel>Cellphone Number</FormLabel>
               <FormControl>
-                <Input
-                  type="tel"
-                  {...field}
-                  className="bg-white border-gray-300 rounded-md"
-                />
+                <Input type="tel" {...field} className="bg-white border-gray-300 rounded-md" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={control}
           name="country"
@@ -138,54 +90,14 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({
             <FormItem>
               <FormLabel>Country</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  className="bg-white border-gray-300 rounded-md"
-                />
+                <Input {...field} className="bg-white border-gray-300 rounded-md" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
-          control={control}
-          name="deliveryPrice"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Delivery Price ($)</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  readOnly
-                  className="bg-gray-200 cursor-not-allowed" // Lock and grey out the field
-                  placeholder="0.00"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="estimatedDeliveryTime"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Estimated Delivery Time (minutes)</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  readOnly
-                  className="bg-gray-200 cursor-not-allowed" // Lock and grey out the field
-                  placeholder="0"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+
       <FormField
         control={control}
         name="wholesale"
@@ -195,7 +107,7 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({
             <FormControl>
               <Input
                 type="checkbox"
-                checked={field.value}
+                checked={!!field.value}
                 onChange={(e) => field.onChange(e.target.checked)}
                 className="h-4 w-4 text-blue-600 border-gray-300 rounded"
               />

@@ -11,8 +11,12 @@ const SearchResultCard = ({ branch }: Props) => {
 
   const handleClick = () => {
     console.log(`Navigating to details page for branch: ${branch.branchName}`);
-    navigate(`/detail/${branch.restaurantId}`, { state: { branch } }); // Pass branch as state
+    navigate(`/detail/${branch.restaurantId}`, { state: { branch } });
   };
+
+  // Use branch.deliveryPrice and branch.deliveryTime, defaulting to 0 if undefined
+  const deliveryTime = branch.deliveryTime ?? 0;
+  const deliveryPrice = branch.deliveryPrice ?? 0;
 
   return (
     <div
@@ -43,8 +47,8 @@ const SearchResultCard = ({ branch }: Props) => {
         </div>
         <div className="mt-3 text-sm">
           <p>{branch.wholesale ? "Wholesale" : "Restaurant"}</p>
-          <p>{branch.estimatedDeliveryTime} mins flying time</p>
-          <p>Delivery fee ${(branch.deliveryPrice / 100).toFixed(2)}</p>
+          <p>{deliveryTime} mins flying time</p>
+          <p>Delivery fee ${(deliveryPrice / 100).toFixed(2)}</p>
         </div>
       </div>
     </div>

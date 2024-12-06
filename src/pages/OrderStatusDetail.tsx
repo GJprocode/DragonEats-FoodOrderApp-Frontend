@@ -1,4 +1,5 @@
-import { Order} from "@/types";
+import React from "react";
+import { Order } from "@/types";
 import { Separator } from "@/components/ui/separator";
 
 type Props = {
@@ -17,9 +18,13 @@ const OrderStatusDetail = ({ order }: Props) => {
       (total, item) => total + item.price * item.quantity,
       0
     );
-    const deliveryPrice = order.restaurant.deliveryPrice || 0;
+    // Use branchDetails for deliveryPrice and time. Default to 0 if missing
+    const deliveryPrice = order.branchDetails?.deliveryPrice ?? 0;
     return ((itemsTotal + deliveryPrice) / 100).toFixed(2);
   };
+
+  const deliveryPrice = order.branchDetails?.deliveryPrice ?? 0;
+  const deliveryTime = order.branchDetails?.deliveryTime ?? 0;
 
   return (
     <div className="space-y-5">
@@ -67,15 +72,27 @@ const OrderStatusDetail = ({ order }: Props) => {
             <strong>Delivered on:</strong> {formatDate(order.dateDelivered)}
           </div>
         )}
+
+      <div>
+            <strong>Delivered on:</strong> {formatDate(order.dateDelivered)}
+          </div>  
       </div>
 
+       {/* Delivery Time */}
+       <div className="flex flex-col">
+        <span className="font-bold">Estimated Delivery Time:</span>
+        <span>{deliveryTime} min</span>
+      </div>
+
+      <Separator className="my-3 border-t-2 border-gray-500" />
 
       {/* Delivery Cost */}
       <div className="flex flex-col">
         <span className="font-bold">Delivery Cost:</span>
-        <span>${(order.restaurant.deliveryPrice / 100).toFixed(2)}</span>
+        <span>${(deliveryPrice / 100).toFixed(2)}</span>
       </div>
 
+     
       <Separator className="my-3 border-t-2 border-gray-500" />
 
       {/* Total Amount */}
@@ -86,6 +103,5 @@ const OrderStatusDetail = ({ order }: Props) => {
     </div>
   );
 };
-
 
 export default OrderStatusDetail;

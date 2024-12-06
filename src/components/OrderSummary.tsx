@@ -14,14 +14,16 @@ type Props = {
 };
 
 const OrderSummary = ({ restaurant, branch, cartItems, removeFromCart }: Props) => {
+  // If branch is null, default to 0
+  const deliveryPrice = branch ? branch.deliveryPrice ?? 0 : 0;
+  const deliveryTime = branch ? branch.deliveryTime ?? 0 : 0;
+
   const getTotalCost = () => {
     const totalInCents = cartItems.reduce(
       (total, cartItem) => total + cartItem.price * cartItem.quantity,
       0
     );
-
-    const totalWithDelivery = totalInCents + restaurant.deliveryPrice;
-
+    const totalWithDelivery = totalInCents + deliveryPrice;
     return (totalWithDelivery / 100).toFixed(2);
   };
 
@@ -42,7 +44,7 @@ const OrderSummary = ({ restaurant, branch, cartItems, removeFromCart }: Props) 
             </>
           )}
           <span className="text-sm text-gray-600">
-            Estimated Delivery: {restaurant.estimatedDeliveryTime} min
+            Estimated Delivery: {deliveryTime} min
           </span>
         </div>
       </CardHeader>
@@ -62,14 +64,14 @@ const OrderSummary = ({ restaurant, branch, cartItems, removeFromCart }: Props) 
                 size={20}
                 onClick={() => removeFromCart(item)}
               />
-              ${((item.price * item.quantity) / 100).toFixed(2)}
+              ${(item.price * item.quantity / 100).toFixed(2)}
             </span>
           </div>
         ))}
         <Separator />
         <div className="flex justify-between">
           <span>Delivery Cost:</span>
-          <span>${(restaurant.deliveryPrice / 100).toFixed(2)}</span>
+          <span>${(deliveryPrice / 100).toFixed(2)}</span>
         </div>
         <Separator />
         <div className="flex justify-between font-bold text-lg">
