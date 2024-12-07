@@ -1,3 +1,5 @@
+// frontend/src/forms/manage-restaurant-form/ManageRestaurantForm.tsx
+
 import React, { useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
@@ -34,7 +36,7 @@ const formSchema = z.object({
   menuItems: z.array(
     z.object({
       name: z.string().min(1, "Menu item name is required"),
-      price: z.coerce.number().min(1, "Price is required"),
+      price: z.coerce.number().min(0.01, "Price must be at least $0.01"), // Allow prices below $1
       imageUrl: z.string().optional(),
       imageFile: z.instanceof(File).optional(),
     })
@@ -86,13 +88,24 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
 
   useEffect(() => {
     if (restaurant) {
-      // console.log("ManageRestaurantForm useEffect - received restaurant:", restaurant);
-      // Directly reset form with the plain JSON restaurant
-      form.reset(restaurant);
-      replace(restaurant.branchesInfo);
-
-      // console.log("After form.reset and replace:");
-      // console.log("form.getValues('branchesInfo'):", form.getValues("branchesInfo"));
+      form.reset({
+        ...restaurant,
+        branchesInfo: restaurant.branchesInfo.map((branch) => ({
+          ...branch,
+          deliveryPrice: branch.deliveryPrice , // Convert cents to dollars
+          deliveryTime: branch.deliveryTime,
+        })),
+        menuItems: restaurant.menuItems.map((item) => ({
+          ...item,
+          price: item.price , // Convert cents to dollars
+          imageFile: undefined, // Reset imageFile to allow uploading new images
+        })),
+      });
+      replace(restaurant.branchesInfo.map((branch) => ({
+        ...branch,
+        deliveryPrice: branch.deliveryPrice ,
+        deliveryTime: branch.deliveryTime,
+      })));
     }
   }, [restaurant, form, replace]);
 
@@ -112,13 +125,17 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
   };
 
   const onSubmit = async (data: RestaurantFormData) => {
-    // console.log("ManageRestaurantForm onSubmit - data:", data);
+    console.log("ManageRestaurantForm onSubmit - data:", data);
+    // Create a new FormData instance
     const formData = new FormData();
+
+    // Append basic restaurant information
     formData.append("restaurantName", data.restaurantName);
     formData.append("cellphone", data.cellphone);
     formData.append("country", data.country);
-    formData.append("wholesale", data.wholesale ? "true" : "false");
+    formData.append("wholesale", data.wholesale ? "true" : "false"); // Append as string
 
+    // Append branchesInfo
     data.branchesInfo.forEach((branch, index) => {
       formData.append(`branchesInfo[${index}][cities]`, branch.cities);
       formData.append(`branchesInfo[${index}][branchName]`, branch.branchName);
@@ -128,26 +145,32 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
       formData.append(`branchesInfo[${index}][deliveryTime]`, (branch.deliveryTime ?? 0).toString());
     });
 
+    // Append cuisines
     data.cuisines.forEach((cuisine, index) => {
       formData.append(`cuisines[${index}]`, cuisine);
     });
 
+    // Append menuItems with corrected field names for images
     data.menuItems.forEach((menuItem, index) => {
       formData.append(`menuItems[${index}][name]`, menuItem.name);
       formData.append(`menuItems[${index}][price]`, menuItem.price.toString());
+
       if (menuItem.imageFile) {
-        formData.append(`menuItems[${index}][imageFile]`, menuItem.imageFile);
+        // Corrected field name with dot notation
+        formData.append(`menuItems[${index}].menuItemImageFile`, menuItem.imageFile);
       } else if (menuItem.imageUrl) {
         formData.append(`menuItems[${index}][imageUrl]`, menuItem.imageUrl);
       }
     });
 
+    // Append restaurant image with correct field name
     if (data.imageFile) {
-      formData.append("imageFile", data.imageFile);
+      formData.append("restaurantImageFile", data.imageFile);
     } else if (data.imageUrl) {
       formData.append("imageUrl", data.imageUrl);
     }
 
+    // Submit the form data
     onSave(formData);
   };
 
@@ -175,39 +198,39 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
             <div key={field.id} className="flex flex-col md:flex-row gap-2 items-center">
               <input
                 {...form.register(`branchesInfo.${index}.cities`)}
-                className="border rounded p-2 w-full md:w-1/6"
+                className="border rounded p-2 w-full md:w-1/6 cursor-text"
                 placeholder="City Name"
               />
               <input
                 {...form.register(`branchesInfo.${index}.branchName`)}
-                className="border rounded p-2 w-full md:w-1/6"
+                className="border rounded p-2 w-full md:w-1/6 cursor-text"
                 placeholder="Branch Name"
               />
               <input
                 {...form.register(`branchesInfo.${index}.latitude`, { valueAsNumber: true })}
                 placeholder="Latitude"
-                className="border rounded p-2 w-full md:w-1/6"
+                className="border rounded p-2 w-full md:w-1/6 cursor-ns-resize"
               />
               <input
                 {...form.register(`branchesInfo.${index}.longitude`, { valueAsNumber: true })}
                 placeholder="Longitude"
-                className="border rounded p-2 w-full md:w-1/6"
+                className="border rounded p-2 w-full md:w-1/6 cursor-ew-resize"
               />
               <input
                 {...form.register(`branchesInfo.${index}.deliveryPrice`, { valueAsNumber: true })}
                 placeholder="Delivery Price ($)"
-                className="border rounded p-2 w-full md:w-1/6"
+                className="border rounded p-2 w-full md:w-1/6 cursor-text"
               />
               <input
                 {...form.register(`branchesInfo.${index}.deliveryTime`, { valueAsNumber: true })}
                 placeholder="Delivery Time"
-                className="border rounded p-2 w-full md:w-1/6"
+                className="border rounded p-2 w-full md:w-1/6 cursor-text"
               />
               <div className="w-full md:w-1/6">
                 <Button
                   type="button"
                   onClick={() => remove(index)}
-                  className="bg-red-500 text-white text-xs px-2 py-1"
+                  className="bg-red-500 text-white text-xs px-2 py-1 cursor-pointer"
                 >
                   Remove
                 </Button>
@@ -226,7 +249,7 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
                 deliveryTime: 0,
               })
             }
-            className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
+            className="mt-2 bg-blue-500 text-white px-4 py-2 rounded cursor-pointer"
           >
             Add Branch
           </Button>
@@ -254,7 +277,9 @@ const ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }
           </div>
         </div>
         <Separator />
-        <div className="flex justify-start">{isLoading ? <LoadingButton /> : <Button type="submit">Submit</Button>}</div>
+        <div className="flex justify-start">
+          {isLoading ? <LoadingButton /> : <Button type="submit" className="cursor-pointer">Submit</Button>}
+        </div>
       </form>
     </Form>
   );

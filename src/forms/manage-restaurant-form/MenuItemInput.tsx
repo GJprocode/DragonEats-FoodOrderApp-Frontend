@@ -1,8 +1,17 @@
+// frontend/src/components/MenuItemInput.tsx
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useFormContext } from "react-hook-form";
+import { toast } from "sonner";
 
 type Props = {
   index: number;
@@ -25,6 +34,19 @@ const MenuItemInput = ({ index, removeMenuItem }: Props) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast.error("Only image files are allowed.");
+        return;
+      }
+
+      // Validate file size (e.g., max 5MB)
+      const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSizeInBytes) {
+        toast.error("Image size should not exceed 5MB.");
+        return;
+      }
+
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
       setValue(`menuItems.${index}.imageFile`, file);
@@ -55,7 +77,9 @@ const MenuItemInput = ({ index, removeMenuItem }: Props) => {
             name={`menuItems.${index}.name`}
             render={({ field }) => (
               <FormItem className="w-full md:w-1/2">
-                <FormLabel htmlFor={`menu-item-name-${index}`}>Menu Item Name</FormLabel>
+                <FormLabel htmlFor={`menu-item-name-${index}`}>
+                  Menu Item Name
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -74,7 +98,9 @@ const MenuItemInput = ({ index, removeMenuItem }: Props) => {
             name={`menuItems.${index}.price`}
             render={({ field }) => (
               <FormItem className="w-full md:w-1/4">
-                <FormLabel htmlFor={`menu-item-price-${index}`}>Price ($)</FormLabel>
+                <FormLabel htmlFor={`menu-item-price-${index}`}>
+                  Price ($)
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -95,8 +121,10 @@ const MenuItemInput = ({ index, removeMenuItem }: Props) => {
           <div className="flex gap-2 md:ml-2">
             <Button
               type="button"
-              onClick={() => document.getElementById(`file-input-${index}`)?.click()}
-              className="bg-blue-500 text-xs md:text-sm"
+              onClick={() =>
+                document.getElementById(`file-input-${index}`)?.click()
+              }
+              className="bg-blue-500 text-xs md:text-sm cursor-pointer"
               aria-label="Add Image"
             >
               Add Image
@@ -106,14 +134,17 @@ const MenuItemInput = ({ index, removeMenuItem }: Props) => {
               type="file"
               accept="image/*"
               onChange={handleFileChange}
+              name={`menuItems[${index}].menuItemImageFile`} // Corrected name attribute
               className="hidden"
-              aria-label={`Upload image for ${watch(`menuItems.${index}.name`) || "Menu Item"}`}
+              aria-label={`Upload image for ${
+                watch(`menuItems.${index}.name`) || "Menu Item"
+              }`}
             />
             {currentImageFile && (
               <Button
                 type="button"
                 onClick={handleRemoveImage}
-                className="bg-red-500 text-xs md:text-sm"
+                className="bg-red-500 text-xs md:text-sm cursor-pointer"
                 aria-label="Remove Image"
               >
                 Remove Image
@@ -122,7 +153,7 @@ const MenuItemInput = ({ index, removeMenuItem }: Props) => {
             <Button
               type="button"
               onClick={removeMenuItem}
-              className="bg-red-500 text-xs md:text-sm"
+              className="bg-red-500 text-xs md:text-sm cursor-pointer"
               aria-label="Remove Menu Item"
             >
               Remove Item

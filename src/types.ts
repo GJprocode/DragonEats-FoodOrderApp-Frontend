@@ -1,5 +1,4 @@
-// C:\Users\gertf\Desktop\FoodApp\frontend\src\types.ts
-
+// frontend/src/types.ts
 
 // Types reflecting the backend model
 // src/types.ts
@@ -15,7 +14,6 @@ export type User = {
   cellphone?: string;
   userLocation?: [number, number]; // Array for [latitude, longitude]
 };
-
 
 // MenuItem type matching the backend model
 export type MenuItem = {
@@ -79,49 +77,48 @@ export type OrderStatus =
   | "rejected"
   | "resolved";
 
-  export type OrderMessage = {
-    status: "rejected" | "resolved"; // Matches the enum in the schema
-    message: string; // The content of the message
-    timestamp: string; // ISO timestamp of when the message was added
+export type OrderMessage = {
+  status: "rejected" | "resolved"; // Matches the enum in the schema
+  message: string; // The content of the message
+  timestamp: string; // ISO timestamp of when the message was added
+};
+
+export type Order = {
+  _id: string;
+  restaurant: Restaurant;
+  restaurantName: string;
+  branchDetails: {
+    branchName: string;
+    city: string;
+    latitude: number;
+    longitude: number;
+    deliveryPrice?: number;
+    deliveryTime?: number;
   };
-  
-  export type Order = {
-    _id: string;
-    restaurant: Restaurant;
-    restaurantName: string;
-    branchDetails: {
-      branchName: string;
-      city: string;
-      latitude: number;
-      longitude: number;
-      deliveryPrice?: number;
-      deliveryTime?: number;
-    };
-    user: User;
-    cartItems: {
-      menuItemId: string;
-      name: string;
-      quantity: number;
-      price: number;
-    }[];
-    deliveryDetails: {
-      name: string;
-      address: string;
-      city: string;
-      email: string;
-      cellphone: string;
-    };
-    totalAmount: number;
-    status: "placed" | "confirmed" | "paid" | "inProgress" | "outForDelivery" | "delivered" | "rejected" | "resolved";
-    messages?: OrderMessage[];
-    rejectionMessage?: { message: string; timestamp: string };
-    resolutionMessage?: { message: string; timestamp: string };
-    dateDelivered?: string;
-    createdAt: string;
-    updatedAt?: string;
+  user: User;
+  cartItems: {
+    menuItemId: string;
+    name: string;
+    quantity: number;
+    price: number;
+  }[];
+  deliveryDetails: {
+    name: string;
+    address: string;
+    city: string;
+    email: string;
+    cellphone: string;
   };
-  
-  
+  totalAmount: number;
+  status: OrderStatus;
+  messages?: OrderMessage[];
+  rejectionMessage?: { message: string; timestamp: string };
+  resolutionMessage?: { message: string; timestamp: string };
+  dateDelivered?: string;
+  createdAt: string;
+  updatedAt?: string;
+};
+
 // Pagination interface updated to include totalBranches and totalRestaurants
 export interface Pagination {
   totalRestaurants: number;
@@ -135,5 +132,3 @@ export interface RestaurantSearchResponse {
   data: Restaurant[];
   pagination: Pagination;
 }
-
-

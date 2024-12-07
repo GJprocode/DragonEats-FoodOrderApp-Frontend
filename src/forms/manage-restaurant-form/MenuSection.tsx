@@ -1,3 +1,5 @@
+// frontend/src/components/MenuSection.tsx
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { FormDescription, FormField, FormItem } from "@/components/ui/form";
@@ -38,8 +40,10 @@ const MenuSection = () => {
       />
       <Button
         type="button"
-        onClick={() => append({ name: "", price: 0, imageFile: undefined, imageUrl: "" })}
-        className="bg-green-600 text-white mt-4 md:mt-0"
+        onClick={() =>
+          append({ name: "", price: 0, imageFile: undefined, imageUrl: "" })
+        }
+        className="bg-green-600 text-white mt-4 md:mt-0 cursor-pointer"
       >
         Add Menu Item
       </Button>
