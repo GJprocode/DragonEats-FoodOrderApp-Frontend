@@ -85,6 +85,8 @@ const OrderItemCard = ({ order }: Props) => {
 
   const updateOrder = async (newStatus: OrderStatus) => {
     try {
+      console.log("Attempting to update order status:", { orderId: order._id, newStatus });
+  
       const isBeforePay = ["placed", "confirmed"].includes(order.status);
       const defaultMessages = {
         rejected: isBeforePay
@@ -94,30 +96,34 @@ const OrderItemCard = ({ order }: Props) => {
           ? "Order resolved before payment, no refund needed."
           : "Order resolved after payment, refund paid.",
       };
-
+  
       const message =
         newStatus === "rejected"
           ? defaultMessages.rejected
           : defaultMessages.resolved;
-
+  
       const updatePayload = {
         orderId: order._id,
         status: newStatus,
         ...(newStatus === "rejected" && { message }),
         ...(newStatus === "resolved" && { message }),
       };
-
+  
+      console.log("Payload for updateRestaurantStatus API call:", updatePayload);
       await updateRestaurantStatus(updatePayload);
-
+  
       if (newStatus !== status) {
+        console.log("Order status updated successfully:", { newStatus });
         toast.success("Order status updated");
       }
-
+  
       setStatus(newStatus);
     } catch (error) {
+      console.error("Failed to update order status:", error);
       toast.error("Failed to update order status");
     }
   };
+  
 
   const formatDate = (date: string | undefined) => {
     if (!date) return "N/A";

@@ -33,13 +33,15 @@ const OrderStatusHeader: React.FC<Props> = ({ order }) => {
   const showPopupOnStatusChange = useCallback(
     (status: string) => {
       const toastKey = `toast-${order._id}-${status}`;
+      console.log("Checking toast condition for status:", { orderId: order._id, status });
   
-      // Prevent duplicate toasts for the same status
       if (localStorage.getItem(toastKey)) {
+        console.log("Toast already shown for this status");
         return;
       }
   
       if (status === "confirmed") {
+        console.log("Order confirmed, showing payment button notification");
         toast.success(
           "Your order has been confirmed. Please click the green button to proceed with payment."
         );
@@ -55,10 +57,11 @@ const OrderStatusHeader: React.FC<Props> = ({ order }) => {
         );
       }
   
-      localStorage.setItem(toastKey, "true"); // Mark the toast as shown
+      localStorage.setItem(toastKey, "true");
     },
     [order.rejectionMessage, order.resolutionMessage, order._id]
   );
+  
   
 
   useEffect(() => {

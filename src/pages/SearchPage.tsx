@@ -51,8 +51,8 @@ const SearchPage = () => {
       restaurantName: restaurant.restaurantName,
       cuisines: restaurant.cuisines,
       wholesale: restaurant.wholesale ?? false,
-      estimatedDeliveryTime: restaurant.estimatedDeliveryTime,
-      deliveryPrice: restaurant.deliveryPrice,
+      estimatedDeliveryTime: branch.deliveryTime,
+      deliveryPrice: branch.deliveryPrice,
     }))
   );
 
