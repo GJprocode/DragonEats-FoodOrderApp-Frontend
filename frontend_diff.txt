@@ -1,0 +1,418 @@
+[1mdiff --git a/src/forms/manage-restaurant-form/ManageRestaurantForm.tsx b/src/forms/manage-restaurant-form/ManageRestaurantForm.tsx[m
+[1mindex a7918af..feb5e0a 100644[m
+[1m--- a/src/forms/manage-restaurant-form/ManageRestaurantForm.tsx[m
+[1m+++ b/src/forms/manage-restaurant-form/ManageRestaurantForm.tsx[m
+[36m@@ -1,5 +1,3 @@[m
+[31m-// frontend/src/forms/manage-restaurant-form/ManageRestaurantForm.tsx[m
+[31m-[m
+ import React, { useEffect } from "react";[m
+ import { useForm, useFieldArray } from "react-hook-form";[m
+ import { z } from "zod";[m
+[36m@@ -36,7 +34,7 @@[m [mconst formSchema = z.object({[m
+   menuItems: z.array([m
+     z.object({[m
+       name: z.string().min(1, "Menu item name is required"),[m
+[31m-      price: z.coerce.number().min(0.01, "Price must be at least $0.01"), // Allow prices below $1[m
+[32m+[m[32m      price: z.coerce.number().min(1, "Price is required"),[m
+       imageUrl: z.string().optional(),[m
+       imageFile: z.instanceof(File).optional(),[m
+     })[m
+[36m@@ -88,24 +86,13 @@[m [mconst ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }[m
+ [m
+   useEffect(() => {[m
+     if (restaurant) {[m
+[31m-      form.reset({[m
+[31m-        ...restaurant,[m
+[31m-        branchesInfo: restaurant.branchesInfo.map((branch) => ({[m
+[31m-          ...branch,[m
+[31m-          deliveryPrice: branch.deliveryPrice , // Convert cents to dollars[m
+[31m-          deliveryTime: branch.deliveryTime,[m
+[31m-        })),[m
+[31m-        menuItems: restaurant.menuItems.map((item) => ({[m
+[31m-          ...item,[m
+[31m-          price: item.price , // Convert cents to dollars[m
+[31m-          imageFile: undefined, // Reset imageFile to allow uploading new images[m
+[31m-        })),[m
+[31m-      });[m
+[31m-      replace(restaurant.branchesInfo.map((branch) => ({[m
+[31m-        ...branch,[m
+[31m-        deliveryPrice: branch.deliveryPrice ,[m
+[31m-        deliveryTime: branch.deliveryTime,[m
+[31m-      })));[m
+[32m+[m[32m      // console.log("ManageRestaurantForm useEffect - received restaurant:", restaurant);[m
+[32m+[m[32m      // Directly reset form with the plain JSON restaurant[m
+[32m+[m[32m      form.reset(restaurant);[m
+[32m+[m[32m      replace(restaurant.branchesInfo);[m
+[32m+[m
+[32m+[m[32m      // console.log("After form.reset and replace:");[m
+[32m+[m[32m      // console.log("form.getValues('branchesInfo'):", form.getValues("branchesInfo"));[m
+     }[m
+   }, [restaurant, form, replace]);[m
+ [m
+[36m@@ -125,17 +112,13 @@[m [mconst ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }[m
+   };[m
+ [m
+   const onSubmit = async (data: RestaurantFormData) => {[m
+[31m-    console.log("ManageRestaurantForm onSubmit - data:", data);[m
+[31m-    // Create a new FormData instance[m
+[32m+[m[32m    // console.log("ManageRestaurantForm onSubmit - data:", data);[m
+     const formData = new FormData();[m
+[31m-[m
+[31m-    // Append basic restaurant information[m
+     formData.append("restaurantName", data.restaurantName);[m
+     formData.append("cellphone", data.cellphone);[m
+     formData.append("country", data.country);[m
+[31m-    formData.append("wholesale", data.wholesale ? "true" : "false"); // Append as string[m
+[32m+[m[32m    formData.append("wholesale", data.wholesale ? "true" : "false");[m
+ [m
+[31m-    // Append branchesInfo[m
+     data.branchesInfo.forEach((branch, index) => {[m
+       formData.append(`branchesInfo[${index}][cities]`, branch.cities);[m
+       formData.append(`branchesInfo[${index}][branchName]`, branch.branchName);[m
+[36m@@ -145,32 +128,26 @@[m [mconst ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }[m
+       formData.append(`branchesInfo[${index}][deliveryTime]`, (branch.deliveryTime ?? 0).toString());[m
+     });[m
+ [m
+[31m-    // Append cuisines[m
+     data.cuisines.forEach((cuisine, index) => {[m
+       formData.append(`cuisines[${index}]`, cuisine);[m
+     });[m
+ [m
+[31m-    // Append menuItems with corrected field names for images[m
+     data.menuItems.forEach((menuItem, index) => {[m
+       formData.append(`menuItems[${index}][name]`, menuItem.name);[m
+       formData.append(`menuItems[${index}][price]`, menuItem.price.toString());[m
+[31m-[m
+       if (menuItem.imageFile) {[m
+[31m-        // Corrected field name with dot notation[m
+[31m-        formData.append(`menuItems[${index}].menuItemImageFile`, menuItem.imageFile);[m
+[32m+[m[32m        formData.append(`menuItems[${index}][imageFile]`, menuItem.imageFile);[m
+       } else if (menuItem.imageUrl) {[m
+         formData.append(`menuItems[${index}][imageUrl]`, menuItem.imageUrl);[m
+       }[m
+     });[m
+ [m
+[31m-    // Append restaurant image with correct field name[m
+     if (data.imageFile) {[m
+[31m-      formData.append("restaurantImageFile", data.imageFile);[m
+[32m+[m[32m      formData.append("imageFile", data.imageFile);[m
+     } else if (data.imageUrl) {[m
+       formData.append("imageUrl", data.imageUrl);[m
+     }[m
+ [m
+[31m-    // Submit the form data[m
+     onSave(formData);[m
+   };[m
+ [m
+[36m@@ -198,39 +175,39 @@[m [mconst ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }[m
+             <div key={field.id} className="flex flex-col md:flex-row gap-2 items-center">[m
+               <input[m
+                 {...form.register(`branchesInfo.${index}.cities`)}[m
+[31m-                className="border rounded p-2 w-full md:w-1/6 cursor-text"[m
+[32m+[m[32m                className="border rounded p-2 w-full md:w-1/6"[m
+                 placeholder="City Name"[m
+               />[m
+               <input[m
+                 {...form.register(`branchesInfo.${index}.branchName`)}[m
+[31m-                className="border rounded p-2 w-full md:w-1/6 cursor-text"[m
+[32m+[m[32m                className="border rounded p-2 w-full md:w-1/6"[m
+                 placeholder="Branch Name"[m
+               />[m
+               <input[m
+                 {...form.register(`branchesInfo.${index}.latitude`, { valueAsNumber: true })}[m
+                 placeholder="Latitude"[m
+[31m-                className="border rounded p-2 w-full md:w-1/6 cursor-ns-resize"[m
+[32m+[m[32m                className="border rounded p-2 w-full md:w-1/6"[m
+               />[m
+               <input[m
+                 {...form.register(`branchesInfo.${index}.longitude`, { valueAsNumber: true })}[m
+                 placeholder="Longitude"[m
+[31m-                className="border rounded p-2 w-full md:w-1/6 cursor-ew-resize"[m
+[32m+[m[32m                className="border rounded p-2 w-full md:w-1/6"[m
+               />[m
+               <input[m
+                 {...form.register(`branchesInfo.${index}.deliveryPrice`, { valueAsNumber: true })}[m
+                 placeholder="Delivery Price ($)"[m
+[31m-                className="border rounded p-2 w-full md:w-1/6 cursor-text"[m
+[32m+[m[32m                className="border rounded p-2 w-full md:w-1/6"[m
+               />[m
+               <input[m
+                 {...form.register(`branchesInfo.${index}.deliveryTime`, { valueAsNumber: true })}[m
+                 placeholder="Delivery Time"[m
+[31m-                className="border rounded p-2 w-full md:w-1/6 cursor-text"[m
+[32m+[m[32m                className="border rounded p-2 w-full md:w-1/6"[m
+               />[m
+               <div className="w-full md:w-1/6">[m
+                 <Button[m
+                   type="button"[m
+                   onClick={() => remove(index)}[m
+[31m-                  className="bg-red-500 text-white text-xs px-2 py-1 cursor-pointer"[m
+[32m+[m[32m                  className="bg-red-500 text-white text-xs px-2 py-1"[m
+                 >[m
+                   Remove[m
+                 </Button>[m
+[36m@@ -249,7 +226,7 @@[m [mconst ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }[m
+                 deliveryTime: 0,[m
+               })[m
+             }[m
+[31m-            className="mt-2 bg-blue-500 text-white px-4 py-2 rounded cursor-pointer"[m
+[32m+[m[32m            className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"[m
+           >[m
+             Add Branch[m
+           </Button>[m
+[36m@@ -277,9 +254,7 @@[m [mconst ManageRestaurantForm: React.FC<Props> = ({ restaurant, onSave, isLoading }[m
+           </div>[m
+         </div>[m
+         <Separator />[m
+[31m-        <div className="flex justify-start">[m
+[31m-          {isLoading ? <LoadingButton /> : <Button type="submit" className="cursor-pointer">Submit</Button>}[m
+[31m-        </div>[m
+[32m+[m[32m        <div className="flex justify-start">{isLoading ? <LoadingButton /> : <Button type="submit">Submit</Button>}</div>[m
+       </form>[m
+     </Form>[m
+   );[m
+[1mdiff --git a/src/forms/manage-restaurant-form/MenuItemInput.tsx b/src/forms/manage-restaurant-form/MenuItemInput.tsx[m
+[1mindex 43c7d40..010a3e9 100644[m
+[1m--- a/src/forms/manage-restaurant-form/MenuItemInput.tsx[m
+[1m+++ b/src/forms/manage-restaurant-form/MenuItemInput.tsx[m
+[36m@@ -1,17 +1,8 @@[m
+[31m-// frontend/src/components/MenuItemInput.tsx[m
+[31m-[m
+ import React, { useState, useEffect } from "react";[m
+ import { Button } from "@/components/ui/button";[m
+[31m-import {[m
+[31m-  FormControl,[m
+[31m-  FormField,[m
+[31m-  FormItem,[m
+[31m-  FormLabel,[m
+[31m-  FormMessage,[m
+[31m-} from "@/components/ui/form";[m
+[32m+[m[32mimport { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";[m
+ import { Input } from "@/components/ui/input";[m
+ import { useFormContext } from "react-hook-form";[m
+[31m-import { toast } from "sonner";[m
+ [m
+ type Props = {[m
+   index: number;[m
+[36m@@ -34,19 +25,6 @@[m [mconst MenuItemInput = ({ index, removeMenuItem }: Props) => {[m
+   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {[m
+     const file = e.target.files?.[0];[m
+     if (file) {[m
+[31m-      // Validate file type[m
+[31m-      if (!file.type.startsWith("image/")) {[m
+[31m-        toast.error("Only image files are allowed.");[m
+[31m-        return;[m
+[31m-      }[m
+[31m-[m
+[31m-      // Validate file size (e.g., max 5MB)[m
+[31m-      const maxSizeInBytes = 5 * 1024 * 1024; // 5MB[m
+[31m-      if (file.size > maxSizeInBytes) {[m
+[31m-        toast.error("Image size should not exceed 5MB.");[m
+[31m-        return;[m
+[31m-      }[m
+[31m-[m
+       const previewUrl = URL.createObjectURL(file);[m
+       setImagePreview(previewUrl);[m
+       setValue(`menuItems.${index}.imageFile`, file);[m
+[36m@@ -77,9 +55,7 @@[m [mconst MenuItemInput = ({ index, removeMenuItem }: Props) => {[m
+             name={`menuItems.${index}.name`}[m
+             render={({ field }) => ([m
+               <FormItem className="w-full md:w-1/2">[m
+[31m-                <FormLabel htmlFor={`menu-item-name-${index}`}>[m
+[31m-                  Menu Item Name[m
+[31m-                </FormLabel>[m
+[32m+[m[32m                <FormLabel htmlFor={`menu-item-name-${index}`}>Menu Item Name</FormLabel>[m
+                 <FormControl>[m
+                   <Input[m
+                     {...field}[m
+[36m@@ -98,9 +74,7 @@[m [mconst MenuItemInput = ({ index, removeMenuItem }: Props) => {[m
+             name={`menuItems.${index}.price`}[m
+             render={({ field }) => ([m
+               <FormItem className="w-full md:w-1/4">[m
+[31m-                <FormLabel htmlFor={`menu-item-price-${index}`}>[m
+[31m-                  Price ($)[m
+[31m-                </FormLabel>[m
+[32m+[m[32m                <FormLabel htmlFor={`menu-item-price-${index}`}>Price ($)</FormLabel>[m
+                 <FormControl>[m
+                   <Input[m
+                     {...field}[m
+[36m@@ -121,10 +95,8 @@[m [mconst MenuItemInput = ({ index, removeMenuItem }: Props) => {[m
+           <div className="flex gap-2 md:ml-2">[m
+             <Button[m
+               type="button"[m
+[31m-              onClick={() =>[m
+[31m-                document.getElementById(`file-input-${index}`)?.click()[m
+[31m-              }[m
+[31m-              className="bg-blue-500 text-xs md:text-sm cursor-pointer"[m
+[32m+[m[32m              onClick={() => document.getElementById(`file-input-${index}`)?.click()}[m
+[32m+[m[32m              className="bg-blue-500 text-xs md:text-sm"[m
+               aria-label="Add Image"[m
+             >[m
+               Add Image[m
+[36m@@ -134,17 +106,14 @@[m [mconst MenuItemInput = ({ index, removeMenuItem }: Props) => {[m
+               type="file"[m
+               accept="image/*"[m
+               onChange={handleFileChange}[m
+[31m-              name={`menuItems[${index}].menuItemImageFile`} // Corrected name attribute[m
+               className="hidden"[m
+[31m-              aria-label={`Upload image for ${[m
+[31m-                watch(`menuItems.${index}.name`) || "Menu Item"[m
+[31m-              }`}[m
+[32m+[m[32m              aria-label={`Upload image for ${watch(`menuItems.${index}.name`) || "Menu Item"}`}[m
+             />[m
+             {currentImageFile && ([m
+               <Button[m
+                 type="button"[m
+                 onClick={handleRemoveImage}[m
+[31m-                className="bg-red-500 text-xs md:text-sm cursor-pointer"[m
+[32m+[m[32m                className="bg-red-500 text-xs md:text-sm"[m
+                 aria-label="Remove Image"[m
+               >[m
+                 Remove Image[m
+[36m@@ -153,7 +122,7 @@[m [mconst MenuItemInput = ({ index, removeMenuItem }: Props) => {[m
+             <Button[m
+               type="button"[m
+               onClick={removeMenuItem}[m
+[31m-              className="bg-red-500 text-xs md:text-sm cursor-pointer"[m
+[32m+[m[32m              className="bg-red-500 text-xs md:text-sm"[m
+               aria-label="Remove Menu Item"[m
+             >[m
+               Remove Item[m
+[1mdiff --git a/src/forms/manage-restaurant-form/MenuSection.tsx b/src/forms/manage-restaurant-form/MenuSection.tsx[m
+[1mindex b636174..5b57c3b 100644[m
+[1m--- a/src/forms/manage-restaurant-form/MenuSection.tsx[m
+[1m+++ b/src/forms/manage-restaurant-form/MenuSection.tsx[m
+[36m@@ -1,5 +1,3 @@[m
+[31m-// frontend/src/components/MenuSection.tsx[m
+[31m-[m
+ import React from "react";[m
+ import { Button } from "@/components/ui/button";[m
+ import { FormDescription, FormField, FormItem } from "@/components/ui/form";[m
+[36m@@ -40,10 +38,8 @@[m [mconst MenuSection = () => {[m
+       />[m
+       <Button[m
+         type="button"[m
+[31m-        onClick={() =>[m
+[31m-          append({ name: "", price: 0, imageFile: undefined, imageUrl: "" })[m
+[31m-        }[m
+[31m-        className="bg-green-600 text-white mt-4 md:mt-0 cursor-pointer"[m
+[32m+[m[32m        onClick={() => append({ name: "", price: 0, imageFile: undefined, imageUrl: "" })}[m
+[32m+[m[32m        className="bg-green-600 text-white mt-4 md:mt-0"[m
+       >[m
+         Add Menu Item[m
+       </Button>[m
+[1mdiff --git a/src/types.ts b/src/types.ts[m
+[1mindex c03b055..b639d1a 100644[m
+[1m--- a/src/types.ts[m
+[1m+++ b/src/types.ts[m
+[36m@@ -1,4 +1,5 @@[m
+[31m-// frontend/src/types.ts[m
+[32m+[m[32m// C:\Users\gertf\Desktop\FoodApp\frontend\src\types.ts[m
+[32m+[m
+ [m
+ // Types reflecting the backend model[m
+ // src/types.ts[m
+[36m@@ -15,6 +16,7 @@[m [mexport type User = {[m
+   userLocation?: [number, number]; // Array for [latitude, longitude][m
+ };[m
+ [m
+[32m+[m
+ // MenuItem type matching the backend model[m
+ export type MenuItem = {[m
+   _id: string;[m
+[36m@@ -77,48 +79,49 @@[m [mexport type OrderStatus =[m
+   | "rejected"[m
+   | "resolved";[m
+ [m
+[31m-export type OrderMessage = {[m
+[31m-  status: "rejected" | "resolved"; // Matches the enum in the schema[m
+[31m-  message: string; // The content of the message[m
+[31m-  timestamp: string; // ISO timestamp of when the message was added[m
+[31m-};[m
+[31m-[m
+[31m-export type Order = {[m
+[31m-  _id: string;[m
+[31m-  restaurant: Restaurant;[m
+[31m-  restaurantName: string;[m
+[31m-  branchDetails: {[m
+[31m-    branchName: string;[m
+[31m-    city: string;[m
+[31m-    latitude: number;[m
+[31m-    longitude: number;[m
+[31m-    deliveryPrice?: number;[m
+[31m-    deliveryTime?: number;[m
+[32m+[m[32m  export type OrderMessage = {[m
+[32m+[m[32m    status: "rejected" | "resolved"; // Matches the enum in the schema[m
+[32m+[m[32m    message: string; // The content of the message[m
+[32m+[m[32m    timestamp: string; // ISO timestamp of when the message was added[m
+   };[m
+[31m-  user: User;[m
+[31m-  cartItems: {[m
+[31m-    menuItemId: string;[m
+[31m-    name: string;[m
+[31m-    quantity: number;[m
+[31m-    price: number;[m
+[31m-  }[];[m
+[31m-  deliveryDetails: {[m
+[31m-    name: string;[m
+[31m-    address: string;[m
+[31m-    city: string;[m
+[31m-    email: string;[m
+[31m-    cellphone: string;[m
+[32m+[m[41m  [m
+[32m+[m[32m  export type Order = {[m
+[32m+[m[32m    _id: string;[m
+[32m+[m[32m    restaurant: Restaurant;[m
+[32m+[m[32m    restaurantName: string;[m
+[32m+[m[32m    branchDetails: {[m
+[32m+[m[32m      branchName: string;[m
+[32m+[m[32m      city: string;[m
+[32m+[m[32m      latitude: number;[m
+[32m+[m[32m      longitude: number;[m
+[32m+[m[32m      deliveryPrice?: number;[m
+[32m+[m[32m      deliveryTime?: number;[m
+[32m+[m[32m    };[m
+[32m+[m[32m    user: User;[m
+[32m+[m[32m    cartItems: {[m
+[32m+[m[32m      menuItemId: string;[m
+[32m+[m[32m      name: string;[m
+[32m+[m[32m      quantity: number;[m
+[32m+[m[32m      price: number;[m
+[32m+[m[32m    }[];[m
+[32m+[m[32m    deliveryDetails: {[m
+[32m+[m[32m      name: string;[m
+[32m+[m[32m      address: string;[m
+[32m+[m[32m      city: string;[m
+[32m+[m[32m      email: string;[m
+[32m+[m[32m      cellphone: string;[m
+[32m+[m[32m    };[m
+[32m+[m[32m    totalAmount: number;[m
+[32m+[m[32m    status: "placed" | "confirmed" | "paid" | "inProgress" | "outForDelivery" | "delivered" | "rejected" | "resolved";[m
+[32m+[m[32m    messages?: OrderMessage[];[m
+[32m+[m[32m    rejectionMessage?: { message: string; timestamp: string };[m
+[32m+[m[32m    resolutionMessage?: { message: string; timestamp: string };[m
+[32m+[m[32m    dateDelivered?: string;[m
+[32m+[m[32m    createdAt: string;[m
+[32m+[m[32m    updatedAt?: string;[m
+   };[m
+[31m-  totalAmount: number;[m
+[31m-  status: OrderStatus;[m
+[31m-  messages?: OrderMessage[];[m
+[31m-  rejectionMessage?: { message: string; timestamp: string };[m
+[31m-  resolutionMessage?: { message: string; timestamp: string };[m
+[31m-  dateDelivered?: string;[m
+[31m-  createdAt: string;[m
+[31m-  updatedAt?: string;[m
+[31m-};[m
+[31m-[m
+[32m+[m[41m  [m
+[32m+[m[41m  [m
+ // Pagination interface updated to include totalBranches and totalRestaurants[m
+ export interface Pagination {[m
+   totalRestaurants: number;[m
+[36m@@ -132,3 +135,5 @@[m [mexport interface RestaurantSearchResponse {[m
+   data: Restaurant[];[m
+   pagination: Pagination;[m
+ }[m
+[41m+[m
+[41m+[m
