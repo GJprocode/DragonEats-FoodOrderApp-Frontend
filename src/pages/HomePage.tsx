@@ -13,17 +13,7 @@ const HomePage = () => {
   const [cityList, setCityList] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-
-  // bypass unknown redirect to homepage back to /order-status
-  useEffect(() => {
-    const intendedRedirect = localStorage.getItem("intendedRedirect");
-    if (intendedRedirect) {
-      localStorage.removeItem("intendedRedirect");
-      navigate(intendedRedirect, { replace: true });
-    }
-  }, [navigate]);
-
-  
+  // Fetch available cities from the backend
   useEffect(() => {
     const fetchCities = async () => {
       try {
@@ -32,17 +22,25 @@ const HomePage = () => {
           throw new Error("Failed to fetch cities");
         }
         const data = await response.json();
-        setCityList(data);
+        setCityList(data); // Set the list of cities
       } catch (error) {
         console.error("Error fetching cities:", error);
       } finally {
-        setLoading(false);
+        setLoading(false); // Set loading to false after fetch
       }
     };
-  
+
     fetchCities();
   }, []);
-  
+
+  // Bypass unknown redirects to homepage
+  useEffect(() => {
+    const intendedRedirect = localStorage.getItem("intendedRedirect");
+    if (intendedRedirect) {
+      localStorage.removeItem("intendedRedirect");
+      navigate(intendedRedirect, { replace: true });
+    }
+  }, [navigate]);
 
   const handleSearchSubmit = (searchFormValues: SearchForm) => {
     navigate({
@@ -61,7 +59,11 @@ const HomePage = () => {
         <span className="text-xl">We are earth-friendly dragons.</span>
         <h2 className="text-[10px] sm:text-xs md:text-sm">Available cities in Cambodia:</h2>
         <p className="text-[10px] sm:text-xs md:text-sm">
-          {loading ? "Loading cities..." : cityList.length > 0 ? cityList.join(", ") : "No cities available"}
+          {loading
+            ? "Loading cities..."
+            : cityList.length > 0
+            ? cityList.join(", ")
+            : "No cities available"}
         </p>
         <SearchBar
           placeHolder="Magical cities near you"

@@ -40,7 +40,8 @@ const OrderItemCard = ({ order }: Props) => {
 
   useEffect(() => {
     setStatus(order.status);
-  }, [order.status]);
+    console.log("Order data received in OrderItemCard:", order); // Debugging log
+  }, [order.status, order]);
 
   const validTransitions: Record<OrderStatus, OrderStatus[]> = {
     placed: ["confirmed", "rejected"],
@@ -55,6 +56,7 @@ const OrderItemCard = ({ order }: Props) => {
 
   const handleStatusChange = (newStatus: OrderStatus) => {
     if (!validTransitions[status]?.includes(newStatus)) {
+      console.warn("Invalid status transition:", { currentStatus: status, newStatus }); // Debugging log
       alert("Invalid status transition.");
       return;
     }
@@ -86,7 +88,8 @@ const OrderItemCard = ({ order }: Props) => {
   const updateOrder = async (newStatus: OrderStatus) => {
     try {
       console.log("Attempting to update order status:", { orderId: order._id, newStatus });
-  
+      console.log("Current order status before API call:", status); // Log current status
+
       const isBeforePay = ["placed", "confirmed"].includes(order.status);
       const defaultMessages = {
         rejected: isBeforePay
@@ -96,34 +99,35 @@ const OrderItemCard = ({ order }: Props) => {
           ? "Order resolved before payment, no refund needed."
           : "Order resolved after payment, refund paid.",
       };
-  
+
       const message =
         newStatus === "rejected"
           ? defaultMessages.rejected
           : defaultMessages.resolved;
-  
+
       const updatePayload = {
         orderId: order._id,
         status: newStatus,
         ...(newStatus === "rejected" && { message }),
         ...(newStatus === "resolved" && { message }),
       };
-  
+
       console.log("Payload for updateRestaurantStatus API call:", updatePayload);
       await updateRestaurantStatus(updatePayload);
-  
-      if (newStatus !== status) {
+      
+      if (newStatus == status) {
+        
         console.log("Order status updated successfully:", { newStatus });
         toast.success("Order status updated");
       }
-  
+
       setStatus(newStatus);
+      console.log("Updated local state to:", newStatus);
     } catch (error) {
       console.error("Failed to update order status:", error);
       toast.error("Failed to update order status");
     }
   };
-  
 
   const formatDate = (date: string | undefined) => {
     if (!date) return "N/A";
@@ -139,6 +143,8 @@ const OrderItemCard = ({ order }: Props) => {
     const deliveryPrice = order.branchDetails?.deliveryPrice ?? 0;
     return ((itemsTotal + deliveryPrice) / 100).toFixed(2);
   };
+
+ 
 
   // Extract delivery details
   const deliveryPrice = order.branchDetails?.deliveryPrice ?? 0;

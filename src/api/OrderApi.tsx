@@ -106,7 +106,6 @@ export const useCreateCheckoutSession = () => {
 export const useUpdateUserOrderStatus = () => {
   const { getAccessTokenSilently } = useAuth0();
 
-  // Wrap the mutation function
   const mutationFn = async ({
     orderId,
     status,
@@ -134,7 +133,6 @@ export const useUpdateUserOrderStatus = () => {
     return response.json();
   };
 
-  // Pass the wrapped function to useMutation
   const { mutateAsync: updateUserOrder, isLoading, error, isSuccess, reset } =
     useMutation(mutationFn);
 

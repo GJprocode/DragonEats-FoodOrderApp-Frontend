@@ -1,5 +1,7 @@
 // C:\Users\gertf\Desktop\FoodApp\frontend\src\api\MyRestaurantApi.tsx
 
+// frontend/src/api/MyRestaurantApi.tsx
+
 import { Order, Restaurant } from "@/types";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useMutation, useQuery } from "react-query";
@@ -36,7 +38,8 @@ export const useGetMyRestaurant = () => {
       throw new Error("Failed to get restaurant");
     }
 
-    return enforceHttpsUrls(await response.json());
+    const restaurant = await response.json();
+    return enforceHttpsUrls(restaurant);
   };
 
   const { data: restaurant, isLoading, refetch } = useQuery(
@@ -150,7 +153,6 @@ export const useGetRestaurantOrders = () => {
 export const useUpdateRestaurantOrderStatus = () => {
   const { getAccessTokenSilently } = useAuth0();
 
-  // Wrap the mutation function
   const mutationFn = async ({
     orderId,
     status,
@@ -162,28 +164,42 @@ export const useUpdateRestaurantOrderStatus = () => {
   }) => {
     const accessToken = await getAccessTokenSilently();
 
-    const response = await fetch(
-      `${API_BASE_URL}/api/my/restaurant/order/${orderId}/status`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status, message }),
-      }
-    );
+    const url = `${API_BASE_URL}/api/my/restaurant/order/${orderId}/status`; // Fixed URL format
+    // const url = `${API_BASE_URL}/api/my/restaurant/order/   ${orderId}/status`;
+    // This had an extra space that could lead to a broken API call.
+   // remeber when making a api call it will be broken if anyspace in string, took me 4 days
+
+//     thats it right the space Received request to update order 675841545a3627931894ac91 status to confirmed
+// [0] Before saving, order status: placed
+// [0] After saving, order status: confirmed
+// [0] Order 675841545a3627931894ac91 status updated to confirmed
+// Received request to update order    675866e6da52f8d95ac93e55 status to confirmed (this one)
+
+
+    console.log("Making API call to:", url); // Debugging log
+    console.log("Payload for API call:", { status, message }); // Debugging log
+
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status, message }),
+    });
 
     if (!response.ok) {
+      const errorResponse = await response.json();
+      console.error("Error response from API:", errorResponse); // Debugging log
       throw new Error("Failed to update restaurant order status");
     }
 
     return response.json();
   };
 
-  // Pass the wrapped function to useMutation
   return useMutation(mutationFn);
 };
+
 
 
 
